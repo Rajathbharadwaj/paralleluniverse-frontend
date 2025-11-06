@@ -1,0 +1,500 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2, Download, RefreshCw, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
+
+interface ScrapedPost {
+  content: string;
+  timestamp: string;
+  engagement: {
+    likes: number;
+    replies: number;
+    reposts: number;
+    views: number;
+  };
+  postUrl: string;
+}
+
+interface WritingStyle {
+  tone: string;
+  avg_post_length: number;
+  avg_comment_length: number;
+  uses_emojis: boolean;
+  uses_questions: boolean;
+  technical_terms: string[];
+}
+
+interface ImportResult {
+  success: boolean;
+  imported_count: number;
+  total_scraped: number;
+  writing_style: WritingStyle;
+  message: string;
+}
+
+export function ImportPostsCard() {
+  const { user } = useUser();
+  const userId = user?.id || '';
+  
+  const [isImporting, setIsImporting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentCount, setCurrentCount] = useState(0);
+  const [targetCount, setTargetCount] = useState(50);
+  const [scrapedPosts, setScrapedPosts] = useState<ScrapedPost[]>([]);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  
+  // Load cached import result on mount
+  useEffect(() => {
+    if (!userId) return;
+    
+    const cachedResult = localStorage.getItem(`import_result_${userId}`);
+    const cachedDate = localStorage.getItem(`last_import_date_${userId}`);
+    
+    if (cachedResult) {
+      try {
+        const parsed = JSON.parse(cachedResult);
+        setImportResult(parsed);
+      } catch (error) {
+        console.error('Failed to parse cached import result:', error);
+      }
+    }
+    
+    if (cachedDate) {
+      setLastImportDate(cachedDate);
+    }
+  }, [userId]);
+  const [error, setError] = useState<string | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [lastImportDate, setLastImportDate] = useState<string | null>(null);
+
+  // Connect to WebSocket with retry
+  useEffect(() => {
+    if (!userId) {
+      console.log('⚠️ No user ID, skipping WebSocket connection');
+      return;
+    }
+
+    let websocket: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
+    let isUnmounted = false;
+
+    const connect = () => {
+      if (isUnmounted) return;
+
+      try {
+        console.log(`🔌 Connecting WebSocket for user: ${userId}`);
+        websocket = new WebSocket(`ws://localhost:8002/ws/extension/${userId}`);
+        
+        websocket.onopen = () => {
+          console.log('✅ Connected to backend');
+          setWs(websocket);
+          setError(null); // Clear any previous errors
+        };
+
+        websocket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('📨 Received:', data);
+
+          if (data.type === 'SCRAPE_PROGRESS') {
+            // Real-time progress updates
+            setCurrentCount(data.current);
+            setTargetCount(data.target);
+            setProgress((data.current / data.target) * 100);
+            console.log(`📊 Progress: ${data.current}/${data.target} posts (scroll ${data.scroll})`);
+          } else if (data.type === 'SCRAPING_PROGRESS') {
+            setCurrentCount(data.current);
+            setTargetCount(data.target);
+            setProgress((data.current / data.target) * 100);
+          } else if (data.type === 'POSTS_SCRAPED') {
+            setScrapedPosts(data.posts || []);
+          } else if (data.type === 'IMPORT_COMPLETE') {
+            console.log('✅ Import complete:', data);
+            setImportResult({
+              imported: data.imported,
+              total: data.total,
+              timestamp: new Date().toISOString()
+            });
+            setIsImporting(false);
+            setLastImportDate(new Date().toISOString());
+            setProgress(100);
+            
+            // Save to localStorage
+            localStorage.setItem(`import_result_${userId}`, JSON.stringify({
+              imported: data.imported,
+              total: data.total,
+              timestamp: new Date().toISOString()
+            }));
+            localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
+          } else if (data.type === 'SCRAPE_ERROR') {
+            setError(data.error || 'Failed to scrape posts');
+            setIsImporting(false);
+          } else if (data.type === 'ERROR') {
+            setError(data.message);
+            setIsImporting(false);
+          }
+        };
+
+        websocket.onerror = (error) => {
+          // Suppress error logging - React Strict Mode causes double mount in dev
+          // The onclose handler will retry connection if needed
+        };
+
+        websocket.onclose = () => {
+          console.log('🔌 WebSocket closed, will retry in 3s...');
+          setWs(null);
+          
+          // Only show error if we were importing
+          if (isImporting) {
+            setError('Connection lost. Retrying...');
+          }
+          
+          // Retry connection after 3 seconds
+          if (!isUnmounted) {
+            reconnectTimeout = setTimeout(connect, 3000);
+          }
+        };
+      } catch (error) {
+        console.error('❌ Failed to create WebSocket:', error);
+        if (!isUnmounted) {
+          reconnectTimeout = setTimeout(connect, 3000);
+        }
+      }
+    };
+
+    connect();
+
+    return () => {
+      isUnmounted = true;
+      clearTimeout(reconnectTimeout);
+      if (websocket) {
+        websocket.close();
+      }
+    };
+  }, [userId, isImporting]);
+
+  const handleImportPosts = async (isSync: boolean = false) => {
+    console.log('🚀 handleImportPosts called, isSync:', isSync);
+    console.log('   userId:', userId);
+    console.log('   isImporting:', isImporting);
+    
+    setIsImporting(true);
+    setError(null);
+    setProgress(0);
+    setCurrentCount(0);
+    setScrapedPosts([]);
+    setImportResult(null);
+
+    try {
+      // First, get the actual user_id from extension backend
+      console.log('🔍 Fetching connected user ID...');
+      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusData = await statusResponse.json();
+      
+      let extensionUserId = 'default_user';
+      if (statusData.users_with_info && statusData.users_with_info.length > 0) {
+        extensionUserId = statusData.users_with_info[0].userId;
+        console.log(`✅ Found extension user: ${extensionUserId}`);
+      } else {
+        console.warn('⚠️ No connected users, using default_user');
+      }
+      
+      // Use Docker browser to scrape posts (not user's browser!)
+      console.log('📤 Requesting Docker browser to scrape posts...');
+      console.log(`   Extension User ID: ${extensionUserId}`);
+      console.log(`   Clerk User ID (for WebSocket): ${userId}`);
+      
+      // Create AbortController with longer timeout for scraping
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
+      
+      try {
+        const response = await fetch('http://localhost:8002/api/scrape-posts-docker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: extensionUserId,  // Extension user ID for scraping
+            clerk_user_id: userId,      // Clerk user ID for WebSocket messages
+            targetCount: isSync ? 20 : 50
+          }),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('✅ Import complete:', result);
+          const importData = {
+            imported: result.imported,
+            total: result.total,
+            timestamp: new Date().toISOString()
+          };
+          setImportResult(importData);
+          setProgress(100);
+          setLastImportDate(new Date().toISOString());
+          
+          // Save to localStorage
+          if (userId) {
+            localStorage.setItem(`import_result_${userId}`, JSON.stringify(importData));
+            localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
+          }
+        } else {
+          setError(result.error || 'Failed to import posts');
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          setError('Import timed out. Please try again with "Sync Latest" for fewer posts.');
+        } else {
+          throw fetchError;
+        }
+      }
+      
+      setIsImporting(false);
+      
+    } catch (err) {
+      console.error('❌ Import failed:', err);
+      setError(err instanceof Error ? err.message : 'Failed to start import');
+      setIsImporting(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+
+  const getTotalEngagement = (post: ScrapedPost) => {
+    return post.engagement.likes + post.engagement.replies + post.engagement.reposts;
+  };
+
+  const hasImported = importResult && importResult.imported > 0;
+
+  return (
+    <Card className={`w-full transition-all duration-500 ${
+      hasImported ? 'h-auto' : 'animate-in fade-in slide-in-from-top duration-700'
+    }`}>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className={`flex items-center gap-2 transition-all duration-300 ${
+              hasImported ? 'text-base' : 'text-xl'
+            }`}>
+              <Download className={`h-5 w-5 ${hasImported ? 'text-green-500' : ''}`} />
+              {hasImported ? '✅ Posts Imported' : 'Import Your Posts'}
+            </CardTitle>
+            {!hasImported && (
+              <CardDescription className="animate-in fade-in duration-500 delay-100">
+                Learn your writing style from your past X posts
+              </CardDescription>
+            )}
+          </div>
+          {lastImportDate && !hasImported && (
+            <Badge variant="outline" className="text-xs">
+              Last import: {formatDate(lastImportDate)}
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {hasImported && (
+          <div className="animate-in fade-in zoom-in duration-500 mb-4">
+            <p className="text-sm text-muted-foreground">
+              Successfully imported <span className="font-semibold text-foreground">{importResult.imported} posts</span>! 
+              Your agent can now write in your style.
+            </p>
+          </div>
+        )}
+        
+        {/* Action Buttons - Always show so user can import more */}
+        <div className="flex gap-2 animate-in fade-in slide-in-from-bottom duration-500 delay-200">
+              <Button
+                onClick={() => handleImportPosts(false)}
+                disabled={isImporting}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                size="lg"
+              >
+                {isImporting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Import Posts (50)
+                  </>
+                )}
+              </Button>
+              
+              <Button
+                onClick={() => handleImportPosts(true)}
+                disabled={isImporting}
+                variant="outline"
+                size="lg"
+              >
+                {isImporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Sync Latest
+                  </>
+                )}
+              </Button>
+            </div>
+
+        {/* Progress */}
+        {isImporting && (
+          <div className="space-y-3 p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <span className="font-medium text-sm">Scraping posts from VNC browser...</span>
+              </div>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                {currentCount} / {targetCount}
+              </span>
+            </div>
+            <Progress value={progress} className="w-full h-2" />
+            <div className="text-xs text-muted-foreground">
+              {progress < 100 ? (
+                <>Scrolling through your profile to load more posts...</>
+              ) : (
+                <>Finalizing import...</>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Error with Retry */}
+        {error && (
+          <div className="space-y-2 p-4 bg-destructive/10 text-destructive rounded-md border border-destructive/20">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">Something went wrong</span>
+            </div>
+            <p className="text-xs text-destructive/80">{error}</p>
+            <Button
+              onClick={() => {
+                setError(null);
+                handleImportPosts(false);
+              }}
+              variant="outline"
+              size="sm"
+              className="mt-2"
+            >
+              <RefreshCw className="mr-2 h-3 w-3" />
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Import Result */}
+        {importResult && !isImporting && (
+          <div className="space-y-4 p-4 border rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <span className="font-semibold text-green-700 dark:text-green-300">
+                ✨ Posts imported successfully!
+              </span>
+            </div>
+
+            {/* Writing Style Analysis */}
+            <div className="p-4 bg-white dark:bg-gray-900 rounded-lg space-y-3 border">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-purple-600" />
+                <h4 className="font-semibold">Your Writing Style</h4>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Imported:</span>
+                  <span className="ml-2 font-medium">
+                    {importResult.imported} posts
+                  </span>
+                </div>
+                
+                <div>
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="ml-2 font-medium">
+                    {importResult.total} posts
+                  </span>
+                </div>
+                
+                {importResult.username && (
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Account:</span>
+                    <Badge variant="secondary" className="ml-2">
+                      @{importResult.username}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                ✅ Posts imported successfully! The agent can now learn your writing style.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Scraped Posts Preview */}
+        {scrapedPosts.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold">
+              Scraped Posts ({scrapedPosts.length})
+            </h4>
+            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+              <div className="space-y-4">
+                {scrapedPosts.slice(0, 10).map((post, index) => (
+                  <div key={index} className="p-3 bg-muted rounded-lg space-y-2">
+                    <p className="text-sm line-clamp-3">{post.content}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{formatDate(post.timestamp)}</span>
+                      <div className="flex gap-3">
+                        <span>❤️ {post.engagement.likes}</span>
+                        <span>💬 {post.engagement.replies}</span>
+                        <span>🔄 {post.engagement.reposts}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {scrapedPosts.length > 10 && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    ... and {scrapedPosts.length - 10} more posts
+                  </p>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* Instructions */}
+        {!isImporting && !importResult && !error && (
+          <div className="p-4 bg-muted rounded-lg space-y-2">
+            <h4 className="text-sm font-semibold">How it works:</h4>
+            <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>Click "Import Posts" to scrape your last 50 posts</li>
+              <li>We'll analyze your writing style (tone, length, vocabulary)</li>
+              <li>The agent will learn to write comments like you</li>
+              <li>Use "Sync Latest" to update with recent posts</li>
+            </ol>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
