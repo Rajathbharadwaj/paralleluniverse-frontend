@@ -6,19 +6,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, MessageSquare, FileText } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, MessageSquare, FileText, Eye, EyeOff, Send, CheckCircle } from 'lucide-react';
 
 export function PreviewStyleCard() {
   const { user } = useUser();
   const userId = user?.id || '';
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false); // Start expanded so it's visible
   const [contentType, setContentType] = useState<'post' | 'comment'>('post');
   const [context, setContext] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [feedback, setFeedback] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [fewShotPrompt, setFewShotPrompt] = useState('');
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [postSuccess, setPostSuccess] = useState(false);
 
   const handleGenerate = async () => {
     if (!context.trim()) {
@@ -33,9 +37,23 @@ export function PreviewStyleCard() {
       // Get extension user ID
       const statusResponse = await fetch('http://localhost:8001/status');
       const statusData = await statusResponse.json();
-      const extensionUserId = statusData.users?.find((u: any) => u.username)?.user_id;
+      
+      console.log('📡 Status data:', statusData);
+      console.log('📡 users_with_info:', statusData.users_with_info);
+      
+      // Find user with cookies and username
+      const userData = statusData.users_with_info?.find((u: any) => {
+        console.log('🔍 Checking user:', u, 'hasCookies:', u.hasCookies, 'username:', u.username);
+        return u.hasCookies && u.username;
+      });
+      
+      console.log('👤 Found user data:', userData);
+      const extensionUserId = userData?.userId;
+
+      console.log('🔍 Extension user ID:', extensionUserId);
 
       if (!extensionUserId) {
+        console.error('❌ No extension user ID found. Full status:', JSON.stringify(statusData, null, 2));
         throw new Error('Please connect your X account first');
       }
 
@@ -55,6 +73,7 @@ export function PreviewStyleCard() {
 
       if (data.success) {
         setGeneratedContent(data.content);
+        setFewShotPrompt(data.few_shot_prompt || '');
         setFeedback(''); // Clear feedback after successful generation
       } else {
         setError(data.error || 'Failed to generate content');
@@ -76,9 +95,13 @@ export function PreviewStyleCard() {
       // Get extension user ID
       const statusResponse = await fetch('http://localhost:8001/status');
       const statusData = await statusResponse.json();
-      const extensionUserId = statusData.users?.find((u: any) => u.username)?.user_id;
+      
+      // Find user with cookies and username
+      const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+      const extensionUserId = userData?.userId;
 
       if (!extensionUserId) {
+        console.error('❌ No extension user ID found for feedback');
         throw new Error('Please connect your X account first');
       }
 
@@ -105,6 +128,63 @@ export function PreviewStyleCard() {
     } catch (err: any) {
       console.error('Error saving feedback:', err);
       setError(err.message || 'Failed to save feedback');
+    }
+  };
+
+  const handlePostToX = async () => {
+    if (!generatedContent) {
+      return;
+    }
+
+    setIsPosting(true);
+    setError('');
+    setPostSuccess(false);
+
+    try {
+      // Get extension user ID
+      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusData = await statusResponse.json();
+      
+      console.log('📡 Status data:', statusData);
+      
+      // Find user with cookies and username
+      const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+      const extensionUserId = userData?.userId;
+
+      console.log('👤 Extension user ID:', extensionUserId);
+
+      if (!extensionUserId) {
+        throw new Error('Please connect your X account first');
+      }
+
+      const response = await fetch('http://localhost:8002/api/agent/create-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: extensionUserId,
+          clerk_user_id: userId,
+          post_text: generatedContent
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('✅ Post created successfully!');
+        setPostSuccess(true);
+        // Clear generated content after successful post
+        setTimeout(() => {
+          setGeneratedContent('');
+          setPostSuccess(false);
+        }, 3000);
+      } else {
+        setError(data.error || 'Failed to create post');
+      }
+    } catch (err: any) {
+      console.error('Error posting to X:', err);
+      setError(err.message || 'Failed to post to X');
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -237,6 +317,56 @@ export function PreviewStyleCard() {
                 <p className="text-sm font-medium mb-2 text-muted-foreground">Generated {contentType}:</p>
                 <p className="text-sm whitespace-pre-wrap">{generatedContent}</p>
               </div>
+
+              {/* Post to X Button */}
+              {contentType === 'post' && (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handlePostToX}
+                    disabled={isPosting || postSuccess}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    size="lg"
+                  >
+                    {isPosting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Posting to X...
+                      </>
+                    ) : postSuccess ? (
+                      <>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Posted Successfully!
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Post to X
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {/* Few-Shot Prompt Display */}
+              {fewShotPrompt && (
+                <div className="border rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setShowPrompt(!showPrompt)}
+                    className="w-full p-3 bg-muted/50 hover:bg-muted flex items-center justify-between text-sm font-medium transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      {showPrompt ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPrompt ? 'Hide' : 'Show'} Few-Shot Prompt
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showPrompt ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showPrompt && (
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900 max-h-96 overflow-y-auto">
+                      <pre className="text-xs whitespace-pre-wrap font-mono">{fewShotPrompt}</pre>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Feedback Section */}
               <div className="space-y-2">

@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Download, RefreshCw, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
+import { useWebSocket } from '@/contexts/websocket-context';
 
 interface ScrapedPost {
   content: string;
@@ -70,113 +71,67 @@ export function ImportPostsCard() {
     }
   }, [userId]);
   const [error, setError] = useState<string | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const { ws, subscribe } = useWebSocket(); // Use shared WebSocket
   const [lastImportDate, setLastImportDate] = useState<string | null>(null);
 
-  // Connect to WebSocket with retry
+  // Subscribe to shared WebSocket for import/scraping messages
   useEffect(() => {
     if (!userId) {
-      console.log('⚠️ No user ID, skipping WebSocket connection');
+      console.log('⚠️ No user ID, skipping WebSocket subscription');
       return;
     }
 
-    let websocket: WebSocket | null = null;
-    let reconnectTimeout: NodeJS.Timeout;
-    let isUnmounted = false;
+    console.log('📡 Subscribing to import messages...');
+    
+    const unsubscribe = subscribe((data) => {
+      // Ignore agent-related messages (handled by agent-control-card)
+      if (data.type?.startsWith('AGENT_')) {
+        return;
+      }
+      
+      console.log('📨 Import card received:', data);
 
-    const connect = () => {
-      if (isUnmounted) return;
-
-      try {
-        console.log(`🔌 Connecting WebSocket for user: ${userId}`);
-        websocket = new WebSocket(`ws://localhost:8002/ws/extension/${userId}`);
+      if (data.type === 'SCRAPE_PROGRESS') {
+        // Real-time progress updates
+        setCurrentCount(data.current);
+        setTargetCount(data.target);
+        setProgress((data.current / data.target) * 100);
+        console.log(`📊 Progress: ${data.current}/${data.target} posts (scroll ${data.scroll})`);
+      } else if (data.type === 'SCRAPING_PROGRESS') {
+        setCurrentCount(data.current);
+        setTargetCount(data.target);
+        setProgress((data.current / data.target) * 100);
+      } else if (data.type === 'POSTS_SCRAPED') {
+        setScrapedPosts(data.posts || []);
+      } else if (data.type === 'IMPORT_COMPLETE') {
+        console.log('✅ Import complete:', data);
+        setImportResult({
+          imported: data.imported,
+          total: data.total,
+          timestamp: new Date().toISOString()
+        });
+        setIsImporting(false);
+        setLastImportDate(new Date().toISOString());
+        setProgress(100);
         
-        websocket.onopen = () => {
-          console.log('✅ Connected to backend');
-          setWs(websocket);
-          setError(null); // Clear any previous errors
-        };
-
-        websocket.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          console.log('📨 Received:', data);
-
-          if (data.type === 'SCRAPE_PROGRESS') {
-            // Real-time progress updates
-            setCurrentCount(data.current);
-            setTargetCount(data.target);
-            setProgress((data.current / data.target) * 100);
-            console.log(`📊 Progress: ${data.current}/${data.target} posts (scroll ${data.scroll})`);
-          } else if (data.type === 'SCRAPING_PROGRESS') {
-            setCurrentCount(data.current);
-            setTargetCount(data.target);
-            setProgress((data.current / data.target) * 100);
-          } else if (data.type === 'POSTS_SCRAPED') {
-            setScrapedPosts(data.posts || []);
-          } else if (data.type === 'IMPORT_COMPLETE') {
-            console.log('✅ Import complete:', data);
-            setImportResult({
-              imported: data.imported,
-              total: data.total,
-              timestamp: new Date().toISOString()
-            });
-            setIsImporting(false);
-            setLastImportDate(new Date().toISOString());
-            setProgress(100);
-            
-            // Save to localStorage
-            localStorage.setItem(`import_result_${userId}`, JSON.stringify({
-              imported: data.imported,
-              total: data.total,
-              timestamp: new Date().toISOString()
-            }));
-            localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
-          } else if (data.type === 'SCRAPE_ERROR') {
-            setError(data.error || 'Failed to scrape posts');
-            setIsImporting(false);
-          } else if (data.type === 'ERROR') {
-            setError(data.message);
-            setIsImporting(false);
-          }
-        };
-
-        websocket.onerror = (error) => {
-          // Suppress error logging - React Strict Mode causes double mount in dev
-          // The onclose handler will retry connection if needed
-        };
-
-        websocket.onclose = () => {
-          console.log('🔌 WebSocket closed, will retry in 3s...');
-          setWs(null);
-          
-          // Only show error if we were importing
-          if (isImporting) {
-            setError('Connection lost. Retrying...');
-          }
-          
-          // Retry connection after 3 seconds
-          if (!isUnmounted) {
-            reconnectTimeout = setTimeout(connect, 3000);
-          }
-        };
-      } catch (error) {
-        console.error('❌ Failed to create WebSocket:', error);
-        if (!isUnmounted) {
-          reconnectTimeout = setTimeout(connect, 3000);
-        }
+        // Save to localStorage
+        localStorage.setItem(`import_result_${userId}`, JSON.stringify({
+          imported: data.imported,
+          total: data.total,
+          timestamp: new Date().toISOString()
+        }));
+        localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
+      } else if (data.type === 'SCRAPE_ERROR') {
+        setError(data.error || 'Failed to scrape posts');
+        setIsImporting(false);
+      } else if (data.type === 'ERROR') {
+        setError(data.message);
+        setIsImporting(false);
       }
-    };
+    });
 
-    connect();
-
-    return () => {
-      isUnmounted = true;
-      clearTimeout(reconnectTimeout);
-      if (websocket) {
-        websocket.close();
-      }
-    };
-  }, [userId, isImporting]);
+    return unsubscribe;
+  }, [userId, subscribe]);
 
   const handleImportPosts = async (isSync: boolean = false) => {
     console.log('🚀 handleImportPosts called, isSync:', isSync);

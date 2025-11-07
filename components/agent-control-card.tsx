@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChatHistorySidebar } from './chat-history-sidebar';
+import { useWebSocket } from '@/contexts/websocket-context';
 import { ResizableSidebar } from './resizable-sidebar';
 
 interface Message {
@@ -30,6 +31,7 @@ interface AgentStatus {
 export function AgentControlCard() {
   const { user } = useUser();
   const userId = user?.id || '';
+  const { ws, subscribe } = useWebSocket(); // Use shared WebSocket
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -38,53 +40,58 @@ export function AgentControlCard() {
     currentTask: null,
     threadId: null
   });
-  const [ws, setWs] = useState<WebSocket | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showHistory, setShowHistory] = useState(false);
+  
+  // Use refs for streaming state to avoid closure issues
+  const streamingStateRef = useRef({
+    currentMessage: '',
+    messageIndex: -1
+  });
 
-  // Load thread_id and messages from localStorage on mount
+  // Load thread_id and messages from backend (PostgreSQL) on mount
   useEffect(() => {
     if (!userId) return;
 
-    const savedThreadId = localStorage.getItem(`agent_thread_${userId}`);
-    const savedMessages = localStorage.getItem(`agent_messages_${userId}`);
+    const loadThreadData = async () => {
+      const savedThreadId = localStorage.getItem(`agent_thread_${userId}`);
 
-    if (savedThreadId) {
-      setStatus(prev => ({ ...prev, threadId: savedThreadId }));
-      console.log(`📝 Loaded thread ID: ${savedThreadId}`);
-    }
-
-    if (savedMessages) {
-      try {
-        const parsed = JSON.parse(savedMessages);
-        setMessages(parsed.map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp)
-        })));
-        console.log(`💬 Loaded ${parsed.length} messages from history`);
-      } catch (e) {
-        console.error('Failed to parse saved messages:', e);
+      if (savedThreadId) {
+        setStatus(prev => ({ ...prev, threadId: savedThreadId }));
+        console.log(`📝 Loaded thread ID: ${savedThreadId}`);
+        
+        // Fetch messages from backend (PostgreSQL via LangGraph)
+        try {
+          const response = await fetch(`http://localhost:8002/api/agent/threads/${savedThreadId}/messages`);
+          const data = await response.json();
+          
+          if (data.success && data.messages && data.messages.length > 0) {
+            setMessages(data.messages.map((m: any) => ({
+              ...m,
+              timestamp: m.timestamp ? new Date(m.timestamp) : new Date()
+            })));
+            console.log(`💬 Loaded ${data.messages.length} messages from PostgreSQL`);
+          } else {
+            console.log(`📝 No messages found in PostgreSQL for thread ${savedThreadId}`);
+          }
+        } catch (error) {
+          console.error('Failed to fetch messages from backend:', error);
+        }
       }
-    }
+    };
+    
+    loadThreadData();
   }, [userId]);
 
-  // Connect to WebSocket
+  // Subscribe to shared WebSocket for agent messages
   useEffect(() => {
     if (!userId) return;
 
-    const websocket = new WebSocket(`ws://localhost:8002/ws/extension/${userId}`);
-    
-    websocket.onopen = () => {
-      console.log('✅ Agent WebSocket connected');
-      setWs(websocket);
-    };
-
-    let currentStreamingMessage = '';
-    let streamingMessageIndex = -1;
-
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+    const unsubscribe = subscribe((data) => {
+      // Only handle agent-related messages
+      if (!data.type?.startsWith('AGENT_')) return;
+      
       console.log('📨 Agent message:', data);
 
       if (data.type === 'AGENT_STARTED') {
@@ -94,34 +101,38 @@ export function AgentControlCard() {
           threadId: data.thread_id
         });
         // Reset streaming state
-        currentStreamingMessage = '';
-        streamingMessageIndex = -1;
+        streamingStateRef.current.currentMessage = '';
+        streamingStateRef.current.messageIndex = -1;
       } 
       else if (data.type === 'AGENT_TOKEN') {
         // Real-time token streaming from LangGraph
         const token = data.token || '';
         
         if (token) {
-          currentStreamingMessage += token;
+          streamingStateRef.current.currentMessage += token;
+          const currentContent = streamingStateRef.current.currentMessage;
           
           // Create or update the streaming message
           setMessages(prev => {
             const newMessages = [...prev];
             
-            if (streamingMessageIndex === -1) {
+            if (streamingStateRef.current.messageIndex === -1) {
               // Create new assistant message
               newMessages.push({
                 role: 'assistant',
-                content: currentStreamingMessage,
+                content: currentContent,
                 timestamp: new Date()
               });
-              streamingMessageIndex = newMessages.length - 1;
+              streamingStateRef.current.messageIndex = newMessages.length - 1;
             } else {
               // Update existing streaming message
-              newMessages[streamingMessageIndex] = {
-                ...newMessages[streamingMessageIndex],
-                content: currentStreamingMessage
-              };
+              const idx = streamingStateRef.current.messageIndex;
+              if (newMessages[idx]) {
+                newMessages[idx] = {
+                  ...newMessages[idx],
+                  content: currentContent
+                };
+              }
             }
             
             return newMessages;
@@ -130,27 +141,25 @@ export function AgentControlCard() {
       }
       else if (data.type === 'AGENT_COMPLETED') {
         setStatus(prev => ({ ...prev, isRunning: false }));
+        
+        // Messages are already persisted in PostgreSQL via LangGraph
+        console.log(`✅ Agent completed - messages saved in PostgreSQL`);
+        
         // Reset streaming state
-        currentStreamingMessage = '';
-        streamingMessageIndex = -1;
+        streamingStateRef.current.currentMessage = '';
+        streamingStateRef.current.messageIndex = -1;
       }
       else if (data.type === 'AGENT_ERROR') {
         setStatus(prev => ({ ...prev, isRunning: false }));
         addMessage('system', `❌ Error: ${data.error}`);
         // Reset streaming state
-        currentStreamingMessage = '';
-        streamingMessageIndex = -1;
+        streamingStateRef.current.currentMessage = '';
+        streamingStateRef.current.messageIndex = -1;
       }
-    };
+    });
 
-    websocket.onerror = (error) => {
-      console.error('❌ Agent WebSocket error:', error);
-    };
-
-    return () => {
-      websocket.close();
-    };
-  }, [userId]);
+    return unsubscribe;
+  }, [userId, subscribe]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -179,13 +188,8 @@ export function AgentControlCard() {
     return () => cancelAnimationFrame(rafId);
   });
 
-  // Save messages to localStorage whenever they change (per thread)
-  useEffect(() => {
-    if (!userId || !status.threadId || messages.length === 0) return;
-
-    localStorage.setItem(`agent_messages_${userId}_${status.threadId}`, JSON.stringify(messages));
-    console.log(`💾 Saved ${messages.length} messages for thread ${status.threadId}`);
-  }, [messages, userId, status.threadId]);
+  // Messages are now persisted in PostgreSQL via LangGraph
+  // No need to save to localStorage anymore - backend is source of truth
 
   // Save thread_id to localStorage whenever it changes
   useEffect(() => {
@@ -299,18 +303,22 @@ export function AgentControlCard() {
     if (!userId) return;
 
     try {
-      // Load messages from localStorage for this thread
-      const savedMessages = localStorage.getItem(`agent_messages_${userId}_${threadId}`);
+      console.log(`📖 Loading messages for thread: ${threadId}`);
       
-      if (savedMessages) {
-        const parsed = JSON.parse(savedMessages);
-        setMessages(parsed.map((m: any) => ({
+      // Fetch messages from backend (PostgreSQL via LangGraph)
+      const response = await fetch(`http://localhost:8002/api/agent/threads/${threadId}/messages`);
+      const data = await response.json();
+      
+      if (data.success && data.messages) {
+        setMessages(data.messages.map((m: any) => ({
           ...m,
-          timestamp: new Date(m.timestamp)
+          timestamp: m.timestamp ? new Date(m.timestamp) : new Date()
         })));
+        console.log(`✅ Loaded ${data.messages.length} messages from PostgreSQL`);
       } else {
-        // No saved messages, start fresh
+        // No messages found, start fresh
         setMessages([]);
+        console.log(`📝 No messages found for thread ${threadId}`);
       }
 
       // Update current thread
@@ -320,6 +328,8 @@ export function AgentControlCard() {
       console.log(`📝 Switched to thread: ${threadId}`);
     } catch (error) {
       console.error('Error switching thread:', error);
+      // Fallback to empty messages on error
+      setMessages([]);
     }
   };
 

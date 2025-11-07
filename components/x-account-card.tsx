@@ -33,29 +33,49 @@ export function XAccountCard({ onConnectionChange }: XAccountCardProps = {}) {
         const cachedConnected = localStorage.getItem(`x_connected_${user.id}`);
         
         if (cachedUsername && cachedConnected === 'true') {
+          console.log('✅ Using cached connection:', cachedUsername);
           setUsername(cachedUsername);
           setIsConnected(true);
+          
+          // Notify parent component
+          if (onConnectionChange) {
+            onConnectionChange(true, cachedUsername);
+          }
         }
 
-        // Then verify with backend
+        // Then verify with backend (but don't clear cache if it fails)
         const response = await fetch('http://localhost:8001/status');
         const data = await response.json();
         
-        // Find the current user's data
-        const userData = data.users?.find((u: any) => u.user_id === user.id);
+        console.log('📡 Extension backend status:', data);
         
-        if (userData && userData.hasCookies && userData.username) {
+        // Find ANY user with cookies and username (extension user, not Clerk user)
+        const userData = data.users_with_info?.find((u: any) => u.hasCookies && u.username);
+        
+        if (userData && userData.username) {
+          console.log('✅ Backend confirmed X account:', userData.username);
           setUsername(userData.username);
           setIsConnected(true);
           // Update localStorage
           localStorage.setItem(`x_username_${user.id}`, userData.username);
           localStorage.setItem(`x_connected_${user.id}`, 'true');
-        } else if (!userData || !userData.hasCookies) {
-          // Not connected, clear cache
+          
+          // Notify parent component
+          if (onConnectionChange) {
+            onConnectionChange(true, userData.username);
+          }
+        } else if (!cachedUsername) {
+          // Only clear if we also don't have cache
+          console.log('❌ No connected X account found and no cache');
           setIsConnected(false);
           setUsername('');
-          localStorage.removeItem(`x_username_${user.id}`);
-          localStorage.removeItem(`x_connected_${user.id}`);
+          
+          // Notify parent component
+          if (onConnectionChange) {
+            onConnectionChange(false, '');
+          }
+        } else {
+          console.log('⚠️ Backend check failed but keeping cached connection');
         }
       } catch (error) {
         console.error('Failed to check connection status:', error);

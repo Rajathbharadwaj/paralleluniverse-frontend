@@ -15,6 +15,7 @@ import { PreviewStyleCard } from "@/components/preview-style-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, RefreshCw } from "lucide-react";
+import { WebSocketProvider } from "@/contexts/websocket-context";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -57,13 +58,12 @@ export default function DashboardPage() {
           
           console.log('📡 Backend status:', data);
           
-          // Find the current user's data - check both users and users_with_info
-          const userData = data.users_with_info?.find((u: any) => u.userId === user.id) || 
-                          data.users?.find((u: any) => u.user_id === user.id);
+          // Find ANY user with cookies and username (extension user, not Clerk user)
+          const userData = data.users_with_info?.find((u: any) => u.hasCookies && u.username);
           
           console.log('🔍 Found user data:', userData);
           
-          if (userData && userData.hasCookies && userData.username) {
+          if (userData && userData.username) {
             console.log('✅ Found connection in backend:', userData.username);
             setIsConnected(true);
             setUsername(userData.username);
@@ -134,8 +134,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <DashboardHeader />
+    <WebSocketProvider userId={user?.id || null}>
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
+        <DashboardHeader />
       
       <main className="flex-1 flex overflow-hidden min-h-0">
         {/* Left Column - Main Content (scrollable) */}
@@ -194,8 +195,8 @@ export default function DashboardPage() {
               </Card>
             )}
             
-            {/* Preview Style Card - Show after posts are imported */}
-            {isConnected && postsImported > 0 && <PreviewStyleCard />}
+            {/* Preview Style Card - Show when connected (posts already in DB) */}
+            {isConnected && <PreviewStyleCard />}
             
             {/* Agent Browser Viewer (VNC) */}
             <AgentBrowserViewer />
@@ -221,5 +222,6 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+    </WebSocketProvider>
   );
 }
