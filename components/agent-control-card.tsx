@@ -139,6 +139,15 @@ export function AgentControlCard() {
           });
         }
       }
+      else if (data.type === 'THREAD_RECREATED') {
+        // Old thread not found, using new thread
+        console.log(`🔄 Thread recreated: ${data.old_thread_id} → ${data.new_thread_id}`);
+        setStatus(prev => ({ 
+          ...prev, 
+          threadId: data.new_thread_id 
+        }));
+        addMessage('system', `ℹ️ ${data.message || 'Starting fresh conversation.'}`);
+      }
       else if (data.type === 'AGENT_COMPLETED') {
         setStatus(prev => ({ ...prev, isRunning: false }));
         
@@ -417,7 +426,7 @@ export function AgentControlCard() {
               <Sparkles className="h-12 w-12 text-purple-500 mb-4" />
               <h3 className="text-lg font-semibold mb-2">Start a conversation</h3>
               <p className="text-sm text-muted-foreground max-w-sm">
-                Ask your AI agent to engage with posts, like content, or grow your X account.
+                Ask your Parallel Universe AI agent to engage with posts, like content, or grow your X account.
               </p>
               <div className="mt-6 space-y-2 text-left">
                 <p className="text-xs text-muted-foreground">Try asking:</p>

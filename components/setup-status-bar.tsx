@@ -22,6 +22,8 @@ export function SetupStatusBar({
 }: SetupStatusBarProps) {
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectionStatus, setInjectionStatus] = useState<string | null>(null);
+  
+  console.log('📊 SetupStatusBar props:', { isConnected, username, postsImported });
 
   const handleInjectCookies = async () => {
     setIsInjecting(true);
@@ -62,7 +64,8 @@ export function SetupStatusBar({
     }
   };
 
-  // Don't show if nothing is set up
+  // Always show if user has cookies (isConnected) or posts imported
+  // This ensures "Connect X Account" button is always visible when needed
   if (!isConnected && postsImported === 0) {
     return null;
   }
@@ -72,7 +75,7 @@ export function SetupStatusBar({
       <div className="flex items-center justify-between gap-4">
         {/* Left side - Status items */}
         <div className="flex items-center gap-4 flex-1">
-          {/* X Account Status */}
+          {/* X Account Status - Always show if connected */}
           {isConnected && (
             <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-300">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -86,25 +89,30 @@ export function SetupStatusBar({
                 <X className="h-3 w-3 mr-1" />
                 Disconnect
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleInjectCookies}
-                disabled={isInjecting}
-                className="h-7 px-2 text-xs"
-                title="Inject cookies into Docker VNC browser"
-              >
-                {isInjecting ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <Monitor className="h-3 w-3 mr-1" />
-                )}
-                {isInjecting ? 'Injecting...' : 'Load in VNC'}
-              </Button>
-              {injectionStatus && (
-                <span className="text-xs text-muted-foreground">{injectionStatus}</span>
-              )}
             </div>
+          )}
+          
+          {/* Connect to VNC Button - Always show if user has cookies */}
+          {isConnected && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleInjectCookies}
+              disabled={isInjecting}
+              className="h-7 px-2 text-xs"
+              title="Inject cookies and load X.com in Docker VNC browser"
+            >
+              {isInjecting ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Monitor className="h-3 w-3 mr-1" />
+              )}
+              {isInjecting ? 'Connecting...' : 'Connect X Account to VNC'}
+            </Button>
+          )}
+          
+          {injectionStatus && (
+            <span className="text-xs text-muted-foreground">{injectionStatus}</span>
           )}
 
           {/* Posts Import Status */}

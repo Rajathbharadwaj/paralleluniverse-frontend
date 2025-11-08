@@ -39,7 +39,11 @@ interface ImportResult {
   message: string;
 }
 
-export function ImportPostsCard() {
+interface ImportPostsCardProps {
+  onImportComplete?: (count: number) => void;
+}
+
+export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {}) {
   const { user } = useUser();
   const userId = user?.id || '';
   
@@ -50,14 +54,47 @@ export function ImportPostsCard() {
   const [scrapedPosts, setScrapedPosts] = useState<ScrapedPost[]>([]);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   
-  // Load cached import result on mount
+  // Fetch actual count from database on mount
   useEffect(() => {
-    if (!userId) return;
+    const fetchPostsCount = async () => {
+      if (!userId) return;
+      
+      try {
+        // Get connected user's username
+        const statusResponse = await fetch('http://localhost:8001/status');
+        const statusData = await statusResponse.json();
+        const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+        
+        if (connectedUser && connectedUser.username) {
+          // Fetch count from database
+          const countResponse = await fetch(`http://localhost:8002/api/posts/count/${connectedUser.username}`);
+          const countData = await countResponse.json();
+          
+          if (countData.success && countData.count > 0) {
+            console.log(`📊 Loaded ${countData.count} posts from database for @${connectedUser.username}`);
+            setImportResult({
+              imported: countData.count,
+              total: countData.count,
+              username: connectedUser.username,
+              timestamp: new Date().toISOString()
+            });
+            
+            // DON'T call onImportComplete on initial load - only on actual imports
+            // This prevents resetting manuallyOpened when user clicks "Sync"
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch posts count from database:', error);
+      }
+    };
     
+    fetchPostsCount();
+    
+    // Also load cached data as fallback
     const cachedResult = localStorage.getItem(`import_result_${userId}`);
     const cachedDate = localStorage.getItem(`last_import_date_${userId}`);
     
-    if (cachedResult) {
+    if (cachedResult && !importResult) {
       try {
         const parsed = JSON.parse(cachedResult);
         setImportResult(parsed);
@@ -121,6 +158,11 @@ export function ImportPostsCard() {
           timestamp: new Date().toISOString()
         }));
         localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
+        
+        // Notify parent component
+        if (onImportComplete) {
+          onImportComplete(data.total);
+        }
       } else if (data.type === 'SCRAPE_ERROR') {
         setError(data.error || 'Failed to scrape posts');
         setIsImporting(false);

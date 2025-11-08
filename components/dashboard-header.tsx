@@ -42,8 +42,8 @@ export function DashboardHeader() {
               <span className="text-primary-foreground font-bold text-xl">𝕏</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold">X Automation</h1>
-              <p className="text-sm text-muted-foreground">Grow your X account on autopilot</p>
+              <h1 className="text-xl font-bold">Parallel Universe</h1>
+              <p className="text-sm text-muted-foreground">AI-powered X growth on autopilot</p>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
@@ -24,6 +24,56 @@ export default function DashboardPage() {
   const [postsImported, setPostsImported] = useState(0);
   const [showSetupCards, setShowSetupCards] = useState(true);
   const [manuallyOpened, setManuallyOpened] = useState(false); // Track if user manually opened setup
+  const minimizeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-inject cookies to VNC on page load
+  useEffect(() => {
+    const autoInjectCookies = async () => {
+      if (!user?.id) return;
+      
+      // Check if we've already auto-injected in this session
+      const sessionKey = `vnc_auto_injected_${user.id}`;
+      const alreadyInjected = sessionStorage.getItem(sessionKey);
+      
+      if (alreadyInjected) {
+        console.log('✅ Already auto-injected cookies in this session');
+        return;
+      }
+      
+      try {
+        // Check if user has cookies
+        const statusResponse = await fetch('http://localhost:8001/status');
+        const statusData = await statusResponse.json();
+        
+        const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+        
+        if (connectedUser) {
+          console.log('🔄 Auto-injecting cookies to VNC for @' + connectedUser.username);
+          
+          const response = await fetch('http://localhost:8002/api/inject-cookies-to-docker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: connectedUser.userId })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            console.log('✅ Auto-injected cookies to VNC successfully');
+            sessionStorage.setItem(sessionKey, 'true');
+          } else {
+            console.log('⚠️ Auto-inject failed:', data.error);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Auto-inject error:', error);
+      }
+    };
+    
+    // Run after a short delay to ensure backend is ready
+    const timer = setTimeout(autoInjectCookies, 2000);
+    return () => clearTimeout(timer);
+  }, [user?.id]);
 
   // Check setup status
   useEffect(() => {
@@ -78,19 +128,42 @@ export default function DashboardPage() {
         }
       }
 
-      if (cachedImport) {
+      // Load posts count from database (more reliable than localStorage)
+      if (cachedUsername) {
         try {
-          const parsed = JSON.parse(cachedImport);
-          const newImportCount = parsed.imported || 0;
+          const countResponse = await fetch(`http://localhost:8002/api/posts/count/${cachedUsername}`);
+          const countData = await countResponse.json();
           
-          // If import count increased, reset manuallyOpened so auto-minimize can work
-          if (newImportCount > postsImported) {
-            setManuallyOpened(false);
+          if (countData.success && countData.count > 0) {
+            console.log(`📊 Loaded ${countData.count} posts from database for parent component`);
+            setPostsImported(countData.count);
+            
+            // Update localStorage with correct count
+            localStorage.setItem(`import_result_${user.id}`, JSON.stringify({
+              imported: countData.count,
+              total: countData.count,
+              timestamp: new Date().toISOString()
+            }));
           }
+        } catch (error) {
+          console.error('Failed to fetch posts count:', error);
           
-          setPostsImported(newImportCount);
-        } catch (e) {
-          console.error('Failed to parse import result:', e);
+          // Fallback to localStorage if database fetch fails
+          if (cachedImport) {
+            try {
+              const parsed = JSON.parse(cachedImport);
+              const newImportCount = parsed.imported || 0;
+              
+              // If import count increased, reset manuallyOpened so auto-minimize can work
+              if (newImportCount > postsImported) {
+                setManuallyOpened(false);
+              }
+              
+              setPostsImported(newImportCount);
+            } catch (e) {
+              console.error('Failed to parse import result:', e);
+            }
+          }
         }
       }
     };
@@ -101,20 +174,44 @@ export default function DashboardPage() {
   // Auto-minimize setup cards when both connection and import are complete
   // BUT only if user didn't manually open them
   useEffect(() => {
-    if (!user?.id || manuallyOpened) return; // Don't auto-minimize if manually opened
+    console.log('🔍 Auto-minimize check:', {
+      userId: user?.id,
+      manuallyOpened,
+      isConnected,
+      username,
+      postsImported,
+      showSetupCards
+    });
+    
+    if (!user?.id || manuallyOpened) {
+      console.log('⏸️ Auto-minimize blocked:', !user?.id ? 'No user ID' : 'Manually opened');
+      return;
+    }
     
     const hasConnection = isConnected && username;
     const hasImport = postsImported > 0;
     
+    console.log('🔍 Conditions:', { hasConnection, hasImport, showSetupCards });
+    
     if (hasConnection && hasImport && showSetupCards) {
+      // Clear any existing timer
+      if (minimizeTimerRef.current) {
+        console.log('⏱️ Clearing existing timer');
+        clearTimeout(minimizeTimerRef.current);
+      }
+      
       console.log('✅ Both setup tasks complete, auto-minimizing in 3s...');
-      const timer = setTimeout(() => {
+      minimizeTimerRef.current = setTimeout(() => {
         setShowSetupCards(false);
         console.log('✅ Setup cards minimized');
+        minimizeTimerRef.current = null;
       }, 3000);
-      
-      return () => clearTimeout(timer);
     }
+    
+    // Don't cleanup the timer on re-render - let it complete
+    return () => {
+      // Only cleanup if we're unmounting completely
+    };
   }, [isConnected, username, postsImported, showSetupCards, manuallyOpened, user?.id]);
 
   const handleDisconnect = () => {
@@ -142,8 +239,8 @@ export default function DashboardPage() {
         {/* Left Column - Main Content (scrollable) */}
         <div className="flex-1 overflow-y-auto h-full">
           <div className="container mx-auto px-4 py-8 space-y-6 max-w-5xl">
-            {/* Compact Status Bar (shows when both setup tasks are complete) */}
-            {!showSetupCards && (
+            {/* Status Bar - ALWAYS show when connected */}
+            {isConnected && (
               <SetupStatusBar
                 isConnected={isConnected}
                 username={username}
@@ -153,8 +250,8 @@ export default function DashboardPage() {
               />
             )}
 
-            {/* Setup Cards - Show during setup phase */}
-            {showSetupCards && !isConnected && (
+            {/* X Account Card - Show during initial setup (not connected yet) */}
+            {!isConnected && (
               <XAccountCard 
                 onConnectionChange={(connected, user) => {
                   console.log('🔔 Connection changed:', connected, user);
@@ -164,35 +261,24 @@ export default function DashboardPage() {
               />
             )}
             
-            {/* Import Posts Card - Show when connected and setup cards are visible */}
-            {isConnected && showSetupCards && <ImportPostsCard />}
-            
-            {/* Minimized import status - Show when setup is complete */}
-            {isConnected && !showSetupCards && postsImported > 0 && (
-              <Card className="w-full">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      <div>
-                        <p className="font-medium text-sm">Writing Style Learned</p>
-                        <p className="text-xs text-muted-foreground">{postsImported} posts analyzed</p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setManuallyOpened(true);
-                        setShowSetupCards(true);
-                      }}
-                    >
-                      <RefreshCw className="h-3 w-3 mr-2" />
-                      Sync More Posts
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Import Posts Card - Show when connected AND (first time OR manually opened) */}
+            {isConnected && showSetupCards && (
+              <ImportPostsCard 
+                onImportComplete={(count) => {
+                  console.log(`📊 onImportComplete called with count: ${count}, current: ${postsImported}`);
+                  
+                  // Only reset manuallyOpened if NEW posts were imported (count increased)
+                  if (count > postsImported) {
+                    console.log(`📊 New posts imported! Allowing auto-minimize`);
+                    setPostsImported(count);
+                    setManuallyOpened(false); // Allow auto-minimize for new imports
+                  } else {
+                    console.log(`📊 No new posts, keeping manuallyOpened state`);
+                    setPostsImported(count);
+                    // Don't change manuallyOpened - keep it as is
+                  }
+                }}
+              />
             )}
             
             {/* Preview Style Card - Show when connected (posts already in DB) */}

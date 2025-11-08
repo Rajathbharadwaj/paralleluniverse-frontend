@@ -7,7 +7,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "X Automation - Grow Your Account on Autopilot",
+  title: "Parallel Universe - AI-Powered X Growth Platform",
   description: "Automate likes, follows, and comments on X (Twitter) with AI-powered agents",
 };
 
