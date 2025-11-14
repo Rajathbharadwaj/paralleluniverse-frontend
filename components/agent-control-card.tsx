@@ -50,7 +50,7 @@ export function AgentControlCard() {
     messageIndex: -1
   });
 
-  // Load thread_id and messages from backend (PostgreSQL) on mount
+  // Load thread_id and messages from LangGraph (PostgreSQL) on mount
   useEffect(() => {
     if (!userId) return;
 
@@ -61,22 +61,32 @@ export function AgentControlCard() {
         setStatus(prev => ({ ...prev, threadId: savedThreadId }));
         console.log(`📝 Loaded thread ID: ${savedThreadId}`);
         
-        // Fetch messages from backend (PostgreSQL via LangGraph)
+        // Fetch messages from LangGraph (PostgreSQL) - single source of truth
         try {
           const response = await fetch(`http://localhost:8002/api/agent/threads/${savedThreadId}/messages`);
           const data = await response.json();
           
           if (data.success && data.messages && data.messages.length > 0) {
-            setMessages(data.messages.map((m: any) => ({
+            const userCount = data.messages.filter((m: any) => m.role === 'user').length;
+            const assistantCount = data.messages.filter((m: any) => m.role === 'assistant').length;
+            
+            console.log(`💬 Loaded ${data.messages.length} messages from LangGraph (${userCount} user, ${assistantCount} assistant)`);
+            console.log('📋 Sample messages:', data.messages.slice(0, 5).map((m: any) => ({ role: m.role, content: m.content.substring(0, 30) })));
+            
+            const mappedMessages = data.messages.map((m: any) => ({
               ...m,
               timestamp: m.timestamp ? new Date(m.timestamp) : new Date()
-            })));
-            console.log(`💬 Loaded ${data.messages.length} messages from PostgreSQL`);
+            }));
+            
+            console.log('🎨 Setting messages state with:', mappedMessages.length, 'messages');
+            console.log('🎨 First 3 messages:', mappedMessages.slice(0, 3).map(m => ({ role: m.role, content: m.content.substring(0, 30) })));
+            
+            setMessages(mappedMessages);
           } else {
-            console.log(`📝 No messages found in PostgreSQL for thread ${savedThreadId}`);
+            console.log(`📝 No messages found for thread ${savedThreadId}`);
           }
         } catch (error) {
-          console.error('Failed to fetch messages from backend:', error);
+          console.error('Failed to fetch messages:', error);
         }
       }
     };
@@ -86,11 +96,20 @@ export function AgentControlCard() {
 
   // Subscribe to shared WebSocket for agent messages
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('⚠️ No userId, not subscribing to WebSocket');
+      return;
+    }
 
+    console.log('🎧 Subscribing to WebSocket for agent messages...');
     const unsubscribe = subscribe((data) => {
+      console.log('🔔 WebSocket message received in agent-control-card:', data);
+      
       // Only handle agent-related messages
-      if (!data.type?.startsWith('AGENT_')) return;
+      if (!data.type?.startsWith('AGENT_')) {
+        console.log('⏭️ Skipping non-agent message:', data.type);
+        return;
+      }
       
       console.log('📨 Agent message:', data);
 
@@ -109,30 +128,31 @@ export function AgentControlCard() {
         const token = data.token || '';
         
         if (token) {
-          streamingStateRef.current.currentMessage += token;
-          const currentContent = streamingStateRef.current.currentMessage;
-          
-          // Create or update the streaming message
+          // Update streaming message
           setMessages(prev => {
             const newMessages = [...prev];
+            const lastMessage = newMessages[newMessages.length - 1];
             
-            if (streamingStateRef.current.messageIndex === -1) {
+            // Check if we need to create a new assistant message or update existing one
+            if (!lastMessage || lastMessage.role !== 'assistant' || streamingStateRef.current.messageIndex === -1) {
               // Create new assistant message
+              streamingStateRef.current.currentMessage = token;
+              streamingStateRef.current.messageIndex = newMessages.length;
               newMessages.push({
                 role: 'assistant',
-                content: currentContent,
+                content: token,
                 timestamp: new Date()
               });
-              streamingStateRef.current.messageIndex = newMessages.length - 1;
+              console.log('🆕 Created new streaming message, first token:', token.substring(0, 20));
             } else {
-              // Update existing streaming message
-              const idx = streamingStateRef.current.messageIndex;
-              if (newMessages[idx]) {
-                newMessages[idx] = {
-                  ...newMessages[idx],
-                  content: currentContent
-                };
-              }
+              // Append to existing streaming message
+              streamingStateRef.current.currentMessage += token;
+              const currentContent = streamingStateRef.current.currentMessage;
+              newMessages[newMessages.length - 1] = {
+                ...lastMessage,
+                content: currentContent
+              };
+              console.log('📝 Token:', token.substring(0, 10), '| Total length:', currentContent.length, '| Last 30 chars:', currentContent.substring(Math.max(0, currentContent.length - 30)));
             }
             
             return newMessages;
@@ -147,6 +167,23 @@ export function AgentControlCard() {
           threadId: data.new_thread_id 
         }));
         addMessage('system', `ℹ️ ${data.message || 'Starting fresh conversation.'}`);
+      }
+      else if (data.type === 'AGENT_STOPPING') {
+        // Agent is stopping, show notification
+        console.log('🛑 Agent is stopping...');
+        addMessage('system', `🛑 ${data.message || 'Stopping agent execution...'}`);
+      }
+      else if (data.type === 'AGENT_CANCELLED') {
+        setStatus(prev => ({ ...prev, isRunning: false }));
+        
+        // Add cancellation message
+        addMessage('system', '🛑 Agent execution cancelled');
+        
+        console.log(`🛑 Agent cancelled`);
+        
+        // Reset streaming state
+        streamingStateRef.current.currentMessage = '';
+        streamingStateRef.current.messageIndex = -1;
       }
       else if (data.type === 'AGENT_COMPLETED') {
         setStatus(prev => ({ ...prev, isRunning: false }));
@@ -173,28 +210,20 @@ export function AgentControlCard() {
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
-      // ScrollArea component has a viewport div inside
-      const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
-      }
+      // Force scroll to bottom with a slight delay to ensure DOM is updated
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 0);
     }
   }, [messages]);
 
   // Also scroll on every render during streaming
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (scrollRef.current) {
-        const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-          viewport.scrollTop = viewport.scrollHeight;
-        }
-      }
-    };
-    
-    // Use requestAnimationFrame for smooth scrolling during streaming
-    const rafId = requestAnimationFrame(scrollToBottom);
-    return () => cancelAnimationFrame(rafId);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   });
 
   // Messages are now persisted in PostgreSQL via LangGraph
@@ -209,11 +238,14 @@ export function AgentControlCard() {
   }, [status.threadId, userId]);
 
   const addMessage = (role: Message['role'], content: string) => {
-    setMessages(prev => [...prev, {
+    const newMessage = {
       role,
       content,
       timestamp: new Date()
-    }]);
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    // No localStorage - LangGraph is the single source of truth
   };
 
   // Auto-resize textarea
@@ -225,7 +257,10 @@ export function AgentControlCard() {
   }, [input]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !userId || status.isRunning) return;
+    if (!input.trim() || !userId) return;
+    
+    // Allow sending while agent is running (double-texting)
+    // The backend will automatically use rollback strategy
 
     const userMessage = input.trim();
     setInput('');
@@ -293,12 +328,11 @@ export function AgentControlCard() {
       const result = await response.json();
       
       if (result.success) {
-        // Clear messages and set new thread_id
+        // Clear UI and set new thread_id
         setMessages([]);
         setStatus({ isRunning: false, currentTask: null, threadId: result.thread_id });
         
-        // Clear localStorage
-        localStorage.removeItem(`agent_messages_${userId}`);
+        // Update current thread in localStorage (only thread ID, not messages)
         localStorage.setItem(`agent_thread_${userId}`, result.thread_id);
         
         console.log(`✨ Started new chat with thread: ${result.thread_id}`);
@@ -451,7 +485,7 @@ export function AgentControlCard() {
               </div>
             </div>
           ) : (
-            <ScrollArea className="flex-1 w-full p-4" ref={scrollRef}>
+            <div className="flex-1 w-full p-4 overflow-y-auto" ref={scrollRef as any}>
               <div className="space-y-4">
                 {messages.map((message, index) => (
                   <div
@@ -459,72 +493,72 @@ export function AgentControlCard() {
                     className={`flex gap-3 ${
                       message.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
-                >
-                  {message.role !== 'user' && (
-                    <div className={`flex-shrink-0 ${
-                      message.role === 'system' ? 'text-muted-foreground' : 'text-purple-500'
-                    }`}>
-                      {message.role === 'system' ? (
-                        <Sparkles className="h-5 w-5" />
-                      ) : (
-                        <Bot className="h-5 w-5" />
-                      )}
-                    </div>
-                  )}
-                  
-                  <div
-                    className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                      message.role === 'user'
-                        ? 'bg-purple-500 text-white'
-                        : message.role === 'system'
-                        ? 'bg-muted text-muted-foreground'
-                        : 'bg-secondary'
-                    }`}
                   >
-                    {message.role === 'assistant' ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown
-                          components={{
-                            code(props) {
-                              const {node, inline, className, children, ...rest} = props as any;
-                              const match = /language-(\w+)/.exec(className || '');
-                              return !inline && match ? (
-                                <SyntaxHighlighter
-                                  style={oneDark}
-                                  language={match[1]}
-                                  PreTag="div"
-                                  {...rest}
-                                >
-                                  {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
-                              ) : (
-                                <code className={className} {...rest}>
-                                  {children}
-                                </code>
-                              );
-                            }
-                          }}
-                        >
-                          {message.content}
-                        </ReactMarkdown>
+                    {message.role !== 'user' && (
+                      <div className={`flex-shrink-0 ${
+                        message.role === 'system' ? 'text-muted-foreground' : 'text-purple-500'
+                      }`}>
+                        {message.role === 'system' ? (
+                          <Sparkles className="h-5 w-5" />
+                        ) : (
+                          <Bot className="h-5 w-5" />
+                        )}
                       </div>
-                    ) : (
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     )}
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
-                  </div>
-
-                  {message.role === 'user' && (
-                    <div className="flex-shrink-0 text-purple-500">
-                      <User className="h-5 w-5" />
+                    
+                    <div
+                      className={`rounded-lg px-4 py-2 max-w-[80%] break-words ${
+                        message.role === 'user'
+                          ? 'bg-purple-500 text-white'
+                          : message.role === 'system'
+                          ? 'bg-muted text-muted-foreground'
+                          : 'bg-secondary'
+                      }`}
+                    >
+                      {message.role === 'assistant' ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden">
+                          <ReactMarkdown
+                            components={{
+                              code(props) {
+                                const {node, inline, className, children, ...rest} = props as any;
+                                const match = /language-(\w+)/.exec(className || '');
+                                return !inline && match ? (
+                                  <SyntaxHighlighter
+                                    style={oneDark}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...rest}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className={className} {...rest}>
+                                    {children}
+                                  </code>
+                                );
+                              }
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                      )}
+                      <p className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString()}
+                      </p>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {message.role === 'user' && (
+                      <div className="flex-shrink-0 text-purple-500">
+                        <User className="h-5 w-5" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            </ScrollArea>
+            </div>
           )}
         </div>
 
@@ -540,7 +574,7 @@ export function AgentControlCard() {
           <div className="flex gap-2 items-end">
             <Textarea
               ref={textareaRef}
-              placeholder="Ask your agent to do something..."
+              placeholder={status.isRunning ? "Type a new message to interrupt..." : "Ask your agent to do something..."}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -549,13 +583,13 @@ export function AgentControlCard() {
                   handleSendMessage();
                 }
               }}
-              disabled={status.isRunning}
+              disabled={false}  // Always enabled for double-texting
               className="flex-1 min-h-[44px] max-h-[200px] resize-none"
               rows={1}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!input.trim() || status.isRunning}
+              disabled={!input.trim()}
               className="bg-purple-500 hover:bg-purple-600 h-[44px]"
             >
               {status.isRunning ? (
