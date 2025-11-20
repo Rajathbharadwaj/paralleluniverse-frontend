@@ -12,26 +12,50 @@ interface CalendarGridProps {
   posts: ScheduledPost[];
   onCreatePost: (date: Date, time?: string) => void;
   onRefresh: () => void;
+  onEditPost?: (postId: number) => void;
+  onDeletePost?: (postId: number) => void;
 }
 
-export function CalendarGrid({ days, posts, onCreatePost, onRefresh }: CalendarGridProps) {
+export function CalendarGrid({ days, posts, onCreatePost, onRefresh, onEditPost, onDeletePost }: CalendarGridProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // Time slots for each day (9am, 2pm, 6pm)
-  const timeSlots = ["09:00", "14:00", "18:00"];
-
-  // Get posts for a specific date and time
-  const getPostsForSlot = (date: Date, time: string) => {
-    return posts.filter((post) => {
+  // Get all posts for a specific date (regardless of time)
+  const getPostsForDay = (date: Date) => {
+    const filtered = posts.filter((post) => {
       if (!post.scheduled_at) return false;
-      const postDate = new Date(post.scheduled_at);
-      const postTime = postDate.toTimeString().substring(0, 5);
 
-      return (
-        postDate.toDateString() === date.toDateString() &&
-        postTime === time
-      );
+      // For posted posts, use posted_at date if available
+      // Otherwise use scheduled_at
+      const relevantTime = post.status === "posted" && post.posted_at
+        ? new Date(post.posted_at)
+        : new Date(post.scheduled_at);
+
+      const matches = relevantTime.toDateString() === date.toDateString();
+
+      // Debug logging
+      if (post.status === "posted") {
+        console.log(`Posted post ${post.id}:`, {
+          scheduled_at: post.scheduled_at,
+          posted_at: post.posted_at,
+          relevantTime: relevantTime.toDateString(),
+          checkingDate: date.toDateString(),
+          matches
+        });
+      }
+
+      return matches;
+    }).sort((a, b) => {
+      // Sort by time
+      const timeA = a.status === "posted" && a.posted_at
+        ? new Date(a.posted_at)
+        : new Date(a.scheduled_at);
+      const timeB = b.status === "posted" && b.posted_at
+        ? new Date(b.posted_at)
+        : new Date(b.scheduled_at);
+      return timeA.getTime() - timeB.getTime();
     });
+
+    return filtered;
   };
 
   // Format day header
@@ -66,72 +90,74 @@ export function CalendarGrid({ days, posts, onCreatePost, onRefresh }: CalendarG
         ))}
       </div>
 
-      {/* Time Slots Grid */}
+      {/* Days Grid */}
       <div className="grid grid-cols-7 divide-x">
-        {days.map((day, dayIndex) => (
-          <div key={dayIndex} className="min-h-[600px]">
-            {timeSlots.map((time, timeIndex) => {
-              const posts = getPostsForSlot(day, time);
+        {days.map((day, dayIndex) => {
+          const dayPosts = getPostsForDay(day);
 
-              return (
-                <div
-                  key={timeIndex}
-                  className={`border-b last:border-b-0 p-3 min-h-[200px] hover:bg-muted/50 transition-colors ${
-                    selectedDate?.toDateString() === day.toDateString()
-                      ? 'bg-primary/5'
-                      : ''
-                  }`}
-                  onClick={() => setSelectedDate(day)}
-                >
-                  {/* Time Label */}
-                  <div className="text-xs font-medium text-muted-foreground mb-2">
-                    {time}
-                  </div>
+          return (
+            <div
+              key={dayIndex}
+              className={`min-h-[600px] p-3 hover:bg-muted/50 transition-colors ${
+                selectedDate?.toDateString() === day.toDateString()
+                  ? 'bg-primary/5'
+                  : ''
+              }`}
+              onClick={() => setSelectedDate(day)}
+            >
+              {/* Posts for this day */}
+              <ScrollArea className="h-[580px]">
+                <div className="space-y-2 pr-3">
+                  {dayPosts.map((post) => {
+                    // Transform API post to PostCard format
+                    const postDate = new Date(post.scheduled_at || new Date());
+                    const postedDate = post.posted_at ? new Date(post.posted_at) : null;
+                    const transformedPost = {
+                      id: String(post.id),
+                      date: postDate,
+                      time: postDate.toTimeString().substring(0, 5),
+                      content: post.content,
+                      media: post.media_urls?.map((url) => ({
+                        type: url.match(/\.(mp4|mov|avi)$/i) ? "video" : "image",
+                        url
+                      })) || [],
+                      status: post.status as "draft" | "scheduled" | "posted" | "failed",
+                      postedAt: postedDate ? postedDate.toTimeString().substring(0, 5) : undefined
+                    };
 
-                  {/* Posts for this slot */}
-                  <div className="space-y-2">
-                    {posts.map((post) => {
-                      // Transform API post to PostCard format
-                      const postDate = new Date(post.scheduled_at || new Date());
-                      const transformedPost = {
-                        id: String(post.id),
-                        date: postDate,
-                        time: postDate.toTimeString().substring(0, 5),
-                        content: post.content,
-                        media: post.media_urls?.map((url) => ({
-                          type: url.match(/\.(mp4|mov|avi)$/i) ? "video" : "image",
-                          url
-                        })) || [],
-                        status: post.status as "draft" | "scheduled" | "posted" | "failed"
-                      };
-
-                      return <PostCard key={post.id} post={transformedPost} compact />;
-                    })}
-                  </div>
+                    return (
+                      <PostCard
+                        key={post.id}
+                        post={transformedPost}
+                        compact
+                        onEdit={onEditPost ? (id) => onEditPost(Number(id)) : undefined}
+                        onDelete={onDeletePost ? (id) => onDeletePost(Number(id)) : undefined}
+                      />
+                    );
+                  })}
 
                   {/* Add Post Button */}
-                  {posts.length === 0 && (
+                  {dayPosts.length === 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full h-auto py-8 border-2 border-dashed hover:border-primary hover:bg-primary/5"
-                      onClick={() => onCreatePost(day, time)}
+                      className="w-full h-auto py-24 border-2 border-dashed hover:border-primary hover:bg-primary/5"
+                      onClick={() => onCreatePost(day)}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        ))}
+              </ScrollArea>
+            </div>
+          );
+        })}
       </div>
 
       {/* Footer Stats */}
       <div className="border-t bg-muted/30 px-6 py-3">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium">{posts.length} posts</span> scheduled this week •
-          <span className="font-medium ml-1">{(days.length * timeSlots.length) - posts.length} slots</span> available
+          <span className="font-medium">{posts.length} posts</span> for this week
         </p>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
 import { AgentControlCard } from "@/components/agent-control-card";
 import { AutomationControls } from "@/components/automation-controls";
-import { RecentActivity } from "@/components/recent-activity";
+import { RecentActivityLive } from "@/components/recent-activity-live";
 import { AgentBrowserViewer } from "@/components/agent-browser-viewer";
 import { SetupStatusBar } from "@/components/setup-status-bar";
 import { ResizableSidebar } from "@/components/resizable-sidebar";
@@ -288,7 +288,7 @@ export default function DashboardPage() {
             <AgentBrowserViewer />
             
             {/* Recent Activity */}
-            <RecentActivity />
+            <RecentActivityLive />
               </div>
             </div>
 

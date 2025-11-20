@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,15 @@ import {
   X,
   Edit,
   RefreshCw,
-  Loader2
+  Loader2,
+  Info,
+  Clock
 } from "lucide-react";
 import { PostCard } from "./post-card";
-import { generateAIContent, createScheduledPost } from "@/lib/api/scheduled-posts";
+import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost } from "@/lib/api/scheduled-posts";
 
 interface AIPost {
-  id: string;
+  id: number;  // Database ID
   content: string;
   scheduled_at: string;
   confidence: number;
@@ -26,6 +28,12 @@ interface AIPost {
   date: Date;
   time: string;
   source: string;
+  metadata?: {
+    posting_time_rationale?: string;
+    topic?: string;
+    content_type?: string;
+    [key: string]: any;
+  };
 }
 
 interface AIContentTabProps {
@@ -37,7 +45,47 @@ interface AIContentTabProps {
 export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
   const [aiPosts, setAIPosts] = useState<AIPost[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
+  const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load AI drafts on mount
+  useEffect(() => {
+    const loadDrafts = async () => {
+      if (!userId) return;
+
+      try {
+        console.log("📥 Loading AI drafts from database...");
+        const drafts = await fetchAIDrafts(userId);
+        console.log(`✅ Loaded ${drafts.length} AI drafts`);
+
+        // Transform to AIPost format
+        const transformedPosts: AIPost[] = drafts.map(draft => {
+          const scheduledDate = new Date(draft.scheduled_at);
+          return {
+            id: draft.id,
+            content: draft.content,
+            scheduled_at: draft.scheduled_at,
+            confidence: draft.confidence,
+            media: [],
+            status: "draft" as const,
+            date: scheduledDate,
+            time: scheduledDate.toTimeString().substring(0, 5),
+            source: "ai",
+            metadata: draft.metadata
+          };
+        });
+
+        setAIPosts(transformedPosts);
+      } catch (error) {
+        console.error("❌ Failed to load AI drafts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDrafts();
+  }, [userId]);
 
   // Generate more AI content
   const generateMoreContent = async () => {
@@ -46,17 +94,34 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
       return;
     }
 
+    console.log("🚀 Starting AI content generation for user:", userId);
+
     try {
       setIsGenerating(true);
+      console.log("⏳ Calling generateAIContent API...");
 
-      // Call AI generation API
-      const generatedPosts = await generateAIContent(userId, 5);
+      // Call AI generation API (generate 7 posts for the week)
+      const generatedPosts = await generateAIContent(userId, 7);
 
-      // Transform API response to AIPost format
+      console.log("✅ Received response with", generatedPosts?.length || 0, "posts");
+      console.log("Response data:", generatedPosts);
+
+      if (!generatedPosts || generatedPosts.length === 0) {
+        throw new Error("No posts were generated");
+      }
+
+      // Transform API response to AIPost format (now includes database IDs)
       const newPosts: AIPost[] = generatedPosts.map((post, index) => {
+        console.log(`📝 Processing post ${index + 1}:`, {
+          id: post.id,
+          content: post.content?.substring(0, 50),
+          scheduled_at: post.scheduled_at,
+          confidence: post.confidence
+        });
+
         const scheduledDate = new Date(post.scheduled_at);
         return {
-          id: `ai-${Date.now()}-${index}`,
+          id: post.id,  // Use database ID from backend
           content: post.content,
           scheduled_at: post.scheduled_at,
           confidence: post.confidence,
@@ -64,21 +129,30 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
           status: "draft" as const,
           date: scheduledDate,
           time: scheduledDate.toTimeString().substring(0, 5),
-          source: "ai"
+          source: "ai",
+          metadata: post.metadata
         };
       });
 
+      console.log("✅ Transformed", newPosts.length, "posts, updating state...");
       setAIPosts(prev => [...prev, ...newPosts]);
+      console.log("✅ State updated successfully!");
+
     } catch (error) {
-      console.error("Failed to generate AI content:", error);
-      alert("Failed to generate AI content. Please try again.");
+      console.error("❌ Failed to generate AI content:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      alert(`Failed to generate AI content: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
+      console.log("🏁 Setting isGenerating to false");
       setIsGenerating(false);
     }
   };
 
-  // Approve post (add to scheduled)
-  const approvePost = async (postId: string) => {
+  // Approve post (update status from draft to scheduled)
+  const approvePost = async (postId: number) => {
     if (!userId) {
       alert("User ID is required");
       return;
@@ -88,14 +162,14 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     if (!post) return;
 
     try {
-      // Create scheduled post in database
-      await createScheduledPost({
-        user_id: userId,
-        content: post.content,
-        media_urls: [],
-        scheduled_at: post.scheduled_at,
-        status: "scheduled",
+      console.log(`✅ Approving post ${postId}, updating status to scheduled...`);
+
+      // Update the existing draft post's status to "scheduled"
+      await updateScheduledPost(postId, {
+        status: "scheduled"
       });
+
+      console.log("✅ Post approved and status updated");
 
       // Remove from AI posts list
       setAIPosts(prev => prev.filter(p => p.id !== postId));
@@ -105,19 +179,40 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         onRefresh();
       }
     } catch (error) {
-      console.error("Failed to approve post:", error);
+      console.error("❌ Failed to approve post:", error);
       alert("Failed to approve post. Please try again.");
     }
   };
 
-  // Reject post
-  const rejectPost = (postId: string) => {
-    setAIPosts(prev => prev.filter(p => p.id !== postId));
+  // Reject post (delete from database)
+  const rejectPost = async (postId: number) => {
+    try {
+      console.log(`🗑️  Deleting post ${postId} from database...`);
+      await deleteScheduledPost(postId);
+      setAIPosts(prev => prev.filter(p => p.id !== postId));
+      console.log("✅ Post deleted successfully");
+    } catch (error) {
+      console.error("❌ Failed to delete post:", error);
+      alert("Failed to delete post. Please try again.");
+    }
   };
 
   // Toggle post selection
-  const togglePostSelection = (postId: string) => {
+  const togglePostSelection = (postId: number) => {
     setSelectedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  // Toggle post expansion
+  const togglePostExpansion = (postId: number) => {
+    setExpandedPosts(prev => {
       const newSet = new Set(prev);
       if (newSet.has(postId)) {
         newSet.delete(postId);
@@ -232,6 +327,9 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {aiPosts.map((post) => {
             const isSelected = selectedPosts.has(post.id);
+            const isExpanded = expandedPosts.has(post.id);
+            const contentLines = post.content.split('\n').length;
+            const isLongContent = contentLines > 4 || post.content.length > 200;
 
             return (
               <Card
@@ -260,16 +358,40 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
                 <div className="p-6 pt-12">
                   {/* Post Content */}
-                  <p className="text-sm mb-4 line-clamp-4">{post.content}</p>
+                  <div className="text-sm mb-2">
+                    <p className={`whitespace-pre-wrap ${!isExpanded && isLongContent ? 'line-clamp-4' : ''}`}>
+                      {post.content}
+                    </p>
+                    {isLongContent && (
+                      <button
+                        onClick={() => togglePostExpansion(post.id)}
+                        className="text-primary hover:underline text-xs mt-1 font-medium"
+                      >
+                        {isExpanded ? 'Show less' : 'Show more'}
+                      </button>
+                    )}
+                  </div>
 
                   {/* Meta Info */}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                    <Calendar className="h-3 w-3" />
-                    <span>
-                      {post.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                    <span>•</span>
-                    <span>{post.time}</span>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3" />
+                      <span>
+                        {post.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      <span>•</span>
+                      <span>{post.time}</span>
+                    </div>
+
+                    {/* Optimal Time Rationale */}
+                    {post.metadata?.posting_time_rationale && (
+                      <div className="flex items-start gap-2 text-xs bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md p-2">
+                        <Clock className="h-3 w-3 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-blue-700 dark:text-blue-300 leading-tight">
+                          {post.metadata.posting_time_rationale}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Confidence Score */}

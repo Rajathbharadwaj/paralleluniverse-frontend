@@ -31,14 +31,19 @@ interface Post {
   status: "draft" | "scheduled" | "posted" | "failed";
   date: Date;
   time: string;
+  postedAt?: string;
 }
 
 interface PostCardProps {
   post: Post;
   compact?: boolean;
+  onEdit?: (postId: string) => void;
+  onDelete?: (postId: string) => void;
+  onDuplicate?: (postId: string) => void;
+  onPreview?: (postId: string) => void;
 }
 
-export function PostCard({ post, compact = false }: PostCardProps) {
+export function PostCard({ post, compact = false, onEdit, onDelete, onDuplicate, onPreview }: PostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const statusConfig = {
@@ -107,30 +112,58 @@ export function PostCard({ post, compact = false }: PostCardProps) {
             {status.label}
           </Badge>
 
-          {isHovered && (
+          {(onEdit || onDelete || onPreview || onDuplicate) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-6 w-6 p-0 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                {onPreview && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onPreview(post.id);
+                  }}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
+                  </DropdownMenuItem>
+                )}
+                {onEdit && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(post.id);
+                  }}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
+                {onDuplicate && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onDuplicate(post.id);
+                  }}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </DropdownMenuItem>
+                )}
+                {onDelete && (
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(post.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -165,7 +198,11 @@ export function PostCard({ post, compact = false }: PostCardProps) {
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             {getMediaIcon()}
-            <span>{post.time}</span>
+            {post.status === "posted" && post.postedAt ? (
+              <span className="text-green-600 font-medium">Posted {post.postedAt}</span>
+            ) : (
+              <span>{post.time}</span>
+            )}
           </div>
           {post.content.length > 0 && (
             <span>{post.content.length}/280</span>

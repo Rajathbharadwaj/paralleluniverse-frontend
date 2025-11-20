@@ -138,12 +138,39 @@ export async function uploadMedia(file: File): Promise<string> {
 }
 
 /**
+ * Fetch AI-generated draft posts
+ */
+export async function fetchAIDrafts(
+  userId: string
+): Promise<Array<{
+  id: number;
+  content: string;
+  scheduled_at: string;
+  confidence: number;
+  ai_generated: boolean;
+}>> {
+  const params = new URLSearchParams({ user_id: userId });
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/scheduled-posts/ai-drafts?${params}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch AI drafts: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.posts || [];
+}
+
+/**
  * Generate AI content suggestions
  */
 export async function generateAIContent(
   userId: string,
   count: number = 5
 ): Promise<Array<{
+  id: number;  // Database ID
   content: string;
   scheduled_at: string;
   confidence: number;
@@ -154,17 +181,38 @@ export async function generateAIContent(
     count: count.toString(),
   });
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/scheduled-posts/generate-ai?${params}`,
-    {
+  const url = `${API_BASE_URL}/api/scheduled-posts/generate-ai?${params}`;
+  console.log("🌐 Fetching AI content from:", url);
+  console.log("📊 Request params:", { userId, count });
+
+  try {
+    const response = await fetch(url, {
       method: "POST",
+    });
+
+    console.log("📥 Response received:", {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Response not OK:", errorText);
+      throw new Error(`Failed to generate AI content: ${response.statusText}`);
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(`Failed to generate AI content: ${response.statusText}`);
+    const data = await response.json();
+    console.log("📦 Response data:", {
+      success: data.success,
+      count: data.count,
+      postsLength: data.posts?.length,
+      message: data.message
+    });
+
+    return data.posts || [];
+  } catch (error) {
+    console.error("❌ Error in generateAIContent:", error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.posts || [];
 }

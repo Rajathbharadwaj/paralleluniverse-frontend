@@ -1,0 +1,1166 @@
+
+> cua-frontend@0.1.0 dev
+> next dev
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.77:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 501ms
+ GET / 200 in 2.7s (compile: 1648ms, proxy.ts: 716ms, render: 320ms)
+ POST / 200 in 16ms (compile: 1742µs, proxy.ts: 8ms, render: 6ms)
+ GET /competitors 200 in 628ms (compile: 609ms, proxy.ts: 6ms, render: 13ms)
+ GET / 200 in 37ms (compile: 1756µs, proxy.ts: 6ms, render: 30ms)
+ POST / 200 in 13ms (compile: 1788µs, proxy.ts: 7ms, render: 4ms)
+ GET / 200 in 31ms (compile: 2ms, proxy.ts: 5ms, render: 24ms)
+ POST / 200 in 15ms (compile: 4ms, proxy.ts: 7ms, render: 5ms)
+ GET /competitors 200 in 15ms (compile: 1631µs, proxy.ts: 6ms, render: 8ms)
+ GET /competitors 200 in 459ms (compile: 3ms, proxy.ts: 409ms, render: 47ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 12ms (compile: 1737µs, proxy.ts: 4ms, render: 6ms)
+ GET / 200 in 34ms (compile: 3ms, proxy.ts: 5ms, render: 25ms)
+ POST / 200 in 15ms (compile: 3ms, proxy.ts: 7ms, render: 5ms)
+ ✓ Compiled in 18ms
+ ✓ Compiled in 21ms
+ GET /competitors 200 in 635ms (compile: 49ms, proxy.ts: 491ms, render: 96ms)
+ POST /competitors 200 in 12ms (compile: 1789µs, proxy.ts: 7ms, render: 3ms)
+ ✓ Compiled in 18ms
+ GET /competitors 200 in 149ms (compile: 48ms, proxy.ts: 5ms, render: 96ms)
+ POST /competitors 200 in 12ms (compile: 1902µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 21ms
+ GET /competitors 200 in 152ms (compile: 55ms, proxy.ts: 6ms, render: 91ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 30ms (compile: 1343µs, proxy.ts: 6ms, render: 23ms)
+ POST /competitors 200 in 11ms (compile: 1439µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 28ms (compile: 1426µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 9ms (compile: 1148µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 41ms (compile: 1386µs, proxy.ts: 4ms, render: 36ms)
+ POST /competitors 200 in 11ms (compile: 1633µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 24ms (compile: 1420µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 9ms (compile: 1285µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 24ms (compile: 1261µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 11ms (compile: 1359µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 23ms (compile: 1222µs, proxy.ts: 4ms, render: 18ms)
+ POST /competitors 200 in 10ms (compile: 1796µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 24ms (compile: 1387µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 11ms (compile: 1817µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 33ms (compile: 2ms, proxy.ts: 5ms, render: 25ms)
+ POST /competitors 200 in 15ms (compile: 2ms, proxy.ts: 8ms, render: 5ms)
+ ✓ Compiled in 24ms
+ GET /competitors 200 in 147ms (compile: 47ms, proxy.ts: 5ms, render: 95ms)
+ POST /competitors 200 in 11ms (compile: 1217µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 18ms
+ GET /competitors 200 in 148ms (compile: 51ms, proxy.ts: 5ms, render: 92ms)
+ POST /competitors 200 in 11ms (compile: 1771µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 42ms
+ GET /competitors 200 in 628ms (compile: 50ms, proxy.ts: 482ms, render: 95ms)
+ POST /competitors 200 in 12ms (compile: 1561µs, proxy.ts: 6ms, render: 4ms)
+ GET /workflows 200 in 411ms (compile: 396ms, proxy.ts: 5ms, render: 11ms)
+ GET /content 200 in 348ms (compile: 332ms, proxy.ts: 6ms, render: 10ms)
+ GET /competitors 200 in 13ms (compile: 1362µs, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 27ms (compile: 1680µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 10ms (compile: 1369µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 22ms (compile: 1720µs, proxy.ts: 7ms, render: 13ms)
+ GET /competitors 200 in 246ms (compile: 97ms, proxy.ts: 6ms, render: 143ms)
+ ✓ Compiled in 0ms
+ GET /competitors 200 in 181ms (compile: 3ms, proxy.ts: 5ms, render: 173ms)
+ POST /competitors 200 in 14ms (compile: 4ms, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 14ms
+ GET /competitors 200 in 194ms (compile: 61ms, proxy.ts: 6ms, render: 127ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 35ms (compile: 2ms, proxy.ts: 6ms, render: 27ms)
+ POST /competitors 200 in 10ms (compile: 1484µs, proxy.ts: 5ms, render: 3ms)
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/social-graph-visualization.tsx:4:1
+Module not found: Can't resolve 'reagraph'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mGraphCanvas[39m[33m,[39m [33mGraphEdge[39m[33m,[39m [33mGraphNode[39m } [36mfrom[39m [32m"reagraph"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mimport[39m { [33mCard[39m } [36mfrom[39m [32m"@/components/ui/card"[39m[33m;[39m
+ [90m 6 |[39m
+ [90m 7 |[39m [36minterface[39m [33mSocialGraphVisualizationProps[39m {[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./components/social-graph-visualization.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Client Component Browser]
+    ./app/competitors/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/social-graph-visualization.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Client Component SSR]
+    ./app/competitors/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ✓ Compiled in 211ms
+ ✓ Compiled in 29ms
+ GET /competitors 200 in 485ms (compile: 53ms, proxy.ts: 294ms, render: 139ms)
+ GET / 200 in 548ms (compile: 5ms, proxy.ts: 522ms, render: 20ms)
+ POST /competitors 200 in 10ms (compile: 1810µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 35ms (compile: 2ms, proxy.ts: 6ms, render: 27ms)
+ POST /competitors 200 in 12ms (compile: 1883µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 30ms (compile: 2ms, proxy.ts: 5ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 1246µs, proxy.ts: 7ms, render: 3ms)
+ ✓ Compiled in 40ms
+ GET /competitors 200 in 546ms (compile: 49ms, proxy.ts: 390ms, render: 106ms)
+ POST /competitors 200 in 13ms (compile: 1957µs, proxy.ts: 7ms, render: 4ms)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 58ms
+ GET /competitors 200 in 171ms (compile: 56ms, proxy.ts: 5ms, render: 110ms)
+ POST /competitors 200 in 10ms (compile: 1583µs, proxy.ts: 5ms, render: 3ms)
+ ✓ Compiled in 20ms
+ ✓ Compiled in 17ms
+ ✓ Compiled in 18ms
+ ✓ Compiled in 19ms
+ ✓ Compiled in 14ms
+ ✓ Compiled in 14ms
+ ✓ Compiled in 13ms
+ ✓ Compiled in 32ms
+ GET /competitors 200 in 160ms (compile: 53ms, proxy.ts: 5ms, render: 102ms)
+ POST /competitors 200 in 10ms (compile: 1164µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 503ms (compile: 1402µs, proxy.ts: 481ms, render: 21ms)
+ POST /competitors 200 in 10ms (compile: 1858µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 36ms (compile: 1537µs, proxy.ts: 4ms, render: 30ms)
+ POST / 200 in 10ms (compile: 1640µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 30ms (compile: 1805µs, proxy.ts: 5ms, render: 23ms)
+ POST /competitors 200 in 9ms (compile: 2ms, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 721ms (compile: 2ms, proxy.ts: 698ms, render: 21ms)
+ POST /competitors 200 in 10ms (compile: 1700µs, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 27ms (compile: 1383µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 3ms, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 33ms (compile: 1702µs, proxy.ts: 4ms, render: 27ms)
+ POST / 200 in 9ms (compile: 1587µs, proxy.ts: 4ms, render: 3ms)
+ ✓ Compiled in 13ms
+ ✓ Compiled in 16ms
+ ✓ Compiled in 18ms
+ ✓ Compiled in 13ms
+ ✓ Compiled in 18ms
+ ✓ Compiled in 15ms
+ GET /competitors 200 in 623ms (compile: 46ms, proxy.ts: 467ms, render: 110ms)
+ POST /competitors 200 in 10ms (compile: 1383µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 17ms
+ GET /competitors 200 in 757ms (compile: 49ms, proxy.ts: 607ms, render: 100ms)
+ POST /competitors 200 in 12ms (compile: 1556µs, proxy.ts: 7ms, render: 4ms)
+ ✓ Compiled in 15ms
+ ✓ Compiled in 23ms
+ ✓ Compiled in 14ms
+ GET /competitors 200 in 136ms (compile: 48ms, proxy.ts: 4ms, render: 83ms)
+ POST /competitors 200 in 12ms (compile: 1362µs, proxy.ts: 7ms, render: 3ms)
+ ✓ Compiled in 25ms
+ ✓ Compiled in 18ms
+ ✓ Compiled in 14ms
+ GET / 404 in 271ms (compile: 238ms, proxy.ts: 4ms, render: 29ms)
+ GET /competitors 200 in 546ms (compile: 48ms, proxy.ts: 399ms, render: 100ms)
+ POST /competitors 200 in 12ms (compile: 1695µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 28ms (compile: 1383µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 542ms (compile: 3ms, proxy.ts: 511ms, render: 28ms)
+ POST /competitors 200 in 13ms (compile: 3ms, proxy.ts: 8ms, render: 3ms)
+ GET / 200 in 44ms (compile: 1348µs, proxy.ts: 5ms, render: 37ms)
+ POST / 200 in 11ms (compile: 1579µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 29ms (compile: 1576µs, proxy.ts: 4ms, render: 24ms)
+ POST / 200 in 16ms (compile: 3ms, proxy.ts: 7ms, render: 7ms)
+ GET / 200 in 624ms (compile: 2ms, proxy.ts: 599ms, render: 23ms)
+ POST / 200 in 12ms (compile: 3ms, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1441µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 12ms (compile: 1862µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 394ms (compile: 1900µs, proxy.ts: 370ms, render: 22ms)
+ POST /competitors 200 in 10ms (compile: 1655µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 17ms
+ ✓ Compiled in 16ms
+ ✓ Compiled in 15ms
+ ✓ Compiled in 49ms
+ GET /competitors 200 in 882ms (compile: 48ms, proxy.ts: 732ms, render: 101ms)
+ POST /competitors 200 in 11ms (compile: 1635µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 33ms (compile: 1854µs, proxy.ts: 6ms, render: 25ms)
+ POST /competitors 200 in 12ms (compile: 1643µs, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 30ms (compile: 1424µs, proxy.ts: 5ms, render: 24ms)
+ POST / 200 in 11ms (compile: 1842µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 32ms (compile: 2ms, proxy.ts: 4ms, render: 25ms)
+ POST / 200 in 11ms (compile: 1566µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 1316µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 10ms (compile: 2ms, proxy.ts: 3ms, render: 5ms)
+ ✓ Compiled in 37ms
+ ✓ Compiled in 55ms
+ GET /competitors 200 in 455ms (compile: 50ms, proxy.ts: 293ms, render: 112ms)
+ POST /competitors 200 in 13ms (compile: 1307µs, proxy.ts: 6ms, render: 5ms)
+ GET /competitors 200 in 33ms (compile: 2ms, proxy.ts: 6ms, render: 25ms)
+ POST /competitors 200 in 10ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 29ms (compile: 3ms, proxy.ts: 5ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 1461µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 31ms
+ GET /competitors 200 in 141ms (compile: 48ms, proxy.ts: 4ms, render: 89ms)
+ POST /competitors 200 in 12ms (compile: 1368µs, proxy.ts: 6ms, render: 5ms)
+ GET /competitors 200 in 27ms (compile: 1449µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 8ms (compile: 1276µs, proxy.ts: 4ms, render: 3ms)
+ GET /competitors 200 in 28ms (compile: 1376µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 11ms (compile: 1471µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 16ms
+ GET /competitors 200 in 137ms (compile: 46ms, proxy.ts: 5ms, render: 86ms)
+ POST /competitors 200 in 10ms (compile: 1291µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 32ms (compile: 3ms, proxy.ts: 6ms, render: 23ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ ✓ Compiled in 19ms
+ GET /competitors 200 in 178ms (compile: 66ms, proxy.ts: 5ms, render: 107ms)
+ POST /competitors 200 in 11ms (compile: 1757µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 15ms
+ GET /competitors 200 in 172ms (compile: 65ms, proxy.ts: 5ms, render: 102ms)
+ POST /competitors 200 in 11ms (compile: 1655µs, proxy.ts: 5ms, render: 5ms)
+ GET /competitors 200 in 31ms (compile: 2ms, proxy.ts: 4ms, render: 24ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 15ms
+ ✓ Compiled in 20ms
+ GET /competitors 200 in 171ms (compile: 60ms, proxy.ts: 6ms, render: 105ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 558ms (compile: 1898µs, proxy.ts: 536ms, render: 21ms)
+ POST /competitors 200 in 9ms (compile: 1469µs, proxy.ts: 4ms, render: 3ms)
+ GET / 200 in 38ms (compile: 1578µs, proxy.ts: 3ms, render: 34ms)
+ POST / 200 in 10ms (compile: 1657µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 1375µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 1376µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 14ms (compile: 1586µs, proxy.ts: 5ms, render: 7ms)
+ GET /competitors 200 in 508ms (compile: 1699µs, proxy.ts: 488ms, render: 18ms)
+ POST /competitors 200 in 10ms (compile: 1831µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 13ms (compile: 1308µs, proxy.ts: 5ms, render: 6ms)
+ GET / 200 in 27ms (compile: 1278µs, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 11ms (compile: 1285µs, proxy.ts: 5ms, render: 5ms)
+ ✓ Compiled in 24ms
+ ✓ Compiled in 27ms
+ ✓ Compiled in 34ms
+ GET / 200 in 248ms (compile: 1811µs, proxy.ts: 226ms, render: 21ms)
+ POST / 200 in 10ms (compile: 1240µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 83ms (compile: 62ms, proxy.ts: 5ms, render: 16ms)
+ GET / 200 in 414ms (compile: 2ms, proxy.ts: 406ms, render: 5ms)
+ GET / 200 in 31ms (compile: 1248µs, proxy.ts: 4ms, render: 26ms)
+ POST / 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 106ms (compile: 1950µs, proxy.ts: 5ms, render: 99ms)
+ POST /competitors 200 in 14ms (compile: 2ms, proxy.ts: 8ms, render: 3ms)
+ GET /competitors 200 in 225ms (compile: 1363µs, proxy.ts: 202ms, render: 22ms)
+ POST /competitors 200 in 9ms (compile: 1250µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 28ms (compile: 1327µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 13ms (compile: 4ms, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 1819µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1546µs, proxy.ts: 5ms, render: 5ms)
+ GET / 200 in 27ms (compile: 1998µs, proxy.ts: 4ms, render: 21ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 4ms, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 9ms (compile: 1315µs, proxy.ts: 5ms, render: 3ms)
+ ✓ Compiled in 18ms
+ GET /competitors 200 in 660ms (compile: 57ms, proxy.ts: 501ms, render: 103ms)
+ POST /competitors 200 in 13ms (compile: 1321µs, proxy.ts: 8ms, render: 3ms)
+ GET /competitors 200 in 464ms (compile: 2ms, proxy.ts: 436ms, render: 26ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ GET /competitors 200 in 33ms (compile: 1676µs, proxy.ts: 5ms, render: 26ms)
+ POST /competitors 200 in 10ms (compile: 1726µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 32ms (compile: 1881µs, proxy.ts: 5ms, render: 26ms)
+ POST / 200 in 11ms (compile: 1917µs, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 30ms (compile: 1207µs, proxy.ts: 4ms, render: 24ms)
+ POST / 200 in 10ms (compile: 1677µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 33ms (compile: 1395µs, proxy.ts: 4ms, render: 28ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 6ms, render: 5ms)
+ GET / 200 in 35ms (compile: 1739µs, proxy.ts: 5ms, render: 29ms)
+ POST / 200 in 11ms (compile: 1328µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 15ms (compile: 3ms, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 29ms (compile: 1567µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 14ms (compile: 3ms, proxy.ts: 7ms, render: 4ms)
+ GET /competitors 200 in 31ms (compile: 1909µs, proxy.ts: 5ms, render: 24ms)
+ POST /competitors 200 in 10ms (compile: 1311µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 26ms (compile: 1797µs, proxy.ts: 4ms, render: 20ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ GET / 200 in 16ms (compile: 1720µs, proxy.ts: 5ms, render: 9ms)
+ GET / 200 in 39ms (compile: 2ms, proxy.ts: 6ms, render: 31ms)
+ POST / 200 in 11ms (compile: 1635µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 397ms (compile: 1333µs, proxy.ts: 377ms, render: 19ms)
+ POST /competitors 200 in 11ms (compile: 1501µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 24ms (compile: 1168µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 10ms (compile: 1735µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 685ms (compile: 1542µs, proxy.ts: 660ms, render: 23ms)
+ POST /competitors 200 in 10ms (compile: 1654µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 247ms (compile: 1365µs, proxy.ts: 219ms, render: 26ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 26ms (compile: 1464µs, proxy.ts: 5ms, render: 19ms)
+ POST /competitors 200 in 10ms (compile: 1753µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1385µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 13ms (compile: 3ms, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 25ms (compile: 1213µs, proxy.ts: 3ms, render: 21ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 227ms (compile: 1692µs, proxy.ts: 204ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1937µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 29ms (compile: 1288µs, proxy.ts: 5ms, render: 23ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ GET /competitors 200 in 26ms (compile: 1811µs, proxy.ts: 5ms, render: 19ms)
+ POST /competitors 200 in 9ms (compile: 1101µs, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 25ms (compile: 1558µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 15ms (compile: 3ms, proxy.ts: 7ms, render: 5ms)
+ GET /competitors 200 in 33ms (compile: 1267µs, proxy.ts: 5ms, render: 27ms)
+ POST /competitors 200 in 10ms (compile: 1359µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 30ms (compile: 1797µs, proxy.ts: 5ms, render: 23ms)
+ POST /competitors 200 in 13ms (compile: 5ms, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 29ms (compile: 1328µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 11ms (compile: 1635µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 28ms (compile: 1165µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 10ms (compile: 1788µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 33ms (compile: 1730µs, proxy.ts: 4ms, render: 28ms)
+ POST / 200 in 12ms (compile: 1899µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 11ms (compile: 1211µs, proxy.ts: 4ms, render: 6ms)
+ GET /competitors 200 in 33ms (compile: 1489µs, proxy.ts: 4ms, render: 27ms)
+ POST /competitors 200 in 349ms (compile: 1628µs, proxy.ts: 344ms, render: 3ms)
+ POST /competitors 404 in 26ms (compile: 6ms, proxy.ts: 4ms, render: 15ms)
+ GET /competitors 404 in 14ms (compile: 2ms, proxy.ts: 3ms, render: 8ms)
+ POST /competitors 404 in 18ms (compile: 2ms, proxy.ts: 4ms, render: 12ms)
+ GET /competitors 404 in 22ms (compile: 2ms, proxy.ts: 4ms, render: 16ms)
+ GET /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 526ms (compile: 442ms, proxy.ts: 4ms, render: 80ms)
+ GET /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 67ms (compile: 38ms, proxy.ts: 4ms, render: 25ms)
+ POST /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 14ms (compile: 5ms, proxy.ts: 4ms, render: 4ms)
+ POST /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 13ms (compile: 2ms, proxy.ts: 5ms, render: 5ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1763284696207 200 in 66ms (compile: 39ms, proxy.ts: 4ms, render: 23ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1763284697142 200 in 58ms (compile: 35ms, proxy.ts: 4ms, render: 19ms)
+ POST /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 56ms (compile: 39ms, proxy.ts: 4ms, render: 13ms)
+ GET /competitors 200 in 566ms (compile: 1614µs, proxy.ts: 558ms, render: 7ms)
+ GET /competitors 200 in 21ms (compile: 3ms, proxy.ts: 6ms, render: 12ms)
+ GET /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 55ms (compile: 33ms, proxy.ts: 5ms, render: 17ms)
+ POST /sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fcompetitors 200 in 13ms (compile: 3ms, proxy.ts: 5ms, render: 5ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1763284718202 200 in 66ms (compile: 33ms, proxy.ts: 4ms, render: 29ms)
+ GET /competitors 200 in 15ms (compile: 1826µs, proxy.ts: 6ms, render: 7ms)
+ GET / 200 in 11ms (compile: 1635µs, proxy.ts: 4ms, render: 6ms)
+ GET / 200 in 28ms (compile: 1539µs, proxy.ts: 3ms, render: 23ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 5ms, render: 6ms)
+ GET /competitors 200 in 354ms (compile: 1560µs, proxy.ts: 333ms, render: 19ms)
+ POST /competitors 200 in 9ms (compile: 1598µs, proxy.ts: 4ms, render: 4ms)
+ ✓ Compiled in 23ms
+ ✓ Compiled in 91ms
+ ✓ Compiled in 24ms
+ GET /competitors 200 in 760ms (compile: 45ms, proxy.ts: 631ms, render: 84ms)
+ POST /competitors 200 in 10ms (compile: 1848µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 350ms (compile: 1863µs, proxy.ts: 322ms, render: 26ms)
+ POST /competitors 200 in 11ms (compile: 1620µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 25ms
+ ✓ Compiled in 47ms
+ ✓ Compiled in 18ms
+ ✓ Compiled in 13ms
+ GET /competitors 200 in 910ms (compile: 53ms, proxy.ts: 758ms, render: 99ms)
+ POST /competitors 200 in 10ms (compile: 1415µs, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 29ms (compile: 1786µs, proxy.ts: 5ms, render: 22ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 7ms, render: 4ms)
+ GET /competitors 200 in 26ms (compile: 1335µs, proxy.ts: 4ms, render: 20ms)
+ POST /competitors 200 in 8ms (compile: 1347µs, proxy.ts: 4ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 2ms, proxy.ts: 5ms, render: 20ms)
+ POST /competitors 200 in 11ms (compile: 1964µs, proxy.ts: 6ms, render: 4ms)
+ GET /workflows 200 in 623ms (compile: 5ms, proxy.ts: 606ms, render: 11ms)
+ GET / 200 in 13ms (compile: 1431µs, proxy.ts: 4ms, render: 8ms)
+ GET / 200 in 32ms (compile: 2ms, proxy.ts: 4ms, render: 25ms)
+ POST / 200 in 11ms (compile: 3ms, proxy.ts: 4ms, render: 3ms)
+ GET / 200 in 659ms (compile: 1380µs, proxy.ts: 635ms, render: 23ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 29ms (compile: 1792µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 10ms (compile: 1547µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 29ms (compile: 1741µs, proxy.ts: 3ms, render: 24ms)
+ POST / 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 13ms (compile: 1436µs, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 27ms (compile: 1295µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 20ms (compile: 7ms, proxy.ts: 8ms, render: 5ms)
+ GET /competitors 200 in 27ms (compile: 1405µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 10ms (compile: 2ms, proxy.ts: 4ms, render: 3ms)
+ GET / 200 in 28ms (compile: 1564µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 10ms (compile: 1429µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 25ms (compile: 1487µs, proxy.ts: 4ms, render: 20ms)
+ POST /competitors 200 in 13ms (compile: 1324µs, proxy.ts: 7ms, render: 5ms)
+ GET / 200 in 500ms (compile: 1350µs, proxy.ts: 479ms, render: 20ms)
+ POST / 200 in 11ms (compile: 1854µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 431ms (compile: 1516µs, proxy.ts: 403ms, render: 26ms)
+ POST /competitors 200 in 9ms (compile: 1466µs, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 29ms (compile: 1367µs, proxy.ts: 4ms, render: 24ms)
+ POST /competitors 200 in 9ms (compile: 1334µs, proxy.ts: 4ms, render: 3ms)
+ GET /competitors 200 in 604ms (compile: 1521µs, proxy.ts: 582ms, render: 21ms)
+ POST /competitors 200 in 9ms (compile: 1115µs, proxy.ts: 4ms, render: 3ms)
+ GET /competitors 200 in 392ms (compile: 1443µs, proxy.ts: 370ms, render: 20ms)
+ POST /competitors 200 in 10ms (compile: 1623µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 559ms (compile: 2ms, proxy.ts: 536ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 3ms, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 234ms (compile: 1493µs, proxy.ts: 211ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 3ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1574µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 11ms (compile: 1340µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 711ms (compile: 1583µs, proxy.ts: 689ms, render: 20ms)
+ POST /competitors 200 in 10ms (compile: 1300µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 17ms
+ ✓ Compiled in 43ms
+ GET /competitors 200 in 153ms (compile: 55ms, proxy.ts: 5ms, render: 94ms)
+ POST /competitors 200 in 11ms (compile: 1714µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 34ms (compile: 3ms, proxy.ts: 5ms, render: 25ms)
+ POST /competitors 200 in 10ms (compile: 1311µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 23ms
+ ✓ Compiled in 26ms
+ ✓ Compiled in 39ms
+ GET /competitors 200 in 416ms (compile: 50ms, proxy.ts: 280ms, render: 85ms)
+ POST /competitors 200 in 12ms (compile: 1172µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 13ms (compile: 1746µs, proxy.ts: 4ms, render: 7ms)
+ GET /competitors 200 in 28ms (compile: 2ms, proxy.ts: 5ms, render: 21ms)
+ POST /competitors 200 in 12ms (compile: 1823µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 28ms (compile: 1533µs, proxy.ts: 5ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1431µs, proxy.ts: 6ms, render: 4ms)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 28ms
+ GET /competitors 200 in 188ms (compile: 53ms, proxy.ts: 5ms, render: 130ms)
+ POST /competitors 200 in 16ms (compile: 2ms, proxy.ts: 9ms, render: 5ms)
+ ✓ Compiled in 45ms
+ GET /competitors 200 in 410ms (compile: 54ms, proxy.ts: 259ms, render: 97ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 19ms
+ GET /competitors 200 in 411ms (compile: 59ms, proxy.ts: 265ms, render: 88ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 17ms
+ ✓ Compiled in 26ms
+ GET /competitors 200 in 150ms (compile: 47ms, proxy.ts: 5ms, render: 98ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 5ms, render: 5ms)
+ GET /competitors 200 in 278ms (compile: 1646µs, proxy.ts: 250ms, render: 26ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 5ms)
+ GET /content 200 in 20ms (compile: 6ms, proxy.ts: 5ms, render: 10ms)
+ GET /competitors 200 in 13ms (compile: 1367µs, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 410ms (compile: 3ms, proxy.ts: 385ms, render: 23ms)
+ POST /competitors 200 in 10ms (compile: 1870µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 32ms (compile: 1837µs, proxy.ts: 4ms, render: 26ms)
+ POST / 200 in 10ms (compile: 1928µs, proxy.ts: 3ms, render: 5ms)
+ GET /competitors 200 in 31ms (compile: 2ms, proxy.ts: 4ms, render: 25ms)
+ POST /competitors 200 in 10ms (compile: 3ms, proxy.ts: 4ms, render: 3ms)
+ GET / 200 in 301ms (compile: 1262µs, proxy.ts: 275ms, render: 25ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 29ms (compile: 1607µs, proxy.ts: 5ms, render: 22ms)
+ POST / 200 in 9ms (compile: 1327µs, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 27ms (compile: 1576µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1732µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 622ms (compile: 1769µs, proxy.ts: 601ms, render: 19ms)
+ POST /competitors 200 in 12ms (compile: 1280µs, proxy.ts: 6ms, render: 5ms)
+ GET / 200 in 31ms (compile: 1435µs, proxy.ts: 4ms, render: 26ms)
+ POST / 200 in 12ms (compile: 1610µs, proxy.ts: 7ms, render: 3ms)
+ GET / 200 in 29ms (compile: 1530µs, proxy.ts: 4ms, render: 24ms)
+ POST / 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 29ms (compile: 1461µs, proxy.ts: 4ms, render: 23ms)
+ POST / 200 in 13ms (compile: 1621µs, proxy.ts: 6ms, render: 5ms)
+ GET /competitors 200 in 28ms (compile: 1502µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 1279µs, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 301ms (compile: 2ms, proxy.ts: 279ms, render: 20ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 482ms (compile: 1315µs, proxy.ts: 463ms, render: 18ms)
+ POST /competitors 200 in 10ms (compile: 1159µs, proxy.ts: 4ms, render: 5ms)
+ ✓ Compiled in 18ms
+ ✓ Compiled in 19ms
+ ✓ Compiled in 19ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 21ms
+ GET /competitors 200 in 615ms (compile: 55ms, proxy.ts: 466ms, render: 95ms)
+ POST /competitors 200 in 11ms (compile: 1366µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 21ms
+ GET /competitors 200 in 462ms (compile: 46ms, proxy.ts: 324ms, render: 93ms)
+ POST /competitors 200 in 11ms (compile: 1629µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 22ms
+ ✓ Compiled in 19ms
+ ✓ Compiled in 21ms
+ ✓ Compiled in 19ms
+ GET /competitors 200 in 545ms (compile: 43ms, proxy.ts: 395ms, render: 107ms)
+ POST /competitors 200 in 12ms (compile: 1765µs, proxy.ts: 6ms, render: 5ms)
+ ✓ Compiled in 19ms
+ ✓ Compiled in 25ms
+ GET /competitors 200 in 442ms (compile: 41ms, proxy.ts: 309ms, render: 91ms)
+ POST /competitors 200 in 30ms (compile: 1596µs, proxy.ts: 7ms, render: 22ms)
+ GET /competitors 200 in 329ms (compile: 3ms, proxy.ts: 299ms, render: 27ms)
+ POST /competitors 200 in 11ms (compile: 1748µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 20ms
+ ✓ Compiled in 18ms
+ GET /competitors 200 in 639ms (compile: 44ms, proxy.ts: 505ms, render: 91ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ GET /competitors 200 in 29ms (compile: 1487µs, proxy.ts: 4ms, render: 24ms)
+ POST /competitors 200 in 12ms (compile: 4ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1570µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 9ms (compile: 1656µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 25ms (compile: 1621µs, proxy.ts: 4ms, render: 19ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1554µs, proxy.ts: 7ms, render: 20ms)
+ POST /competitors 200 in 11ms (compile: 1752µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 1791µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 9ms (compile: 1929µs, proxy.ts: 4ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 6ms, proxy.ts: 3ms, render: 18ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 23ms (compile: 1373µs, proxy.ts: 4ms, render: 18ms)
+ POST /competitors 200 in 9ms (compile: 1438µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 30ms (compile: 2ms, proxy.ts: 4ms, render: 24ms)
+ POST /competitors 200 in 10ms (compile: 1237µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 26ms (compile: 1537µs, proxy.ts: 5ms, render: 20ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 36ms (compile: 1690µs, proxy.ts: 5ms, render: 30ms)
+ POST /competitors 200 in 10ms (compile: 1363µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 34ms
+ GET /competitors 200 in 127ms (compile: 40ms, proxy.ts: 4ms, render: 83ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 31ms (compile: 1622µs, proxy.ts: 5ms, render: 24ms)
+ POST /competitors 200 in 12ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 28ms (compile: 1635µs, proxy.ts: 5ms, render: 22ms)
+ POST /competitors 200 in 16ms (compile: 2ms, proxy.ts: 9ms, render: 5ms)
+ GET /competitors 200 in 27ms (compile: 1485µs, proxy.ts: 5ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1499µs, proxy.ts: 4ms, render: 5ms)
+ ✓ Compiled in 22ms
+ GET /competitors 200 in 140ms (compile: 44ms, proxy.ts: 5ms, render: 91ms)
+ POST /competitors 200 in 11ms (compile: 1805µs, proxy.ts: 5ms, render: 4ms)
+ ✓ Compiled in 20ms
+ GET /competitors 200 in 154ms (compile: 50ms, proxy.ts: 6ms, render: 98ms)
+ POST /competitors 200 in 35ms (compile: 18ms, proxy.ts: 11ms, render: 7ms)
+ ✓ Compiled in 20ms
+ GET /competitors 200 in 666ms (compile: 40ms, proxy.ts: 530ms, render: 96ms)
+ POST /competitors 200 in 12ms (compile: 1701µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 19ms
+ GET /competitors 200 in 132ms (compile: 43ms, proxy.ts: 4ms, render: 85ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 21ms
+ GET /competitors 200 in 159ms (compile: 44ms, proxy.ts: 4ms, render: 111ms)
+ POST /competitors 200 in 12ms (compile: 1905µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 36ms
+ GET /competitors 200 in 505ms (compile: 49ms, proxy.ts: 362ms, render: 94ms)
+ POST /competitors 200 in 12ms (compile: 1869µs, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 29ms
+ ✓ Compiled in 41ms
+ ✓ Compiled in 44ms
+ GET /competitors 200 in 133ms (compile: 44ms, proxy.ts: 5ms, render: 85ms)
+ POST /competitors 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 27ms (compile: 1518µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 11ms (compile: 1296µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 29ms (compile: 1731µs, proxy.ts: 5ms, render: 22ms)
+ POST /competitors 200 in 14ms (compile: 1283µs, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 28ms (compile: 1662µs, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 12ms (compile: 3ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 27ms (compile: 1492µs, proxy.ts: 4ms, render: 21ms)
+ POST /competitors 200 in 12ms (compile: 1819µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1387µs, proxy.ts: 4ms, render: 23ms)
+ POST /competitors 200 in 10ms (compile: 1492µs, proxy.ts: 4ms, render: 4ms)
+ GET / 200 in 33ms (compile: 1404µs, proxy.ts: 6ms, render: 25ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 5ms)
+ GET / 200 in 33ms (compile: 1303µs, proxy.ts: 4ms, render: 28ms)
+ POST / 200 in 10ms (compile: 1923µs, proxy.ts: 5ms, render: 3ms)
+ ✓ Compiled in 40ms
+ ✓ Compiled in 21ms
+ ✓ Compiled in 28ms
+ ✓ Compiled in 22ms
+ GET / 200 in 265ms (compile: 1723µs, proxy.ts: 240ms, render: 24ms)
+ POST / 200 in 10ms (compile: 1728µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 157ms (compile: 41ms, proxy.ts: 4ms, render: 112ms)
+ POST /competitors 200 in 11ms (compile: 1268µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 528ms (compile: 1980µs, proxy.ts: 499ms, render: 27ms)
+ POST /competitors 200 in 10ms (compile: 1742µs, proxy.ts: 4ms, render: 4ms)
+ GET / 200 in 33ms (compile: 1956µs, proxy.ts: 6ms, render: 26ms)
+ POST / 200 in 12ms (compile: 3ms, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 33ms (compile: 2ms, proxy.ts: 5ms, render: 26ms)
+ POST / 200 in 12ms (compile: 1487µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 28ms (compile: 1285µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 12ms (compile: 1211µs, proxy.ts: 5ms, render: 6ms)
+ GET /competitors 200 in 22ms (compile: 1591µs, proxy.ts: 4ms, render: 16ms)
+ POST /competitors 200 in 10ms (compile: 1716µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 372ms (compile: 1672µs, proxy.ts: 347ms, render: 23ms)
+ POST /competitors 200 in 11ms (compile: 1896µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 283ms (compile: 1914µs, proxy.ts: 263ms, render: 18ms)
+ POST /competitors 200 in 8ms (compile: 1702µs, proxy.ts: 3ms, render: 3ms)
+ GET / 200 in 25ms (compile: 1374µs, proxy.ts: 4ms, render: 19ms)
+ POST / 200 in 11ms (compile: 1456µs, proxy.ts: 7ms, render: 3ms)
+ ✓ Compiled in 31ms
+ ✓ Compiled in 43ms
+ ✓ Compiled in 68ms
+ GET /competitors 200 in 448ms (compile: 41ms, proxy.ts: 315ms, render: 93ms)
+ POST /competitors 200 in 11ms (compile: 1606µs, proxy.ts: 6ms, render: 3ms)
+ GET /competitors 200 in 546ms (compile: 2ms, proxy.ts: 522ms, render: 21ms)
+ POST /competitors 200 in 10ms (compile: 2ms, proxy.ts: 4ms, render: 4ms)
+ GET /competitors 200 in 27ms (compile: 1856µs, proxy.ts: 4ms, render: 22ms)
+ POST /competitors 200 in 10ms (compile: 1555µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 32ms (compile: 1924µs, proxy.ts: 5ms, render: 25ms)
+ POST /competitors 200 in 10ms (compile: 1273µs, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 14ms (compile: 1582µs, proxy.ts: 6ms, render: 7ms)
+ GET / 200 in 17ms (compile: 2ms, proxy.ts: 6ms, render: 8ms)
+ GET / 200 in 34ms (compile: 2ms, proxy.ts: 6ms, render: 27ms)
+ POST / 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 554ms (compile: 1804µs, proxy.ts: 524ms, render: 28ms)
+ POST / 200 in 12ms (compile: 3ms, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 27ms (compile: 1420µs, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 10ms (compile: 1673µs, proxy.ts: 5ms, render: 3ms)
+ GET /competitors 200 in 15ms (compile: 1420µs, proxy.ts: 6ms, render: 8ms)
+ GET /competitors 200 in 26ms (compile: 1602µs, proxy.ts: 6ms, render: 19ms)
+ POST /competitors 200 in 13ms (compile: 3ms, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 25ms (compile: 1356µs, proxy.ts: 4ms, render: 20ms)
+ POST / 200 in 14ms (compile: 2ms, proxy.ts: 7ms, render: 5ms)
+ GET / 200 in 28ms (compile: 2ms, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 11ms (compile: 1520µs, proxy.ts: 4ms, render: 5ms)
+ ✓ Compiled in 24ms
+ ✓ Compiled in 48ms
+ ✓ Compiled in 679ms
+ GET /competitors 200 in 314ms (compile: 43ms, proxy.ts: 250ms, render: 21ms)
+ GET / 200 in 334ms (compile: 1717µs, proxy.ts: 320ms, render: 12ms)
+ GET /competitors 200 in 137ms (compile: 1968µs, proxy.ts: 5ms, render: 130ms)
+ POST /competitors 200 in 15ms (compile: 1723µs, proxy.ts: 9ms, render: 4ms)
+ ✓ Compiled in 49ms
+ ✓ Compiled in 49ms
+ ✓ Compiled in 42ms
+ ✓ Compiled in 52ms
+ GET /competitors 200 in 728ms (compile: 46ms, proxy.ts: 577ms, render: 104ms)
+ POST /competitors 200 in 12ms (compile: 1842µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 555ms (compile: 1712µs, proxy.ts: 529ms, render: 24ms)
+ POST /competitors 200 in 10ms (compile: 1704µs, proxy.ts: 5ms, render: 3ms)
+ GET / 200 in 35ms (compile: 2ms, proxy.ts: 5ms, render: 28ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 33ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 58ms
+ ✓ Compiled in 24ms
+ ✓ Compiled in 50ms
+ ✓ Compiled in 22ms
+ ✓ Compiled in 22ms
+ ✓ Compiled in 28ms
+ ✓ Compiled in 41ms
+ GET /competitors 200 in 451ms (compile: 52ms, proxy.ts: 364ms, render: 35ms)
+ GET / 200 in 449ms (compile: 74ms, proxy.ts: 362ms, render: 13ms)
+ GET /competitors 200 in 102ms (compile: 1457µs, proxy.ts: 4ms, render: 96ms)
+ POST /competitors 200 in 13ms (compile: 2ms, proxy.ts: 7ms, render: 3ms)
+ GET /competitors 200 in 561ms (compile: 1319µs, proxy.ts: 538ms, render: 21ms)
+ POST /competitors 200 in 12ms (compile: 1811µs, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 27ms (compile: 1596µs, proxy.ts: 4ms, render: 21ms)
+ POST / 200 in 12ms (compile: 1772µs, proxy.ts: 6ms, render: 5ms)
+ GET /competitors 200 in 25ms (compile: 1494µs, proxy.ts: 3ms, render: 20ms)
+ POST /competitors 200 in 12ms (compile: 1973µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 29ms (compile: 1660µs, proxy.ts: 5ms, render: 22ms)
+ POST /competitors 200 in 11ms (compile: 1419µs, proxy.ts: 6ms, render: 4ms)
+ GET /competitors 200 in 32ms (compile: 1851µs, proxy.ts: 4ms, render: 26ms)
+ POST /competitors 200 in 9ms (compile: 1433µs, proxy.ts: 4ms, render: 4ms)
+ GET / 200 in 27ms (compile: 1357µs, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 11ms (compile: 2ms, proxy.ts: 6ms, render: 3ms)
+ GET / 200 in 351ms (compile: 2ms, proxy.ts: 341ms, render: 7ms)
+ GET / 200 in 28ms (compile: 1556µs, proxy.ts: 4ms, render: 22ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 5ms, render: 6ms)
+ GET /workflows 200 in 26ms (compile: 9ms, proxy.ts: 5ms, render: 11ms)
+ GET /competitors 200 in 13ms (compile: 1569µs, proxy.ts: 4ms, render: 7ms)
+ GET /content 200 in 359ms (compile: 6ms, proxy.ts: 344ms, render: 9ms)
+ GET / 200 in 14ms (compile: 1498µs, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 30ms (compile: 1964µs, proxy.ts: 5ms, render: 23ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 15ms (compile: 1561µs, proxy.ts: 5ms, render: 8ms)
+ GET / 200 in 18ms (compile: 3ms, proxy.ts: 5ms, render: 10ms)
+ GET / 200 in 41ms (compile: 3ms, proxy.ts: 6ms, render: 31ms)
+ POST / 200 in 12ms (compile: 1713µs, proxy.ts: 5ms, render: 5ms)
+ GET /workflows 200 in 13ms (compile: 1260µs, proxy.ts: 5ms, render: 7ms)
+ GET /content 200 in 13ms (compile: 1404µs, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 14ms (compile: 1377µs, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 11ms (compile: 1269µs, proxy.ts: 4ms, render: 6ms)
+ GET /competitors 200 in 22ms (compile: 1798µs, proxy.ts: 5ms, render: 15ms)
+ GET /competitors 200 in 349ms (compile: 1721µs, proxy.ts: 319ms, render: 28ms)
+ POST /competitors 200 in 11ms (compile: 1471µs, proxy.ts: 6ms, render: 3ms)
+ ✓ Compiled in 37ms
+ GET / 200 in 371ms (compile: 51ms, proxy.ts: 305ms, render: 16ms)
+ GET /content 200 in 711ms (compile: 1550µs, proxy.ts: 695ms, render: 14ms)
+ GET /content 200 in 18ms (compile: 3ms, proxy.ts: 6ms, render: 9ms)
+ GET / 200 in 734ms (compile: 1495µs, proxy.ts: 429ms, render: 303ms)
+ POST / 200 in 16ms (compile: 6ms, proxy.ts: 6ms, render: 4ms)
+ GET /content 200 in 70ms (compile: 1518µs, proxy.ts: 4ms, render: 65ms)
+ POST /content 200 in 12ms (compile: 2ms, proxy.ts: 5ms, render: 5ms)
+ GET /content 200 in 15ms (compile: 2ms, proxy.ts: 5ms, render: 8ms)
+ ✓ Compiled in 24ms
+ ✓ Compiled in 23ms
+ GET /content 200 in 502ms (compile: 43ms, proxy.ts: 381ms, render: 78ms)
+ POST /content 200 in 10ms (compile: 1499µs, proxy.ts: 5ms, render: 3ms)
+ ✓ Compiled in 23ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 24ms
+ ✓ Compiled in 22ms
+ ✓ Compiled in 37ms
+ ✓ Compiled in 26ms
+ ✓ Compiled in 22ms
+ GET /content 200 in 582ms (compile: 37ms, proxy.ts: 472ms, render: 73ms)
+ POST /content 200 in 13ms (compile: 2ms, proxy.ts: 6ms, render: 5ms)
+ GET /content 200 in 35ms (compile: 1479µs, proxy.ts: 5ms, render: 28ms)
+ POST /content 200 in 10ms (compile: 2ms, proxy.ts: 4ms, render: 4ms)
+ GET / 200 in 14ms (compile: 2ms, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 50ms (compile: 1689µs, proxy.ts: 6ms, render: 42ms)
+ POST / 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 34ms (compile: 1565µs, proxy.ts: 5ms, render: 28ms)
+ POST / 200 in 12ms (compile: 2ms, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 38ms (compile: 2ms, proxy.ts: 6ms, render: 30ms)
+ POST / 200 in 16ms (compile: 4ms, proxy.ts: 7ms, render: 5ms)
+ GET / 200 in 41ms (compile: 1698µs, proxy.ts: 5ms, render: 34ms)
+ POST / 200 in 13ms (compile: 2ms, proxy.ts: 6ms, render: 5ms)
+ GET /content 200 in 33ms (compile: 2ms, proxy.ts: 5ms, render: 25ms)
+ POST /content 200 in 10ms (compile: 1578µs, proxy.ts: 6ms, render: 3ms)
+ GET /content 200 in 538ms (compile: 2ms, proxy.ts: 507ms, render: 29ms)
+ POST /content 200 in 9ms (compile: 1314µs, proxy.ts: 4ms, render: 4ms)
+ GET / 200 in 30ms (compile: 1603µs, proxy.ts: 4ms, render: 25ms)
+ POST / 200 in 10ms (compile: 1605µs, proxy.ts: 5ms, render: 4ms)
+ GET / 200 in 38ms (compile: 2ms, proxy.ts: 5ms, render: 31ms)
+ POST / 200 in 12ms (compile: 1983µs, proxy.ts: 5ms, render: 5ms)
+ GET / 200 in 32ms (compile: 1726µs, proxy.ts: 4ms, render: 27ms)
+ POST / 200 in 13ms (compile: 1900µs, proxy.ts: 7ms, render: 3ms)
+ GET /content 200 in 35ms (compile: 2ms, proxy.ts: 5ms, render: 27ms)
+ POST /content 200 in 12ms (compile: 3ms, proxy.ts: 6ms, render: 4ms)
+ GET /content 200 in 34ms (compile: 1625µs, proxy.ts: 5ms, render: 27ms)
+ POST /content 200 in 9ms (compile: 1298µs, proxy.ts: 4ms, render: 4ms)
+ ✓ Compiled in 26ms
+ ✓ Compiled in 28ms
+ GET /content 200 in 464ms (compile: 48ms, proxy.ts: 313ms, render: 104ms)
+ POST /content 200 in 11ms (compile: 1321µs, proxy.ts: 5ms, render: 4ms)
+ GET /content 200 in 33ms (compile: 1762µs, proxy.ts: 4ms, render: 28ms)
+ POST /content 200 in 11ms (compile: 1618µs, proxy.ts: 5ms, render: 4ms)
+ GET /content 200 in 38ms (compile: 1531µs, proxy.ts: 5ms, render: 32ms)
+ POST /content 200 in 10ms (compile: 1379µs, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 29ms (compile: 1342µs, proxy.ts: 4ms, render: 24ms)
+ POST /content 200 in 11ms (compile: 2ms, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 31ms (compile: 1376µs, proxy.ts: 4ms, render: 25ms)
+ POST /content 200 in 11ms (compile: 1580µs, proxy.ts: 6ms, render: 4ms)
+ GET /content 200 in 32ms (compile: 2ms, proxy.ts: 4ms, render: 25ms)
+ POST /content 200 in 12ms (compile: 4ms, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 32ms (compile: 1397µs, proxy.ts: 6ms, render: 25ms)
+ POST /content 200 in 10ms (compile: 1410µs, proxy.ts: 6ms, render: 3ms)
+ GET /content 200 in 32ms (compile: 1471µs, proxy.ts: 5ms, render: 26ms)
+ POST /content 200 in 11ms (compile: 1429µs, proxy.ts: 5ms, render: 4ms)
+ GET /content 200 in 31ms (compile: 1286µs, proxy.ts: 4ms, render: 26ms)
+ POST /content 200 in 9ms (compile: 1113µs, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 342ms (compile: 1430µs, proxy.ts: 314ms, render: 27ms)
+ POST /content 200 in 12ms (compile: 1780µs, proxy.ts: 5ms, render: 5ms)
+ GET / 200 in 31ms (compile: 1431µs, proxy.ts: 4ms, render: 26ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 7ms, render: 5ms)
+ GET /content 200 in 16ms (compile: 2ms, proxy.ts: 5ms, render: 10ms)
+ GET /content 200 in 444ms (compile: 1525µs, proxy.ts: 418ms, render: 25ms)
+ POST /content 200 in 10ms (compile: 2ms, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 33ms (compile: 1513µs, proxy.ts: 4ms, render: 27ms)
+ POST /content 200 in 9ms (compile: 1425µs, proxy.ts: 5ms, render: 3ms)
+ GET /content 200 in 920ms (compile: 9ms, proxy.ts: 836ms, render: 75ms)
+ POST /content 200 in 14ms (compile: 4ms, proxy.ts: 6ms, render: 4ms)
+ ✓ Compiled in 53ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 29ms
+ ✓ Compiled in 24ms
+ ✓ Compiled in 42ms
+ ✓ Compiled in 25ms
+ ✓ Compiled in 35ms
+ ✓ Compiled in 27ms
+ GET /content 200 in 946ms (compile: 118ms, proxy.ts: 676ms, render: 153ms)
+ POST /content 200 in 17ms (compile: 7ms, proxy.ts: 5ms, render: 5ms)
+ GET /content 200 in 34ms (compile: 1719µs, proxy.ts: 5ms, render: 28ms)
+ POST /content 200 in 13ms (compile: 2ms, proxy.ts: 6ms, render: 5ms)
+ ✓ Compiled in 87ms
+ GET /content 200 in 143ms (compile: 43ms, proxy.ts: 4ms, render: 96ms)
+ POST /content 200 in 14ms (compile: 2ms, proxy.ts: 7ms, render: 4ms)
+ ✓ Compiled in 33ms
+ ✓ Compiled in 26ms
+ ✓ Compiled in 32ms
+ ✓ Compiled in 24ms
+ ✓ Compiled in 24ms
+ GET /content 200 in 501ms (compile: 50ms, proxy.ts: 368ms, render: 84ms)
+ POST /content 200 in 12ms (compile: 1535µs, proxy.ts: 6ms, render: 4ms)
+ GET / 200 in 886ms (compile: 3ms, proxy.ts: 875ms, render: 8ms)
+ GET / 200 in 20ms (compile: 1956µs, proxy.ts: 8ms, render: 11ms)
+ GET /workflows 200 in 24ms (compile: 8ms, proxy.ts: 5ms, render: 11ms)
+ GET /workflows 200 in 13ms (compile: 1241µs, proxy.ts: 4ms, render: 8ms)
+ GET / 200 in 466ms (compile: 3ms, proxy.ts: 455ms, render: 9ms)
+ GET /competitors 200 in 24ms (compile: 9ms, proxy.ts: 5ms, render: 9ms)
+ GET /content 200 in 17ms (compile: 1863µs, proxy.ts: 4ms, render: 11ms)
+ GET /workflows 200 in 428ms (compile: 2ms, proxy.ts: 418ms, render: 9ms)
+ GET / 200 in 17ms (compile: 1817µs, proxy.ts: 6ms, render: 8ms)
+ GET / 200 in 34ms (compile: 1912µs, proxy.ts: 5ms, render: 28ms)
+ POST / 200 in 12ms (compile: 1300µs, proxy.ts: 5ms, render: 5ms)
+ GET /workflows 200 in 15ms (compile: 1996µs, proxy.ts: 4ms, render: 9ms)
+ GET / 200 in 19ms (compile: 2ms, proxy.ts: 6ms, render: 11ms)
+ GET / 200 in 31ms (compile: 1456µs, proxy.ts: 5ms, render: 25ms)
+ POST / 200 in 30ms (compile: 2ms, proxy.ts: 23ms, render: 5ms)
+ GET / 200 in 42ms (compile: 3ms, proxy.ts: 6ms, render: 34ms)
+ POST / 200 in 16ms (compile: 3ms, proxy.ts: 9ms, render: 4ms)
+ GET /workflows 200 in 17ms (compile: 2ms, proxy.ts: 5ms, render: 10ms)
+ GET /content 200 in 14ms (compile: 1362µs, proxy.ts: 6ms, render: 6ms)
+ GET /competitors 200 in 14ms (compile: 1389µs, proxy.ts: 5ms, render: 8ms)
+ GET / 200 in 14ms (compile: 2ms, proxy.ts: 4ms, render: 8ms)
+ GET / 200 in 35ms (compile: 1360µs, proxy.ts: 5ms, render: 29ms)
+ POST / 200 in 14ms (compile: 3ms, proxy.ts: 7ms, render: 4ms)
+ GET / 200 in 389ms (compile: 2ms, proxy.ts: 364ms, render: 23ms)
+ POST / 200 in 12ms (compile: 1458µs, proxy.ts: 6ms, render: 5ms)
+ GET /workflows 200 in 14ms (compile: 1459µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 15ms (compile: 1521µs, proxy.ts: 5ms, render: 9ms)
+ GET /competitors 200 in 14ms (compile: 1454µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 12ms (compile: 1483µs, proxy.ts: 5ms, render: 6ms)
+ GET / 200 in 13ms (compile: 1519µs, proxy.ts: 4ms, render: 7ms)
+ GET /competitors 200 in 14ms (compile: 3ms, proxy.ts: 4ms, render: 7ms)
+ GET /workflows 200 in 13ms (compile: 1359µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 15ms (compile: 1495µs, proxy.ts: 5ms, render: 8ms)
+ GET /workflows 200 in 16ms (compile: 2ms, proxy.ts: 4ms, render: 9ms)
+ GET / 200 in 14ms (compile: 1890µs, proxy.ts: 6ms, render: 7ms)
+ GET /workflows 200 in 14ms (compile: 1607µs, proxy.ts: 6ms, render: 7ms)
+ GET /content 200 in 14ms (compile: 3ms, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 16ms (compile: 1556µs, proxy.ts: 5ms, render: 9ms)
+ GET /workflows 200 in 15ms (compile: 1590µs, proxy.ts: 4ms, render: 9ms)
+ GET / 200 in 14ms (compile: 1906µs, proxy.ts: 5ms, render: 7ms)
+ GET /workflows 200 in 13ms (compile: 1434µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 12ms (compile: 1379µs, proxy.ts: 3ms, render: 8ms)
+ GET /competitors 200 in 13ms (compile: 1279µs, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 404ms (compile: 1338µs, proxy.ts: 395ms, render: 8ms)
+ GET / 200 in 14ms (compile: 1755µs, proxy.ts: 5ms, render: 7ms)
+ GET /content 200 in 13ms (compile: 1375µs, proxy.ts: 5ms, render: 7ms)
+ GET /workflows 200 in 647ms (compile: 3ms, proxy.ts: 635ms, render: 10ms)
+ GET /content 200 in 13ms (compile: 1511µs, proxy.ts: 4ms, render: 7ms)
+ GET /workflows 200 in 16ms (compile: 2ms, proxy.ts: 5ms, render: 9ms)
+ GET /content 200 in 11ms (compile: 1337µs, proxy.ts: 4ms, render: 6ms)
+ GET /competitors 200 in 14ms (compile: 1476µs, proxy.ts: 5ms, render: 8ms)
+ GET /content 200 in 14ms (compile: 2ms, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 13ms (compile: 1629µs, proxy.ts: 4ms, render: 7ms)
+ GET /sign-in?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 75ms (compile: 47ms, proxy.ts: 4ms, render: 24ms)
+ ⚠ Cross origin request detected from 97985b43b1f2.ngrok-free.app to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ POST /sign-in?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 42ms (compile: 32ms, proxy.ts: 4ms, render: 7ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1763519282057 200 in 26ms (compile: 2ms, proxy.ts: 3ms, render: 21ms)
+ GET /sign-in?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 57ms (compile: 32ms, proxy.ts: 4ms, render: 22ms)
+ POST /sign-in?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 50ms (compile: 37ms, proxy.ts: 6ms, render: 7ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1763519287110 200 in 28ms (compile: 2ms, proxy.ts: 4ms, render: 22ms)
+ GET /sign-up 200 in 619ms (compile: 600ms, proxy.ts: 3ms, render: 16ms)
+ GET /sign-up?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 70ms (compile: 44ms, proxy.ts: 5ms, render: 22ms)
+ GET /sign-up/SignUp_clerk_catchall_check_1763519312500 200 in 72ms (compile: 35ms, proxy.ts: 5ms, render: 33ms)
+ GET /sign-up?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 14ms (compile: 3ms, proxy.ts: 4ms, render: 8ms)
+ GET /sign-up/sso-callback?after_sign_in_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&after_sign_up_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 57ms (compile: 35ms, proxy.ts: 4ms, render: 19ms)
+ POST /sign-up/sso-callback?after_sign_in_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&after_sign_up_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 44ms (compile: 33ms, proxy.ts: 4ms, render: 7ms)
+ GET /sign-up/sso-callback/SignUp_clerk_catchall_check_1763519367457 200 in 59ms (compile: 35ms, proxy.ts: 4ms, render: 21ms)
+ POST /sign-up/continue/verify-phone-number?redirect_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&after_sign_in_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F&after_sign_up_url=https%3A%2F%2F97985b43b1f2.ngrok-free.app%2F 200 in 53ms (compile: 35ms, proxy.ts: 4ms, render: 14ms)
+ GET /sign-up/continue/verify-phone-number/SignUp_clerk_catchall_check_1763519388275 200 in 59ms (compile: 36ms, proxy.ts: 3ms, render: 20ms)
+ GET / 200 in 13ms (compile: 1782µs, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 22ms (compile: 4ms, proxy.ts: 4ms, render: 15ms)
+ GET /workflows 200 in 11ms (compile: 1426µs, proxy.ts: 3ms, render: 6ms)
+ GET /content 200 in 17ms (compile: 2ms, proxy.ts: 4ms, render: 10ms)
+ GET / 200 in 13ms (compile: 1406µs, proxy.ts: 5ms, render: 7ms)
+ GET /competitors 200 in 13ms (compile: 1852µs, proxy.ts: 4ms, render: 7ms)
+ GET /content 200 in 12ms (compile: 1707µs, proxy.ts: 4ms, render: 6ms)
+ GET /competitors 200 in 13ms (compile: 1938µs, proxy.ts: 4ms, render: 7ms)
+ GET /content 200 in 14ms (compile: 1613µs, proxy.ts: 5ms, render: 8ms)
+ GET /workflows 200 in 15ms (compile: 1894µs, proxy.ts: 4ms, render: 9ms)
+ GET / 200 in 13ms (compile: 2ms, proxy.ts: 4ms, render: 7ms)
+ GET /workflows 200 in 13ms (compile: 1872µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 12ms (compile: 1397µs, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 14ms (compile: 1409µs, proxy.ts: 5ms, render: 7ms)
+ GET / 200 in 14ms (compile: 1795µs, proxy.ts: 5ms, render: 7ms)
+ GET /workflows 200 in 14ms (compile: 1472µs, proxy.ts: 5ms, render: 8ms)
+ GET /content 200 in 14ms (compile: 1548µs, proxy.ts: 5ms, render: 7ms)
+ GET /competitors 200 in 14ms (compile: 1882µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 13ms (compile: 1401µs, proxy.ts: 5ms, render: 7ms)
+ GET /workflows 200 in 14ms (compile: 1793µs, proxy.ts: 5ms, render: 8ms)
+ GET / 200 in 14ms (compile: 1789µs, proxy.ts: 5ms, render: 8ms)
+ GET /workflows 200 in 14ms (compile: 1897µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 13ms (compile: 1491µs, proxy.ts: 4ms, render: 8ms)
+ GET / 200 in 14ms (compile: 1883µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 13ms (compile: 1599µs, proxy.ts: 4ms, render: 8ms)
+ GET /competitors 200 in 13ms (compile: 1546µs, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 13ms (compile: 1560µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 468ms (compile: 1583µs, proxy.ts: 459ms, render: 8ms)
+ GET /content 200 in 14ms (compile: 1381µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 36ms (compile: 1834µs, proxy.ts: 4ms, render: 30ms)
+ POST /content 200 in 10ms (compile: 1333µs, proxy.ts: 5ms, render: 4ms)
+ GET /competitors 200 in 14ms (compile: 1662µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 14ms (compile: 1600µs, proxy.ts: 5ms, render: 8ms)
+ GET / 200 in 13ms (compile: 1524µs, proxy.ts: 5ms, render: 7ms)
+ GET /competitors 200 in 13ms (compile: 1818µs, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 15ms (compile: 2ms, proxy.ts: 4ms, render: 9ms)
+ GET /workflows 200 in 16ms (compile: 2ms, proxy.ts: 6ms, render: 8ms)
+ GET / 200 in 14ms (compile: 1508µs, proxy.ts: 5ms, render: 8ms)
+ GET /workflows 200 in 19ms (compile: 3ms, proxy.ts: 6ms, render: 10ms)
+ GET / 200 in 18ms (compile: 2ms, proxy.ts: 7ms, render: 9ms)
+ GET /workflows 200 in 15ms (compile: 1470µs, proxy.ts: 5ms, render: 9ms)
+ GET /content 200 in 14ms (compile: 2ms, proxy.ts: 5ms, render: 7ms)
+ GET /competitors 200 in 14ms (compile: 1950µs, proxy.ts: 5ms, render: 7ms)
+ GET /content 200 in 15ms (compile: 1525µs, proxy.ts: 5ms, render: 9ms)
+ GET /competitors 200 in 17ms (compile: 1929µs, proxy.ts: 4ms, render: 11ms)
+ GET / 200 in 603ms (compile: 3ms, proxy.ts: 592ms, render: 7ms)
+ GET / 200 in 15ms (compile: 1663µs, proxy.ts: 6ms, render: 7ms)
+ GET /workflows 200 in 14ms (compile: 1650µs, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 13ms (compile: 1650µs, proxy.ts: 4ms, render: 7ms)
+ GET /competitors 200 in 14ms (compile: 2ms, proxy.ts: 4ms, render: 8ms)
+ GET /content 200 in 17ms (compile: 1530µs, proxy.ts: 4ms, render: 11ms)
+ GET /content 200 in 44ms (compile: 1676µs, proxy.ts: 6ms, render: 36ms)
+ POST /content 200 in 10ms (compile: 1528µs, proxy.ts: 5ms, render: 4ms)

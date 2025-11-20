@@ -9,7 +9,7 @@ import { AIContentTab } from "@/components/content/ai-content-tab";
 import { PostComposer } from "@/components/content/post-composer";
 import { Plus, Calendar, Sparkles } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import { fetchScheduledPosts, type ScheduledPost } from "@/lib/api/scheduled-posts";
+import { fetchScheduledPosts, deleteScheduledPost, type ScheduledPost } from "@/lib/api/scheduled-posts";
 
 export default function ContentCalendarPage() {
   const { user } = useUser();
@@ -17,11 +17,13 @@ export default function ContentCalendarPage() {
   const [activeTab, setActiveTab] = useState("scheduled");
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingPost, setEditingPost] = useState<number | null>(null);
 
-  // Get next 7 days
+  // Get next 7 days starting from midnight
   const getNext7Days = () => {
     const days = [];
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start from midnight
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
@@ -41,11 +43,46 @@ export default function ContentCalendarPage() {
     const loadPosts = async () => {
       try {
         setLoading(true);
-        const startDate = next7Days[0];
+        // Use local midnight, not UTC
+        const startDate = new Date(next7Days[0]);
         const endDate = new Date(next7Days[6]);
         endDate.setHours(23, 59, 59, 999);
 
-        const fetchedPosts = await fetchScheduledPosts(user.id, startDate, endDate);
+        // Convert to local datetime string format (YYYY-MM-DDTHH:mm:ss) without Z
+        const formatLocalDateTime = (date: Date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          const seconds = String(date.getSeconds()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+        };
+
+        const startDateStr = formatLocalDateTime(startDate);
+        const endDateStr = formatLocalDateTime(endDate);
+
+        console.log('📅 Querying posts from', startDateStr, 'to', endDateStr);
+
+        // Manually fetch to use local datetime strings
+        const params = new URLSearchParams({ user_id: user.id! });
+        params.append("start_date", startDateStr);
+        params.append("end_date", endDateStr);
+
+        const response = await fetch(`http://localhost:8002/api/scheduled-posts?${params}`);
+        const data = await response.json();
+        const fetchedPosts = data.posts || [];
+        console.log('📊 Fetched posts:', fetchedPosts.length, 'posts');
+
+        // Check exact status values
+        fetchedPosts.forEach(p => {
+          console.log(`Post ${p.id}: status="${p.status}" (type: ${typeof p.status}), posted_at=${p.posted_at}`);
+        });
+
+        const postedPosts = fetchedPosts.filter(p => p.status === 'posted');
+        console.log('📊 Posted posts count:', postedPosts.length);
+        console.log('📊 Posted posts:', postedPosts);
+
         setPosts(fetchedPosts);
       } catch (error) {
         console.error("Failed to fetch posts:", error);
@@ -71,6 +108,28 @@ export default function ContentCalendarPage() {
       console.error("Failed to refresh posts:", error);
     }
   };
+
+  // Handle post deletion
+  const handleDeletePost = async (postId: number) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      await deleteScheduledPost(postId);
+      await refreshPosts();
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      alert("Failed to delete post. Please try again.");
+    }
+  };
+
+  // Handle post edit
+  const handleEditPost = (postId: number) => {
+    setEditingPost(postId);
+    setComposerOpen(true);
+  };
+
+  // Get the post being edited
+  const postToEdit = editingPost ? posts.find(p => p.id === editingPost) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,6 +219,8 @@ export default function ContentCalendarPage() {
                   setComposerOpen(true);
                 }}
                 onRefresh={refreshPosts}
+                onEditPost={handleEditPost}
+                onDeletePost={handleDeletePost}
               />
             )}
           </TabsContent>
@@ -173,8 +234,14 @@ export default function ContentCalendarPage() {
       {/* Post Composer Modal */}
       <PostComposer
         open={composerOpen}
-        onOpenChange={setComposerOpen}
+        onOpenChange={(open) => {
+          setComposerOpen(open);
+          if (!open) {
+            setEditingPost(null);
+          }
+        }}
         userId={user?.id}
+        editPost={postToEdit}
         onSuccess={refreshPosts}
       />
     </div>

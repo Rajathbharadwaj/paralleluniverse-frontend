@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,22 +23,43 @@ import {
   Send
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { createScheduledPost, uploadMedia } from "@/lib/api/scheduled-posts";
+import { createScheduledPost, uploadMedia, updateScheduledPost, type ScheduledPost } from "@/lib/api/scheduled-posts";
 
 interface PostComposerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId?: string;
   onSuccess?: () => void;
+  editPost?: ScheduledPost | null;
 }
 
-export function PostComposer({ open, onOpenChange, userId, onSuccess }: PostComposerProps) {
+export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }: PostComposerProps) {
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<Array<{ type: string; file: File; preview: string }>>([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (editPost) {
+      setCaption(editPost.content);
+
+      // Parse scheduled date and time
+      if (editPost.scheduled_at) {
+        const date = new Date(editPost.scheduled_at);
+        setSelectedDate(date.toISOString().split('T')[0]);
+        setSelectedTime(date.toTimeString().substring(0, 5));
+      }
+    } else {
+      // Reset form when creating new post
+      setCaption("");
+      setMedia([]);
+      setSelectedDate("");
+      setSelectedTime("");
+    }
+  }, [editPost, open]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -113,7 +134,7 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess }: PostComp
 
   // Handle post submission
   const handleSubmit = async (action: "draft" | "schedule") => {
-    if (!userId) {
+    if (!userId && !editPost) {
       alert("User ID is required");
       return;
     }
@@ -131,14 +152,24 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess }: PostComp
       // Combine date and time into ISO datetime
       const scheduledDateTime = new Date(`${selectedDate}T${selectedTime}`);
 
-      // Create the scheduled post
-      await createScheduledPost({
-        user_id: userId,
-        content: caption,
-        media_urls: mediaUrls,
-        scheduled_at: scheduledDateTime.toISOString(),
-        status: action === "draft" ? "draft" : "scheduled",
-      });
+      if (editPost) {
+        // Update existing post
+        await updateScheduledPost(editPost.id, {
+          content: caption,
+          media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
+          scheduled_at: scheduledDateTime.toISOString(),
+          status: action === "draft" ? "draft" : "scheduled",
+        });
+      } else {
+        // Create new post
+        await createScheduledPost({
+          user_id: userId!,
+          content: caption,
+          media_urls: mediaUrls,
+          scheduled_at: scheduledDateTime.toISOString(),
+          status: action === "draft" ? "draft" : "scheduled",
+        });
+      }
 
       // Reset and close
       setCaption("");
@@ -152,8 +183,8 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess }: PostComp
         onSuccess();
       }
     } catch (error) {
-      console.error("Failed to create post:", error);
-      alert("Failed to create post. Please try again.");
+      console.error(`Failed to ${editPost ? 'update' : 'create'} post:`, error);
+      alert(`Failed to ${editPost ? 'update' : 'create'} post. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +199,7 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess }: PostComp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Post</DialogTitle>
+          <DialogTitle>{editPost ? 'Edit Post' : 'Create Post'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
