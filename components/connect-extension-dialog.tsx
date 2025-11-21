@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, Download, Chrome } from "lucide-react";
+import { fetchExtension, fetchBackend } from "@/lib/api-client";
 
 interface ConnectExtensionDialogProps {
   open: boolean;
@@ -31,10 +32,10 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
 
   const checkExtensionStatus = async () => {
     setStep("checking");
-    
+
     try {
       // Call extension backend directly to get user with cookies
-      const response = await fetch('http://localhost:8001/status');
+      const response = await fetchExtension('/status');
       const data = await response.json();
       
       if (data.users_with_info && data.users_with_info.length > 0) {
@@ -54,9 +55,9 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
         
         // User has cookies! Inject them into Docker
         console.log('🍪 User has cookies, injecting into Docker...', userId);
-        
+
         try {
-          const injectResponse = await fetch('http://localhost:8002/api/inject-cookies-to-docker', {
+          const injectResponse = await fetchBackend('/api/inject-cookies-to-docker', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: userId })
