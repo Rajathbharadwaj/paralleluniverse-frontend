@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { VNCViewer } from "@/components/vnc-viewer";
-import { VNC_BROWSER_URL } from "@/lib/config";
+import { useVNCSession } from "@/hooks/useVNCSession";
 
 interface ConnectXDialogProps {
   open: boolean;
@@ -22,6 +22,7 @@ interface ConnectXDialogProps {
 export function ConnectXDialog({ open, onOpenChange, onSuccess }: ConnectXDialogProps) {
   const [step, setStep] = useState<"loading" | "vnc" | "detecting" | "success">("loading");
   const [username, setUsername] = useState("");
+  const { vncUrl, isLoading: vncLoading, error: vncError } = useVNCSession();
 
   useEffect(() => {
     if (open) {
@@ -87,11 +88,26 @@ export function ConnectXDialog({ open, onOpenChange, onSuccess }: ConnectXDialog
             <>
               <div className="border rounded-lg overflow-hidden bg-black" style={{ height: "600px" }}>
                 {/* Real VNC Viewer */}
-                <VNCViewer
-                  url={VNC_BROWSER_URL}
-                  onConnect={() => console.log("VNC connected")}
-                  onDisconnect={() => console.log("VNC disconnected")}
-                />
+                {vncLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-white">Starting your browser session...</span>
+                  </div>
+                ) : vncError ? (
+                  <div className="flex items-center justify-center h-full text-red-500">
+                    <span>Error: {vncError}</span>
+                  </div>
+                ) : vncUrl ? (
+                  <VNCViewer
+                    url={vncUrl}
+                    onConnect={() => console.log("VNC connected")}
+                    onDisconnect={() => console.log("VNC disconnected")}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    <span>No VNC session available</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">

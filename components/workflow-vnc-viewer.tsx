@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Monitor, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Monitor, Maximize2, Minimize2, Loader2 } from 'lucide-react';
 import { VNCViewer } from '@/components/vnc-viewer';
-import { VNC_BROWSER_URL } from '@/lib/config';
+import { useVNCSession } from '@/hooks/useVNCSession';
 
 interface WorkflowVNCViewerProps {
   isExecuting?: boolean;
@@ -16,6 +16,7 @@ export function WorkflowVNCViewer({ isExecuting = false }: WorkflowVNCViewerProp
   const [isCollapsed, setIsCollapsed] = useState(true); // Start collapsed
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [vncConnected, setVncConnected] = useState(false);
+  const { vncUrl, isLoading, error } = useVNCSession();
 
   return (
     <Card className={`${isFullscreen ? 'fixed inset-4 z-50' : ''} flex flex-col border-0 rounded-none shadow-none`}>
@@ -77,11 +78,26 @@ export function WorkflowVNCViewer({ isExecuting = false }: WorkflowVNCViewerProp
       {!isCollapsed && (
         <CardContent className={`p-0 bg-black ${isFullscreen ? 'flex-1' : ''}`}>
           <div className={`relative ${isFullscreen ? 'h-full' : 'h-[280px]'}`}>
-            <VNCViewer
-              url={VNC_BROWSER_URL}
-              onConnect={() => setVncConnected(true)}
-              onDisconnect={() => setVncConnected(false)}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2 text-white">Starting your browser session...</span>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-full text-red-500">
+                <span>Error: {error}</span>
+              </div>
+            ) : vncUrl ? (
+              <VNCViewer
+                url={vncUrl}
+                onConnect={() => setVncConnected(true)}
+                onDisconnect={() => setVncConnected(false)}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <span>No VNC session available</span>
+              </div>
+            )}
 
             {/* Quick Instructions */}
             {!isExecuting && !vncConnected && (

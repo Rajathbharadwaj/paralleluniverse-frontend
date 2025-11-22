@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Monitor, Maximize2, Minimize2 } from "lucide-react";
+import { Eye, EyeOff, Monitor, Maximize2, Minimize2, Loader2 } from "lucide-react";
 import { VNCViewer } from "@/components/vnc-viewer";
-import { VNC_BROWSER_URL } from "@/lib/config";
+import { useVNCSession } from "@/hooks/useVNCSession";
 
 export function AgentBrowserViewer() {
   const [isVisible, setIsVisible] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { vncUrl, isLoading, error } = useVNCSession();
 
   // Handle ESC key to exit fullscreen
   useEffect(() => {
@@ -102,11 +103,26 @@ export function AgentBrowserViewer() {
 
             {/* VNC Viewer - Normal Size */}
             {!isFullscreen && (
-              <div 
+              <div
                 className="border rounded-lg overflow-hidden bg-black relative"
                 style={{ height: "600px" }}
               >
-                <VNCViewer url={VNC_BROWSER_URL} />
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-white">Starting your browser session...</span>
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center h-full text-red-500">
+                    <span>Error: {error}</span>
+                  </div>
+                ) : vncUrl ? (
+                  <VNCViewer url={vncUrl} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    <span>No VNC session available</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -152,7 +168,7 @@ export function AgentBrowserViewer() {
                 </div>
               </div>
               
-              <VNCViewer url={VNC_BROWSER_URL} />
+              {vncUrl && <VNCViewer url={vncUrl} />}
             </div>
           </div>
         </>
