@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, EyeOff, Monitor, Maximize2, Minimize2 } from "lucide-react";
 import { VNCViewer } from "@/components/vnc-viewer";
+import { VNC_BROWSER_URL } from "@/lib/config";
 
 export function AgentBrowserViewer() {
   const [isVisible, setIsVisible] = useState(false);
@@ -105,7 +106,7 @@ export function AgentBrowserViewer() {
                 className="border rounded-lg overflow-hidden bg-black relative"
                 style={{ height: "600px" }}
               >
-                <VNCViewer url="ws://localhost:5900" />
+                <VNCViewer url={VNC_BROWSER_URL} />
               </div>
             )}
 
@@ -151,7 +152,7 @@ export function AgentBrowserViewer() {
                 </div>
               </div>
               
-              <VNCViewer url="ws://localhost:5900" />
+              <VNCViewer url={VNC_BROWSER_URL} />
             </div>
           </div>
         </>

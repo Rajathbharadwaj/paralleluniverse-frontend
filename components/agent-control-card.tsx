@@ -15,6 +15,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChatHistorySidebar } from './chat-history-sidebar';
 import { useWebSocket } from '@/contexts/websocket-context';
 import { ResizableSidebar } from './resizable-sidebar';
+import { fetchBackend } from '@/lib/api-client';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -63,7 +64,7 @@ export function AgentControlCard() {
         
         // Fetch messages from LangGraph (PostgreSQL) - single source of truth
         try {
-          const response = await fetch(`http://localhost:8002/api/agent/threads/${savedThreadId}/messages`);
+          const response = await fetchBackend(`/api/agent/threads/${savedThreadId}/messages`);
           const data = await response.json();
           
           if (data.success && data.messages && data.messages.length > 0) {
@@ -79,7 +80,7 @@ export function AgentControlCard() {
             }));
             
             console.log('🎨 Setting messages state with:', mappedMessages.length, 'messages');
-            console.log('🎨 First 3 messages:', mappedMessages.slice(0, 3).map(m => ({ role: m.role, content: m.content.substring(0, 30) })));
+            console.log('🎨 First 3 messages:', mappedMessages.slice(0, 3).map((m: any) => ({ role: m.role, content: m.content.substring(0, 30) })));
             
             setMessages(mappedMessages);
           } else {
@@ -269,7 +270,7 @@ export function AgentControlCard() {
     addMessage('user', userMessage);
 
     try {
-      const response = await fetch('http://localhost:8002/api/agent/run', {
+      const response = await fetchBackend('/api/agent/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -297,7 +298,7 @@ export function AgentControlCard() {
     if (!status.threadId) return;
 
     try {
-      const response = await fetch('http://localhost:8002/api/agent/stop', {
+      const response = await fetchBackend('/api/agent/stop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -319,7 +320,7 @@ export function AgentControlCard() {
     if (!userId) return;
 
     try {
-      const response = await fetch('http://localhost:8002/api/agent/threads/new', {
+      const response = await fetchBackend('/api/agent/threads/new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId })
@@ -349,7 +350,7 @@ export function AgentControlCard() {
       console.log(`📖 Loading messages for thread: ${threadId}`);
       
       // Fetch messages from backend (PostgreSQL via LangGraph)
-      const response = await fetch(`http://localhost:8002/api/agent/threads/${threadId}/messages`);
+      const response = await fetchBackend(`/api/agent/threads/${threadId}/messages`);
       const data = await response.json();
       
       if (data.success && data.messages) {

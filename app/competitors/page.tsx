@@ -10,6 +10,7 @@ import { Network, RefreshCw, Users, TrendingUp, AlertCircle, ChevronDown, Messag
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { fetchExtension, fetchBackend } from "@/lib/api-client";
 
 export default function CompetitorsPage() {
   const { user } = useUser();
@@ -47,7 +48,7 @@ export default function CompetitorsPage() {
     }
 
     // Fallback to backend
-    fetch(`http://localhost:8001/get-username/${user.id}`)
+    fetchExtension(`/get-username/${user.id}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.username) {
@@ -64,7 +65,7 @@ export default function CompetitorsPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/${user.id}`
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/${user.id}`
       );
       const data = await res.json();
 
@@ -95,7 +96,7 @@ export default function CompetitorsPage() {
 
     const pollProgress = async () => {
       try {
-        const res = await fetch(`http://localhost:8002/api/social-graph/progress/${user.id}`);
+        const res = await fetchBackend(`/api/social-graph/progress/${user.id}`);
         const data = await res.json();
         if (data.success && data.progress) {
           setProgress(data.progress);
@@ -119,7 +120,7 @@ export default function CompetitorsPage() {
     try {
       // Smart discovery with auto-validation and fallback
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/smart-discover/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/smart-discover/${user.id}`,
         { method: "POST" }
       );
 
@@ -163,7 +164,7 @@ export default function CompetitorsPage() {
     try {
       // Follower-based discovery - analyzes YOUR followers
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/discover-followers/${user.id}?user_handle=${username}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/discover-followers/${user.id}?user_handle=${username}`,
         { method: "POST" }
       );
 
@@ -196,7 +197,7 @@ export default function CompetitorsPage() {
     try {
       // X Native discovery - uses X's "Followed by" feature (FASTEST!)
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/discover-native/${user.id}?user_handle=${username}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/discover-native/${user.id}?user_handle=${username}`,
         { method: "POST" }
       );
 
@@ -232,7 +233,7 @@ export default function CompetitorsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/scrape-posts/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/scrape-posts/${user.id}`,
         { method: "POST" }
       );
 
@@ -259,7 +260,7 @@ export default function CompetitorsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/insights/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/insights/${user.id}`,
         { method: "POST" }
       );
 
@@ -286,7 +287,7 @@ export default function CompetitorsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/calculate-relevancy/${user.id}?user_handle=${username}&batch_size=20`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/calculate-relevancy/${user.id}?user_handle=${username}&batch_size=20`,
         { method: "POST" }
       );
 
@@ -314,7 +315,7 @@ export default function CompetitorsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/reset-relevancy/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/reset-relevancy/${user.id}`,
         { method: "POST" }
       );
 
@@ -371,7 +372,7 @@ export default function CompetitorsPage() {
       console.log("📦 Request body:", { filtered_usernames: filteredUsernames });
 
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/scrape-posts/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/scrape-posts/${user.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -411,7 +412,7 @@ export default function CompetitorsPage() {
     const fetchCachedInsights = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8002/api/social-graph/insights/${user.id}`
+          `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/insights/${user.id}`
         );
         const data = await res.json();
 
@@ -433,7 +434,7 @@ export default function CompetitorsPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:8002/api/social-graph/cancel/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/cancel/${user.id}`,
         { method: "POST" }
       );
 
@@ -1326,7 +1327,7 @@ export default function CompetitorsPage() {
                 Competitor Landscape
               </CardTitle>
               <CardDescription>
-                Competitors clustered by {Object.values(insights.clusters.tiers)[0]?.tier_type === 'followers' ? 'follower count' : 'engagement level'} and account type
+                Competitors clustered by {(Object.values(insights.clusters.tiers)[0] as any)?.tier_type === 'followers' ? 'follower count' : 'engagement level'} and account type
               </CardDescription>
             </CardHeader>
 
@@ -1346,7 +1347,7 @@ export default function CompetitorsPage() {
                       {Object.keys(insights.clusters.tiers).length}
                     </p>
                   </div>
-                  {Object.values(insights.clusters.summary)[0] && (
+                  {Object.values(insights.clusters.summary)[0] ? (
                     <>
                       <div className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg border border-emerald-200/50">
                         <p className="text-sm text-muted-foreground">Largest Tier</p>
@@ -1361,7 +1362,7 @@ export default function CompetitorsPage() {
                         </p>
                       </div>
                     </>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Tier Breakdown */}

@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Plus, Trash2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { fetchBackend } from '@/lib/api-client';
 
 interface Thread {
   thread_id: string;
@@ -40,8 +41,8 @@ export function ChatHistorySidebar({ currentThreadId, onThreadSelect, onNewChat 
     
     try {
       setIsLoading(true);
-      console.log('📡 Fetching threads from:', `http://localhost:8002/api/agent/threads/list/${userId}`);
-      const response = await fetch(`http://localhost:8002/api/agent/threads/list/${userId}`);
+      console.log('📡 Fetching threads for user:', userId);
+      const response = await fetchBackend(`/api/agent/threads/list/${userId}`);
       const data = await response.json();
       
       console.log('📦 Received data:', data);

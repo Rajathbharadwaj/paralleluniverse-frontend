@@ -22,6 +22,7 @@ export function VNCViewer({ url, onConnect, onDisconnect }: VNCViewerProps) {
     const initVNC = async () => {
       try {
         // Dynamically import RFB only on the client side
+        // @ts-expect-error - novnc-next doesn't have type declarations
         const { default: RFB } = await import('novnc-next');
 
         if (!mounted || !containerRef.current) return;

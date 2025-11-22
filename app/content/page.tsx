@@ -10,6 +10,7 @@ import { PostComposer } from "@/components/content/post-composer";
 import { Plus, Calendar, Sparkles } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { fetchScheduledPosts, deleteScheduledPost, type ScheduledPost } from "@/lib/api/scheduled-posts";
+import { fetchBackend } from "@/lib/api-client";
 
 export default function ContentCalendarPage() {
   const { user } = useUser();
@@ -69,17 +70,17 @@ export default function ContentCalendarPage() {
         params.append("start_date", startDateStr);
         params.append("end_date", endDateStr);
 
-        const response = await fetch(`http://localhost:8002/api/scheduled-posts?${params}`);
+        const response = await fetchBackend(`/api/scheduled-posts?${params}`);
         const data = await response.json();
         const fetchedPosts = data.posts || [];
         console.log('📊 Fetched posts:', fetchedPosts.length, 'posts');
 
         // Check exact status values
-        fetchedPosts.forEach(p => {
+        fetchedPosts.forEach((p: ScheduledPost) => {
           console.log(`Post ${p.id}: status="${p.status}" (type: ${typeof p.status}), posted_at=${p.posted_at}`);
         });
 
-        const postedPosts = fetchedPosts.filter(p => p.status === 'posted');
+        const postedPosts = fetchedPosts.filter((p: ScheduledPost) => p.status === 'posted');
         console.log('📊 Posted posts count:', postedPosts.length);
         console.log('📊 Posted posts:', postedPosts);
 

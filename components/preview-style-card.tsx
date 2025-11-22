@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, MessageSquare, FileText, Eye, EyeOff, Send, CheckCircle } from 'lucide-react';
+import { fetchExtension, fetchBackend } from '@/lib/api-client';
 
 export function PreviewStyleCard() {
   const { user } = useUser();
@@ -35,18 +36,18 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID
-      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
-      
+
       console.log('📡 Status data:', statusData);
       console.log('📡 users_with_info:', statusData.users_with_info);
-      
+
       // Find user with cookies and username
       const userData = statusData.users_with_info?.find((u: any) => {
         console.log('🔍 Checking user:', u, 'hasCookies:', u.hasCookies, 'username:', u.username);
         return u.hasCookies && u.username;
       });
-      
+
       console.log('👤 Found user data:', userData);
       const extensionUserId = userData?.userId;
 
@@ -57,7 +58,7 @@ export function PreviewStyleCard() {
         throw new Error('Please connect your X account first');
       }
 
-      const response = await fetch('http://localhost:8002/api/generate-preview', {
+      const response = await fetchBackend('/api/generate-preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,9 +94,9 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID
-      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
-      
+
       // Find user with cookies and username
       const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
       const extensionUserId = userData?.userId;
@@ -105,7 +106,7 @@ export function PreviewStyleCard() {
         throw new Error('Please connect your X account first');
       }
 
-      const response = await fetch('http://localhost:8002/api/save-feedback', {
+      const response = await fetchBackend('/api/save-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -142,11 +143,11 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID
-      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
-      
+
       console.log('📡 Status data:', statusData);
-      
+
       // Find user with cookies and username
       const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
       const extensionUserId = userData?.userId;
@@ -157,7 +158,7 @@ export function PreviewStyleCard() {
         throw new Error('Please connect your X account first');
       }
 
-      const response = await fetch('http://localhost:8002/api/agent/create-post', {
+      const response = await fetchBackend('/api/agent/create-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

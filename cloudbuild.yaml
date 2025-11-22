@@ -17,6 +17,14 @@ steps:
       - 'NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/'
       - '--build-arg'
       - 'NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_VNC_BROWSER_URL=wss://vnc-browser-service-644185288504.us-central1.run.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_EXTENSION_BACKEND_URL=https://extension-backend-service-644185288504.us-central1.run.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-644185288504.us-central1.run.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app'
       - '.'
 
   # Push the container image to Container Registry
@@ -46,7 +54,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'NEXT_PUBLIC_EXTENSION_BACKEND_URL=https://extension-backend-service-bw5qfm5d5a-uc.a.run.app,NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-bw5qfm5d5a-uc.a.run.app,NEXT_PUBLIC_API_URL=https://backend-api-bw5qfm5d5a-uc.a.run.app,NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app'
+      - 'CLERK_SECRET_KEY=${_CLERK_SECRET_KEY},NEXT_PUBLIC_EXTENSION_BACKEND_URL=https://extension-backend-service-644185288504.us-central1.run.app,NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-644185288504.us-central1.run.app,NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app,NEXT_PUBLIC_VNC_BROWSER_URL=wss://vnc-browser-service-644185288504.us-central1.run.app'
 
 images:
   - 'gcr.io/$PROJECT_ID/frontend:$BUILD_ID'

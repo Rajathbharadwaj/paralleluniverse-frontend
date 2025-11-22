@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, RefreshCw, X, Loader2, Monitor } from "lucide-react";
+import { fetchExtension, fetchBackend } from '@/lib/api-client';
 
 interface SetupStatusBarProps {
   isConnected: boolean;
@@ -31,19 +32,19 @@ export function SetupStatusBar({
     
     try {
       // Get the user ID from localStorage (this is the extension user ID, not Clerk)
-      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
-      
+
       // Find the connected user (the one with cookies)
       const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
-      
+
       if (!connectedUser) {
         setInjectionStatus('❌ No X account connected');
         setIsInjecting(false);
         return;
       }
-      
-      const response = await fetch('http://localhost:8002/api/inject-cookies-to-docker', {
+
+      const response = await fetchBackend('/api/inject-cookies-to-docker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: connectedUser.userId })

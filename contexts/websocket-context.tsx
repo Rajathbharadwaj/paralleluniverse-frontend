@@ -29,7 +29,8 @@ export function WebSocketProvider({
     if (!userId) return;
 
     console.log('🔌 Creating shared WebSocket connection for user:', userId);
-    const websocket = new WebSocket(`ws://localhost:8002/ws/extension/${userId}`);
+    const wsUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://') || 'ws://localhost:8002';
+    const websocket = new WebSocket(`${wsUrl}/ws/extension/${userId}`);
 
     websocket.onopen = () => {
       console.log('✅ Shared WebSocket connected');

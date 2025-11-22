@@ -17,13 +17,12 @@ import "@xyflow/react/dist/style.css";
 import { Card } from "@/components/ui/card";
 
 // Custom node component with tooltip
-function CustomNode({ data, style }: NodeProps) {
+function CustomNode({ data }: NodeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
     <div
       style={{
-        ...style,
         position: "relative",
       }}
       onMouseEnter={() => setShowTooltip(true)}
@@ -32,9 +31,9 @@ function CustomNode({ data, style }: NodeProps) {
       <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
 
-      <div style={{ whiteSpace: "pre-line" }}>{data.label}</div>
+      <div style={{ whiteSpace: "pre-line" }}>{data.label as string}</div>
 
-      {showTooltip && data.tooltipText && (
+      {showTooltip && data.tooltipText ? (
         <div
           style={{
             position: "absolute",
@@ -54,9 +53,9 @@ function CustomNode({ data, style }: NodeProps) {
             pointerEvents: "none",
           }}
         >
-          {data.tooltipText}
+          {data.tooltipText as string}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -4,14 +4,31 @@
  */
 
 // Direct backend URLs (for server-side use)
+// Extension Backend URL - production URL hardcoded to avoid build-time env var issues
 export const EXTENSION_BACKEND_URL =
-  process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL || 'http://localhost:8001';
+  process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL ||
+  (typeof window === 'undefined' && process.env.K_SERVICE
+    ? 'https://extension-backend-service-644185288504.us-central1.run.app'
+    : 'http://localhost:8001');
 
+// Main Backend URL - uses backend-api service in production
+// Production URL is hardcoded to avoid build-time env var issues
 export const MAIN_BACKEND_URL =
-  process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
+  process.env.NEXT_PUBLIC_MAIN_BACKEND_URL ||
+  (typeof window === 'undefined' && process.env.K_SERVICE
+    ? 'https://backend-api-644185288504.us-central1.run.app'
+    : 'http://localhost:8002');
 
 export const OMNIPARSER_URL =
   process.env.NEXT_PUBLIC_OMNIPARSER_URL || 'http://localhost:8003';
+
+// VNC Browser URL (for watching AI agent work)
+// Production URL is hardcoded to avoid build-time env var issues
+export const VNC_BROWSER_URL =
+  process.env.NEXT_PUBLIC_VNC_BROWSER_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'wss://vnc-browser-service-644185288504.us-central1.run.app'
+    : 'ws://localhost:5900');
 
 // Check if running on Cloud Run
 const IS_CLOUD_RUN = typeof window === 'undefined' && !!process.env.K_SERVICE;

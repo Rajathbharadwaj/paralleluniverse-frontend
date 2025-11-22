@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
+import { fetchExtension, fetchBackend } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
-import { AgentControlCard } from "@/components/agent-control-card";
+import { DeepAgentChat } from "@/components/deep-agent-chat";
 import { AutomationControls } from "@/components/automation-controls";
 import { RecentActivityLive } from "@/components/recent-activity-live";
 import { AgentBrowserViewer } from "@/components/agent-browser-viewer";
@@ -42,7 +43,7 @@ export default function DashboardPage() {
       
       try {
         // Check if user has cookies
-        const statusResponse = await fetch('http://localhost:8001/status');
+        const statusResponse = await fetchExtension('/status');
         const statusData = await statusResponse.json();
         
         const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
@@ -50,7 +51,7 @@ export default function DashboardPage() {
         if (connectedUser) {
           console.log('🔄 Auto-injecting cookies to VNC for @' + connectedUser.username);
           
-          const response = await fetch('http://localhost:8002/api/inject-cookies-to-docker', {
+          const response = await fetchBackend('/api/inject-cookies-to-docker', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: connectedUser.userId })
@@ -103,7 +104,7 @@ export default function DashboardPage() {
         // If no cache, check backend
         try {
           console.log('🔍 No cache found, checking backend...');
-          const response = await fetch('http://localhost:8001/status');
+          const response = await fetchExtension('/status');
           const data = await response.json();
           
           console.log('📡 Backend status:', data);
@@ -131,7 +132,7 @@ export default function DashboardPage() {
       // Load posts count from database (more reliable than localStorage)
       if (cachedUsername) {
         try {
-          const countResponse = await fetch(`http://localhost:8002/api/posts/count/${cachedUsername}`);
+          const countResponse = await fetchBackend(`/api/posts/count/${cachedUsername}`);
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {
@@ -302,7 +303,7 @@ export default function DashboardPage() {
             storageKey="agent-panel-width"
           >
             <div className="h-full border-l bg-card/50">
-              <AgentControlCard />
+              <DeepAgentChat />
             </div>
           </ResizableSidebar>
         </div>

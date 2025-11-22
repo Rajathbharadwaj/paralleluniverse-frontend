@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Download, RefreshCw, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 import { useWebSocket } from '@/contexts/websocket-context';
+import { fetchExtension, fetchBackend } from '@/lib/api-client';
 
 interface ScrapedPost {
   content: string;
@@ -61,22 +62,23 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       
       try {
         // Get connected user's username
-        const statusResponse = await fetch('http://localhost:8001/status');
+        const statusResponse = await fetchExtension('/status');
         const statusData = await statusResponse.json();
         const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
-        
+
         if (connectedUser && connectedUser.username) {
           // Fetch count from database
-          const countResponse = await fetch(`http://localhost:8002/api/posts/count/${connectedUser.username}`);
+          const countResponse = await fetchBackend(`/api/posts/count/${connectedUser.username}`);
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {
             console.log(`📊 Loaded ${countData.count} posts from database for @${connectedUser.username}`);
             setImportResult({
-              imported: countData.count,
-              total: countData.count,
-              username: connectedUser.username,
-              timestamp: new Date().toISOString()
+              success: true,
+              imported_count: countData.count,
+              total_scraped: countData.count,
+              writing_style: {} as WritingStyle,
+              message: `Found ${countData.count} existing posts for @${connectedUser.username}`
             });
             
             // DON'T call onImportComplete on initial load - only on actual imports
@@ -143,19 +145,23 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       } else if (data.type === 'IMPORT_COMPLETE') {
         console.log('✅ Import complete:', data);
         setImportResult({
-          imported: data.imported,
-          total: data.total,
-          timestamp: new Date().toISOString()
+          success: true,
+          imported_count: data.imported || 0,
+          total_scraped: data.total || 0,
+          writing_style: {} as WritingStyle,
+          message: `Successfully imported ${data.imported || 0} posts`
         });
         setIsImporting(false);
         setLastImportDate(new Date().toISOString());
         setProgress(100);
-        
+
         // Save to localStorage
         localStorage.setItem(`import_result_${userId}`, JSON.stringify({
-          imported: data.imported,
-          total: data.total,
-          timestamp: new Date().toISOString()
+          success: true,
+          imported_count: data.imported || 0,
+          total_scraped: data.total || 0,
+          writing_style: {} as WritingStyle,
+          message: `Successfully imported ${data.imported || 0} posts`
         }));
         localStorage.setItem(`last_import_date_${userId}`, new Date().toISOString());
         
@@ -190,9 +196,9 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     try {
       // First, get the actual user_id from extension backend
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetch('http://localhost:8001/status');
+      const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
-      
+
       let extensionUserId = 'default_user';
       if (statusData.users_with_info && statusData.users_with_info.length > 0) {
         extensionUserId = statusData.users_with_info[0].userId;
@@ -200,18 +206,18 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       } else {
         console.warn('⚠️ No connected users, using default_user');
       }
-      
+
       // Use Docker browser to scrape posts (not user's browser!)
       console.log('📤 Requesting Docker browser to scrape posts...');
       console.log(`   Extension User ID: ${extensionUserId}`);
       console.log(`   Clerk User ID (for WebSocket): ${userId}`);
-      
+
       // Create AbortController with longer timeout for scraping
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
-      
+
       try {
-        const response = await fetch('http://localhost:8002/api/scrape-posts-docker', {
+        const response = await fetchBackend('/api/scrape-posts-docker', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -232,15 +238,17 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         
         if (result.success) {
           console.log('✅ Import complete:', result);
-          const importData = {
-            imported: result.imported,
-            total: result.total,
-            timestamp: new Date().toISOString()
+          const importData: ImportResult = {
+            success: true,
+            imported_count: result.imported || 0,
+            total_scraped: result.total || 0,
+            writing_style: result.writing_style || ({} as WritingStyle),
+            message: result.message || `Successfully imported ${result.imported || 0} posts`
           };
           setImportResult(importData);
           setProgress(100);
           setLastImportDate(new Date().toISOString());
-          
+
           // Save to localStorage
           if (userId) {
             localStorage.setItem(`import_result_${userId}`, JSON.stringify(importData));
@@ -251,7 +259,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         }
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        if (fetchError.name === 'AbortError') {
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
           setError('Import timed out. Please try again with "Sync Latest" for fewer posts.');
         } else {
           throw fetchError;
@@ -276,7 +284,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     return post.engagement.likes + post.engagement.replies + post.engagement.reposts;
   };
 
-  const hasImported = importResult && importResult.imported > 0;
+  const hasImported = importResult && importResult.imported_count > 0;
 
   return (
     <Card className={`w-full transition-all duration-500 ${
@@ -308,7 +316,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         {hasImported && (
           <div className="animate-in fade-in zoom-in duration-500 mb-4">
             <p className="text-sm text-muted-foreground">
-              Successfully imported <span className="font-semibold text-foreground">{importResult.imported} posts</span>! 
+              Successfully imported <span className="font-semibold text-foreground">{importResult.imported_count} posts</span>!
               Your agent can now write in your style.
             </p>
           </div>
@@ -419,25 +427,16 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
                 <div>
                   <span className="text-muted-foreground">Imported:</span>
                   <span className="ml-2 font-medium">
-                    {importResult.imported} posts
+                    {importResult.imported_count} posts
                   </span>
                 </div>
-                
+
                 <div>
                   <span className="text-muted-foreground">Total:</span>
                   <span className="ml-2 font-medium">
-                    {importResult.total} posts
+                    {importResult.total_scraped} posts
                   </span>
                 </div>
-                
-                {importResult.username && (
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">Account:</span>
-                    <Badge variant="secondary" className="ml-2">
-                      @{importResult.username}
-                    </Badge>
-                  </div>
-                )}
               </div>
 
               <div className="text-sm text-muted-foreground">

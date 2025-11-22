@@ -60,7 +60,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         console.log(`✅ Loaded ${drafts.length} AI drafts`);
 
         // Transform to AIPost format
-        const transformedPosts: AIPost[] = drafts.map(draft => {
+        const transformedPosts: AIPost[] = drafts.map((draft: any) => {
           const scheduledDate = new Date(draft.scheduled_at);
           return {
             id: draft.id,
@@ -111,7 +111,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
       }
 
       // Transform API response to AIPost format (now includes database IDs)
-      const newPosts: AIPost[] = generatedPosts.map((post, index) => {
+      const newPosts: AIPost[] = generatedPosts.map((post: any, index) => {
         console.log(`📝 Processing post ${index + 1}:`, {
           id: post.id,
           content: post.content?.substring(0, 50),

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronUp, Monitor, Maximize2, Minimize2 } from 'lucide-react';
 import { VNCViewer } from '@/components/vnc-viewer';
+import { VNC_BROWSER_URL } from '@/lib/config';
 
 interface WorkflowVNCViewerProps {
   isExecuting?: boolean;
@@ -39,7 +40,7 @@ export function WorkflowVNCViewer({ isExecuting = false }: WorkflowVNCViewerProp
 
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
-              VNC: localhost:5900
+              VNC: Cloud
             </Badge>
             <Button
               variant="ghost"
@@ -77,7 +78,7 @@ export function WorkflowVNCViewer({ isExecuting = false }: WorkflowVNCViewerProp
         <CardContent className={`p-0 bg-black ${isFullscreen ? 'flex-1' : ''}`}>
           <div className={`relative ${isFullscreen ? 'h-full' : 'h-[280px]'}`}>
             <VNCViewer
-              url="ws://localhost:5900"
+              url={VNC_BROWSER_URL}
               onConnect={() => setVncConnected(true)}
               onDisconnect={() => setVncConnected(false)}
             />

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { VNCViewer } from "@/components/vnc-viewer";
+import { VNC_BROWSER_URL } from "@/lib/config";
 
 interface ConnectXDialogProps {
   open: boolean;
@@ -86,8 +87,8 @@ export function ConnectXDialog({ open, onOpenChange, onSuccess }: ConnectXDialog
             <>
               <div className="border rounded-lg overflow-hidden bg-black" style={{ height: "600px" }}>
                 {/* Real VNC Viewer */}
-                <VNCViewer 
-                  url="ws://localhost:5900"
+                <VNCViewer
+                  url={VNC_BROWSER_URL}
                   onConnect={() => console.log("VNC connected")}
                   onDisconnect={() => console.log("VNC disconnected")}
                 />

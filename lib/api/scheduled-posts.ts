@@ -1,9 +1,13 @@
 /**
  * API client for scheduled posts
- * Connects frontend to backend at localhost:8002
+ * Automatically uses proxy routes in browser, direct URLs on server
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002";
+import { getApiUrl } from '../config';
+
+const API_BASE_URL = typeof window !== 'undefined'
+  ? getApiUrl('backend')
+  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002");
 
 export interface ScheduledPost {
   id: number;

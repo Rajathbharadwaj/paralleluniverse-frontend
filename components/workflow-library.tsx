@@ -14,6 +14,7 @@ import {
   Plus,
   Zap,
 } from 'lucide-react';
+import { fetchBackend } from '@/lib/api-client';
 
 interface Workflow {
   id: string;
@@ -62,7 +63,7 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibra
 
   const loadWorkflows = async () => {
     try {
-      const response = await fetch('http://localhost:8002/api/workflows');
+      const response = await fetchBackend('/api/workflows');
       const data = await response.json();
       setWorkflows(data.workflows || []);
     } catch (error) {
@@ -210,11 +211,11 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibra
 async function executeWorkflow(workflowId: string) {
   try {
     // Load workflow JSON
-    const response = await fetch(`http://localhost:8002/api/workflows/${workflowId}`);
+    const response = await fetchBackend(`/api/workflows/${workflowId}`);
     const workflowJson = await response.json();
 
     // Execute it
-    const executeResponse = await fetch('http://localhost:8002/api/workflow/execute', {
+    const executeResponse = await fetchBackend('/api/workflow/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
