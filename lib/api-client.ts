@@ -26,6 +26,23 @@ export async function fetchBackend(path: string, options?: RequestInit) {
 }
 
 /**
+ * Fetch from Main Backend with Clerk authentication
+ * Use this for endpoints that require user authentication (Clerk JWT)
+ */
+export async function fetchBackendAuth(path: string, token: string, options?: RequestInit) {
+  const baseUrl = getApiUrl('backend');
+  const url = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+
+  const headers = new Headers(options?.headers);
+  headers.set('Authorization', `Bearer ${token}`);
+
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+}
+
+/**
  * Fetch from OmniParser (port 8003)
  * Automatically routes through /api/omniparser proxy in browser
  */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, Download, Chrome } from "lucide-react";
-import { fetchExtension, fetchBackend } from "@/lib/api-client";
+import { fetchExtension, fetchBackendAuth } from "@/lib/api-client";
 
 interface ConnectExtensionDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface ConnectExtensionDialogProps {
 }
 
 export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }: ConnectExtensionDialogProps) {
+  const { getToken } = useAuth();
   const [step, setStep] = useState<"install" | "checking" | "connected" | "error">("install");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
@@ -57,7 +59,15 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
         console.log('🍪 User has cookies, injecting into Docker...', userId);
 
         try {
-          const injectResponse = await fetchBackend('/api/inject-cookies-to-docker', {
+          const token = await getToken();
+          if (!token) {
+            console.error('No auth token available');
+            setError('Authentication error - please refresh the page');
+            setStep("error");
+            return;
+          }
+
+          const injectResponse = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: userId })

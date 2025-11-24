@@ -78,7 +78,8 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
 
   const loadWorkflow = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8002/api/workflows/${id}`);
+      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
+      const response = await fetch(`${backendUrl}/api/workflows/${id}`);
       const data = await response.json();
 
       setWorkflowName(data.name);
@@ -171,7 +172,8 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
     try {
       const workflow = generateWorkflowJSON();
 
-      const response = await fetch('http://localhost:8002/api/workflow/execute', {
+      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
+      const response = await fetch(`${backendUrl}/api/workflow/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

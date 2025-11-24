@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
-import { fetchExtension, fetchBackend } from "@/lib/api-client";
+import { useUser, useAuth } from "@clerk/nextjs";
+import { fetchExtension, fetchBackend, fetchBackendAuth } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
@@ -20,6 +20,7 @@ import { WebSocketProvider } from "@/contexts/websocket-context";
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
   const [postsImported, setPostsImported] = useState(0);
@@ -50,15 +51,21 @@ export default function DashboardPage() {
         
         if (connectedUser) {
           console.log('🔄 Auto-injecting cookies to VNC for @' + connectedUser.username);
-          
-          const response = await fetchBackend('/api/inject-cookies-to-docker', {
+
+          const token = await getToken();
+          if (!token) {
+            console.log('⚠️ No auth token available for auto-inject');
+            return;
+          }
+
+          const response = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: connectedUser.userId })
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
             console.log('✅ Auto-injected cookies to VNC successfully');
             sessionStorage.setItem(sessionKey, 'true');
@@ -74,7 +81,7 @@ export default function DashboardPage() {
     // Run after a short delay to ensure backend is ready
     const timer = setTimeout(autoInjectCookies, 2000);
     return () => clearTimeout(timer);
-  }, [user?.id]);
+  }, [user?.id, getToken]);
 
   // Check setup status
   useEffect(() => {

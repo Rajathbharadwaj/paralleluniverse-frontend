@@ -232,8 +232,9 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
+      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/scrape-posts/${user.id}`,
+        `${backendUrl}/api/social-graph/scrape-posts/${user.id}`,
         { method: "POST" }
       );
 
@@ -368,11 +369,12 @@ export default function CompetitorsPage() {
         )
       };
 
-      console.log("📡 Sending fetch request to:", `http://localhost:8002/api/social-graph/scrape-posts/${user.id}`);
+      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
+      console.log("📡 Sending fetch request to:", `${backendUrl}/api/social-graph/scrape-posts/${user.id}`);
       console.log("📦 Request body:", { filtered_usernames: filteredUsernames });
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/scrape-posts/${user.id}`,
+        `${backendUrl}/api/social-graph/scrape-posts/${user.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

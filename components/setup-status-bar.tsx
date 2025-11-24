@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, RefreshCw, X, Loader2, Monitor } from "lucide-react";
-import { fetchExtension, fetchBackend } from '@/lib/api-client';
+import { fetchExtension, fetchBackendAuth } from '@/lib/api-client';
+import { useAuth } from "@clerk/nextjs";
 
 interface SetupStatusBarProps {
   isConnected: boolean;
@@ -23,14 +24,23 @@ export function SetupStatusBar({
 }: SetupStatusBarProps) {
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectionStatus, setInjectionStatus] = useState<string | null>(null);
-  
+  const { getToken } = useAuth();
+
   console.log('📊 SetupStatusBar props:', { isConnected, username, postsImported });
 
   const handleInjectCookies = async () => {
     setIsInjecting(true);
     setInjectionStatus(null);
-    
+
     try {
+      // Get Clerk token for authentication
+      const token = await getToken();
+      if (!token) {
+        setInjectionStatus('❌ Not authenticated');
+        setIsInjecting(false);
+        return;
+      }
+
       // Get the user ID from localStorage (this is the extension user ID, not Clerk)
       const statusResponse = await fetchExtension('/status');
       const statusData = await statusResponse.json();
@@ -44,14 +54,14 @@ export function SetupStatusBar({
         return;
       }
 
-      const response = await fetchBackend('/api/inject-cookies-to-docker', {
+      const response = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: connectedUser.userId })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setInjectionStatus('✅ Cookies injected to VNC!');
         setTimeout(() => setInjectionStatus(null), 3000);
@@ -59,6 +69,7 @@ export function SetupStatusBar({
         setInjectionStatus(`❌ ${data.error}`);
       }
     } catch (error) {
+      console.error('Cookie injection error:', error);
       setInjectionStatus('❌ Failed to inject cookies');
     } finally {
       setIsInjecting(false);

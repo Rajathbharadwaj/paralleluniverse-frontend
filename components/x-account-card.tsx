@@ -44,7 +44,8 @@ export function XAccountCard({ onConnectionChange }: XAccountCardProps = {}) {
         }
 
         // Then verify with backend (but don't clear cache if it fails)
-        const response = await fetch('http://localhost:8001/status');
+        const extensionUrl = process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL || 'http://localhost:8001';
+        const response = await fetch(`${extensionUrl}/status`);
         const data = await response.json();
         
         console.log('📡 Extension backend status:', data);

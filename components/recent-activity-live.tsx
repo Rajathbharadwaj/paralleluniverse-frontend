@@ -93,7 +93,8 @@ export function RecentActivityLive() {
     if (!user?.id) return;
 
     try {
-      const res = await fetch(`http://localhost:8002/api/activity/recent/${user.id}?limit=20`);
+      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
+      const res = await fetch(`${backendUrl}/api/activity/recent/${user.id}?limit=20`);
       const data = await res.json();
 
       if (data.success && data.activities) {
@@ -118,7 +119,9 @@ export function RecentActivityLive() {
 
     const connect = () => {
       try {
-        ws = new WebSocket(`ws://localhost:8002/ws/activity/${user.id}`);
+        // Use production WebSocket URL or fallback to localhost
+        const wsBaseUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://') || 'ws://localhost:8002';
+        ws = new WebSocket(`${wsBaseUrl}/ws/activity/${user.id}`);
 
         ws.onopen = () => {
           console.log("📡 Connected to activity stream");

@@ -53,7 +53,14 @@ export async function getAuthenticatedFetchOptions(
     return options;
   }
 
-  // Add authorization header for Cloud Run
+  // Check if client already provided Authorization header (e.g., Clerk token)
+  const existingHeaders = new Headers(options.headers);
+  if (existingHeaders.has('Authorization')) {
+    // Client provided auth - use that instead of service-to-service auth
+    return options;
+  }
+
+  // Add authorization header for Cloud Run service-to-service auth
   const headers = new Headers(options.headers);
   headers.set('Authorization', `Bearer ${token}`);
 

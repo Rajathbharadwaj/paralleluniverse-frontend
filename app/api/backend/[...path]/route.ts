@@ -29,11 +29,20 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }) {
       }
     }
 
+    // Forward the Authorization header from the client request
+    const headers: Record<string, string> = {
+      'Content-Type': request.headers.get('content-type') || 'application/json',
+    };
+
+    // Pass through the client's Authorization header (Clerk token)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
     const response = await authenticatedFetch(url, {
       method: request.method,
-      headers: {
-        'Content-Type': request.headers.get('content-type') || 'application/json',
-      },
+      headers,
       body,
     });
 

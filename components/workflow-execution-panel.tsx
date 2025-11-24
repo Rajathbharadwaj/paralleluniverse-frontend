@@ -53,7 +53,8 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
     setCompletedSteps([]);
 
     // Connect to WebSocket for streaming execution
-    const ws = new WebSocket('ws://localhost:8002/api/workflow/execute/stream');
+    const wsBaseUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL?.replace('https://', 'wss://').replace('http://', 'ws://') || 'ws://localhost:8002';
+    const ws = new WebSocket(`${wsBaseUrl}/api/workflow/execute/stream`);
     wsRef.current = ws;
 
     ws.onopen = () => {
