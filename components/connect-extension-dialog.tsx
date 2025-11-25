@@ -79,12 +79,12 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
         }
         
         const detectedUsername = user.username || user.userId;
-        const userId = user.userId;
+        const extensionUserId = user.userId;  // Renamed to avoid shadowing the userId parameter
         
         setUsername(detectedUsername);
         
         // User has cookies! Inject them into Docker
-        console.log('🍪 User has cookies, injecting into Docker...', userId);
+        console.log('🍪 User has cookies, injecting into Docker...', extensionUserId);
 
         try {
           const token = await getToken();
@@ -98,7 +98,7 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
           const injectResponse = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId })
+            body: JSON.stringify({ user_id: userId })  // Use Clerk userId (function parameter), not extensionUserId
           });
           
           const injectResult = await injectResponse.json();

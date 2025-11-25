@@ -267,13 +267,31 @@ export default function DashboardPage() {
     };
   }, [isConnected, username, postsImported, showSetupCards, manuallyOpened, user?.id]);
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     if (user?.id) {
+      // Clear localStorage immediately for responsive UI
       localStorage.removeItem(`x_username_${user.id}`);
       localStorage.removeItem(`x_connected_${user.id}`);
+
+      // Update UI state immediately
       setIsConnected(false);
       setUsername("");
       setShowSetupCards(true);
+
+      // Call backend to clear cookies from extension backend (database + memory)
+      try {
+        const response = await fetchBackend(`/api/extension/disconnect/${user.id}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (result.success) {
+          console.log('✅ Successfully disconnected from backend:', result);
+        } else {
+          console.log('⚠️ Backend disconnect returned:', result);
+        }
+      } catch (error) {
+        console.log('Could not disconnect from backend:', error);
+      }
     }
   };
 
