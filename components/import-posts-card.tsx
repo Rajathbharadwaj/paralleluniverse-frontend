@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Download, RefreshCw, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 import { useWebSocket } from '@/contexts/websocket-context';
-import { fetchExtension, fetchBackend } from '@/lib/api-client';
+import { fetchBackend } from '@/lib/api-client';
 
 interface ScrapedPost {
   content: string;
@@ -62,7 +62,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       
       try {
         // Get connected user's username - pass user_id to only get THIS user's data (security fix)
-        const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
+        const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
         const statusData = await statusResponse.json();
         // Accept both 'users' and 'users_with_info' field names for compatibility
         const usersList = statusData.users_with_info || statusData.users || [];
@@ -198,7 +198,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     try {
       // First, get the actual user_id from extension backend
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetchExtension('/api/extension/status');
+      const statusResponse = await fetchBackend('/api/extension/status');
       const statusData = await statusResponse.json();
 
       let extensionUserId = 'default_user';

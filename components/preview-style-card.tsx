@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, MessageSquare, FileText, Eye, EyeOff, Send, CheckCircle } from 'lucide-react';
-import { fetchExtension, fetchBackend } from '@/lib/api-client';
+import { fetchBackend } from '@/lib/api-client';
 
 export function PreviewStyleCard() {
   const { user } = useUser();
@@ -36,7 +36,7 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID - pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       console.log('📡 Status data:', statusData);
@@ -96,7 +96,7 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID - pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       // Find THIS user's data (should be the only one returned now)
@@ -148,7 +148,7 @@ export function PreviewStyleCard() {
     try {
       // Get extension user ID
       // Pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       console.log('📡 Status data:', statusData);

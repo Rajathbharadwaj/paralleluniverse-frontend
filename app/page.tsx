@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
-import { fetchExtension, fetchBackend, fetchBackendAuth } from "@/lib/api-client";
+import { fetchBackend, fetchBackendAuth } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
@@ -83,7 +83,7 @@ export default function DashboardPage() {
       
       try {
         // Check if user has cookies - pass user ID to filter to only this user's data
-        const statusResponse = await fetchExtension(`/api/extension/status?user_id=${user.id}`);
+        const statusResponse = await fetchBackend(`/api/extension/status?user_id=${user.id}`);
         const statusData = await statusResponse.json();
 
         // Should only have this user's data now, but still check
@@ -154,7 +154,7 @@ export default function DashboardPage() {
         try {
           console.log('🔍 No cache found, checking backend...');
           // Pass user_id to only get THIS user's data (security fix)
-          const response = await fetchExtension(`/api/extension/status?user_id=${user.id}`);
+          const response = await fetchBackend(`/api/extension/status?user_id=${user.id}`);
           const data = await response.json();
 
           console.log('📡 Backend status:', data);

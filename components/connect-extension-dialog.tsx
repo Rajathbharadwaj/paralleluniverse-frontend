@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, Download, Chrome } from "lucide-react";
-import { fetchExtension, fetchBackendAuth } from "@/lib/api-client";
+import { fetchBackend, fetchBackendAuth } from "@/lib/api-client";
 
 interface ConnectExtensionDialogProps {
   open: boolean;
@@ -62,7 +62,7 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
 
     try {
       // Call extension backend directly to get user with cookies - filter by userId
-      const response = await fetchExtension(`/api/extension/status?user_id=${userId}`);
+      const response = await fetchBackend(`/api/extension/status?user_id=${userId}`);
       const data = await response.json();
 
       // Accept both 'users' and 'users_with_info' field names for compatibility
