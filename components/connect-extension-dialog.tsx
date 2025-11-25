@@ -28,21 +28,49 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
 
   useEffect(() => {
     if (open) {
+      // First, send Clerk user ID to extension so it uses it instead of auto-generated ID
+      sendUserIdToExtension();
+      // Then check status
       checkExtensionStatus();
     }
   }, [open]);
+
+  const sendUserIdToExtension = () => {
+    try {
+      // Send Clerk user ID to extension
+      (window as any).chrome?.runtime?.sendMessage(
+        process.env.NEXT_PUBLIC_EXTENSION_ID || 'your-extension-id',
+        {
+          type: 'CONNECT_WITH_USER_ID',
+          userId: userId
+        },
+        (response: any) => {
+          if ((window as any).chrome?.runtime?.lastError) {
+            console.log('Extension not installed or not responding:', (window as any).chrome.runtime.lastError);
+          } else {
+            console.log('✅ Sent Clerk user ID to extension:', userId);
+          }
+        }
+      );
+    } catch (error) {
+      console.log('Could not send user ID to extension:', error);
+    }
+  };
 
   const checkExtensionStatus = async () => {
     setStep("checking");
 
     try {
-      // Call extension backend directly to get user with cookies
-      const response = await fetchExtension('/status');
+      // Call extension backend directly to get user with cookies - filter by userId
+      const response = await fetchExtension(`/api/extension/status?user_id=${userId}`);
       const data = await response.json();
-      
-      if (data.users_with_info && data.users_with_info.length > 0) {
-        // Find the first user that actually has cookies
-        const user = data.users_with_info.find((u: any) => u.hasCookies && u.username);
+
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = data.users_with_info || data.users || [];
+
+      if (usersList.length > 0) {
+        // Find THIS user's data (should be the only one returned now)
+        const user = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
         
         if (!user) {
           setStep("install");

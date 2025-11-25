@@ -61,10 +61,12 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       if (!userId) return;
       
       try {
-        // Get connected user's username
-        const statusResponse = await fetchExtension('/status');
+        // Get connected user's username - pass user_id to only get THIS user's data (security fix)
+        const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
         const statusData = await statusResponse.json();
-        const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+        // Accept both 'users' and 'users_with_info' field names for compatibility
+        const usersList = statusData.users_with_info || statusData.users || [];
+        const connectedUser = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
 
         if (connectedUser && connectedUser.username) {
           // Fetch count from database
@@ -196,12 +198,14 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     try {
       // First, get the actual user_id from extension backend
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetchExtension('/status');
+      const statusResponse = await fetchExtension('/api/extension/status');
       const statusData = await statusResponse.json();
 
       let extensionUserId = 'default_user';
-      if (statusData.users_with_info && statusData.users_with_info.length > 0) {
-        extensionUserId = statusData.users_with_info[0].userId;
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = statusData.users_with_info || statusData.users || [];
+      if (usersList.length > 0) {
+        extensionUserId = usersList[0].userId;
         console.log(`✅ Found extension user: ${extensionUserId}`);
       } else {
         console.warn('⚠️ No connected users, using default_user');

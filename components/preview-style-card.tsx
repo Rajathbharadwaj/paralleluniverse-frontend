@@ -35,17 +35,19 @@ export function PreviewStyleCard() {
     setError('');
 
     try {
-      // Get extension user ID
-      const statusResponse = await fetchExtension('/status');
+      // Get extension user ID - pass user_id to only get THIS user's data (security fix)
+      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       console.log('📡 Status data:', statusData);
       console.log('📡 users_with_info:', statusData.users_with_info);
 
-      // Find user with cookies and username
-      const userData = statusData.users_with_info?.find((u: any) => {
+      // Find THIS user's data (should be the only one returned now)
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = statusData.users_with_info || statusData.users || [];
+      const userData = usersList.find((u: any) => {
         console.log('🔍 Checking user:', u, 'hasCookies:', u.hasCookies, 'username:', u.username);
-        return u.hasCookies && u.username;
+        return u.hasCookies && u.username && u.userId === userId;
       });
 
       console.log('👤 Found user data:', userData);
@@ -93,12 +95,14 @@ export function PreviewStyleCard() {
     }
 
     try {
-      // Get extension user ID
-      const statusResponse = await fetchExtension('/status');
+      // Get extension user ID - pass user_id to only get THIS user's data (security fix)
+      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
-      // Find user with cookies and username
-      const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+      // Find THIS user's data (should be the only one returned now)
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = statusData.users_with_info || statusData.users || [];
+      const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
       const extensionUserId = userData?.userId;
 
       if (!extensionUserId) {
@@ -143,13 +147,16 @@ export function PreviewStyleCard() {
 
     try {
       // Get extension user ID
-      const statusResponse = await fetchExtension('/status');
+      // Pass user_id to only get THIS user's data (security fix)
+      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       console.log('📡 Status data:', statusData);
 
-      // Find user with cookies and username
-      const userData = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+      // Find THIS user's data (should be the only one returned now)
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = statusData.users_with_info || statusData.users || [];
+      const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
       const extensionUserId = userData?.userId;
 
       console.log('👤 Extension user ID:', extensionUserId);

@@ -64,7 +64,7 @@ export function useVNCSession(): UseVNCSessionResult {
 
       if (data.success && data.session) {
         setSession(data.session);
-        console.log("✅ Got VNC session:", data.session.url);
+        console.log("✅ Got VNC session for user");
       } else {
         throw new Error("No session returned");
       }

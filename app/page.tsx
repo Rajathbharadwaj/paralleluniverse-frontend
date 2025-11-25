@@ -28,6 +28,45 @@ export default function DashboardPage() {
   const [manuallyOpened, setManuallyOpened] = useState(false); // Track if user manually opened setup
   const minimizeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Add Clerk user ID to page for extension to read
+  useEffect(() => {
+    if (user?.id) {
+      // Add meta tag with Clerk user ID for extension
+      let metaTag = document.querySelector('meta[name="clerk-user-id"]') as HTMLMetaElement;
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.name = 'clerk-user-id';
+        document.head.appendChild(metaTag);
+      }
+      metaTag.content = user.id;
+      console.log('✅ Added Clerk user ID to page meta tag:', user.id);
+    }
+  }, [user?.id]);
+
+  // Send Clerk user ID to extension on page load
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        (window as any).chrome?.runtime?.sendMessage(
+          process.env.NEXT_PUBLIC_EXTENSION_ID || 'your-extension-id',
+          {
+            type: 'CONNECT_WITH_USER_ID',
+            userId: user.id
+          },
+          (response: any) => {
+            if ((window as any).chrome?.runtime?.lastError) {
+              console.log('Extension not installed:', (window as any).chrome.runtime.lastError);
+            } else {
+              console.log('✅ Sent Clerk user ID to extension on page load:', user.id);
+            }
+          }
+        );
+      } catch (error) {
+        console.log('Could not send user ID to extension:', error);
+      }
+    }
+  }, [user?.id]);
+
   // Auto-inject cookies to VNC on page load
   useEffect(() => {
     const autoInjectCookies = async () => {
@@ -43,11 +82,14 @@ export default function DashboardPage() {
       }
       
       try {
-        // Check if user has cookies
-        const statusResponse = await fetchExtension('/status');
+        // Check if user has cookies - pass user ID to filter to only this user's data
+        const statusResponse = await fetchExtension(`/api/extension/status?user_id=${user.id}`);
         const statusData = await statusResponse.json();
-        
-        const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+
+        // Should only have this user's data now, but still check
+        // Accept both 'users' and 'users_with_info' field names for compatibility
+        const usersList = statusData.users_with_info || statusData.users || [];
+        const connectedUser = usersList.find((u: any) => u.hasCookies && u.username && u.userId === user.id);
         
         if (connectedUser) {
           console.log('🔄 Auto-injecting cookies to VNC for @' + connectedUser.username);
@@ -111,13 +153,16 @@ export default function DashboardPage() {
         // If no cache, check backend
         try {
           console.log('🔍 No cache found, checking backend...');
-          const response = await fetchExtension('/status');
+          // Pass user_id to only get THIS user's data (security fix)
+          const response = await fetchExtension(`/api/extension/status?user_id=${user.id}`);
           const data = await response.json();
-          
+
           console.log('📡 Backend status:', data);
-          
-          // Find ANY user with cookies and username (extension user, not Clerk user)
-          const userData = data.users_with_info?.find((u: any) => u.hasCookies && u.username);
+
+          // Find this user's data (should be the only one returned now)
+          // Accept both 'users' and 'users_with_info' field names for compatibility
+          const usersList = data.users_with_info || data.users || [];
+          const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === user.id);
           
           console.log('🔍 Found user data:', userData);
           

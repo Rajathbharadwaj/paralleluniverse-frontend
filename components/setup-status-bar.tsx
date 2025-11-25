@@ -24,7 +24,7 @@ export function SetupStatusBar({
 }: SetupStatusBarProps) {
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectionStatus, setInjectionStatus] = useState<string | null>(null);
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
 
   console.log('📊 SetupStatusBar props:', { isConnected, username, postsImported });
 
@@ -41,12 +41,14 @@ export function SetupStatusBar({
         return;
       }
 
-      // Get the user ID from localStorage (this is the extension user ID, not Clerk)
-      const statusResponse = await fetchExtension('/status');
+      // Get the user ID - pass user_id to only get THIS user's data (security fix)
+      const statusResponse = await fetchExtension(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
-      // Find the connected user (the one with cookies)
-      const connectedUser = statusData.users_with_info?.find((u: any) => u.hasCookies && u.username);
+      // Find THIS user's data (should be the only one returned now)
+      // Accept both 'users' and 'users_with_info' field names for compatibility
+      const usersList = statusData.users_with_info || statusData.users || [];
+      const connectedUser = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
 
       if (!connectedUser) {
         setInjectionStatus('❌ No X account connected');

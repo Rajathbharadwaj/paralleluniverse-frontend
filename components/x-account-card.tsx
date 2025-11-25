@@ -45,13 +45,16 @@ export function XAccountCard({ onConnectionChange }: XAccountCardProps = {}) {
 
         // Then verify with backend (but don't clear cache if it fails)
         const extensionUrl = process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL || 'http://localhost:8001';
-        const response = await fetch(`${extensionUrl}/status`);
+        // Pass user_id to only get THIS user's data (security fix)
+        const response = await fetch(`${extensionUrl}/api/extension/status?user_id=${user.id}`);
         const data = await response.json();
-        
+
         console.log('📡 Extension backend status:', data);
-        
-        // Find ANY user with cookies and username (extension user, not Clerk user)
-        const userData = data.users_with_info?.find((u: any) => u.hasCookies && u.username);
+
+        // Find THIS user's data (should be the only one returned now)
+        // Accept both 'users' and 'users_with_info' field names for compatibility
+        const usersList = data.users_with_info || data.users || [];
+        const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === user.id);
         
         if (userData && userData.username) {
           console.log('✅ Backend confirmed X account:', userData.username);

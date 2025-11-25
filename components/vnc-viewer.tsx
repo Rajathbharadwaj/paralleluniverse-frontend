@@ -27,7 +27,7 @@ export function VNCViewer({ url, onConnect, onDisconnect }: VNCViewerProps) {
 
         if (!mounted || !containerRef.current) return;
 
-        console.log('🔌 Connecting to VNC:', url);
+        console.log('🔌 Connecting to VNC session...');
 
         // Create RFB instance
         const rfb = new RFB(containerRef.current, url, {
@@ -108,8 +108,8 @@ export function VNCViewer({ url, onConnect, onDisconnect }: VNCViewerProps) {
             {status === "connecting" && (
               <>
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-white font-medium">Connecting to Docker browser...</p>
-                <p className="text-sm text-gray-400">VNC: {url}</p>
+                <p className="text-white font-medium">Connecting to your browser session...</p>
+                <p className="text-sm text-gray-400">Establishing secure connection...</p>
               </>
             )}
             {status === "error" && (
