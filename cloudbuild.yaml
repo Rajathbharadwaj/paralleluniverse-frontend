@@ -25,6 +25,10 @@ steps:
       - 'NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-644185288504.us-central1.run.app'
       - '--build-arg'
       - 'NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_LANGGRAPH_URL=${_NEXT_PUBLIC_LANGGRAPH_URL}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_LANGGRAPH_API_KEY=${_NEXT_PUBLIC_LANGGRAPH_API_KEY}'
       - '.'
 
   # Push the container image to Container Registry
@@ -54,7 +58,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'CLERK_SECRET_KEY=${_CLERK_SECRET_KEY},NEXT_PUBLIC_EXTENSION_BACKEND_URL=https://extension-backend-service-644185288504.us-central1.run.app,NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-644185288504.us-central1.run.app,NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app,NEXT_PUBLIC_VNC_BROWSER_URL=wss://vnc-browser-service-644185288504.us-central1.run.app'
+      - 'CLERK_SECRET_KEY=${_CLERK_SECRET_KEY},NEXT_PUBLIC_EXTENSION_BACKEND_URL=https://extension-backend-service-644185288504.us-central1.run.app,NEXT_PUBLIC_MAIN_BACKEND_URL=https://backend-api-644185288504.us-central1.run.app,NEXT_PUBLIC_OMNIPARSER_URL=https://omniparser-service-644185288504.us-central1.run.app,NEXT_PUBLIC_VNC_BROWSER_URL=wss://vnc-browser-service-644185288504.us-central1.run.app,NEXT_PUBLIC_LANGGRAPH_URL=${_NEXT_PUBLIC_LANGGRAPH_URL},NEXT_PUBLIC_LANGGRAPH_API_KEY=${_NEXT_PUBLIC_LANGGRAPH_API_KEY}'
 
 images:
   - 'gcr.io/$PROJECT_ID/frontend:$BUILD_ID'
