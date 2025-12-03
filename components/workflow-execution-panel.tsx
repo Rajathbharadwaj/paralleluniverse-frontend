@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ interface WorkflowExecutionPanelProps {
 }
 
 export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onExecutionStateChange }: WorkflowExecutionPanelProps) {
+  const { user } = useUser();
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionId, setExecutionId] = useState<string | null>(null);
   const [logs, setLogs] = useState<ExecutionLog[]>([]);
@@ -62,7 +64,7 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
       // Send workflow JSON to execute with HIL setting
       ws.send(JSON.stringify({
         workflow_json: workflowJson,
-        user_id: null,
+        user_id: user?.id || null,  // Send Clerk user ID
         human_in_loop: humanInLoop,  // ← Send HIL toggle state
       }));
 
