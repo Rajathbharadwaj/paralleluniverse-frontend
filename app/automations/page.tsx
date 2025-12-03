@@ -13,7 +13,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const DEFAULT_ASSISTANT_ID = "x_growth_deep_agent";
 
 export default function AutomationsPage() {
-  const { data: cronJobs, error, mutate } = useCrons(DEFAULT_ASSISTANT_ID);
+  const { data, error, mutate } = useCrons();
+  const cronJobs = data?.cron_jobs || [];
   const [isComposerOpen, setIsComposerOpen] = useState(false);
 
   const handleAutomationCreated = () => {
@@ -103,7 +104,7 @@ export default function AutomationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {cronJobs.map((cronJob) => (
               <CronJobCard
-                key={cronJob.cron_id}
+                key={cronJob.id}
                 cronJob={cronJob}
                 onDeleted={handleAutomationDeleted}
               />

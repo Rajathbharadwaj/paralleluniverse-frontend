@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useClient } from "@/providers/ClientProvider";
-import { createCron } from "@/hooks/useCrons";
+import { createCronJob } from "@/hooks/useCrons";
 import {
   PRESET_SCHEDULES,
   type PresetScheduleKey,
@@ -46,7 +45,6 @@ export function AutomationComposer({
   onClose,
   onSuccess,
 }: AutomationComposerProps) {
-  const client = useClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
@@ -108,24 +106,15 @@ export function AutomationComposer({
         cronExpression = PRESET_SCHEDULES[scheduleType].cron;
       }
 
-      // Build input for agent
-      const input: Record<string, any> = {
-        user_id: "PLACEHOLDER_USER_ID", // TODO: Get from auth context
-      };
-
-      if (useWorkflow && workflow) {
-        input.workflow = workflow;
-      }
-
-      if (!useWorkflow && prompt) {
-        input.prompt = prompt;
-      }
-
-      // Create cron job
-      await createCron(client, assistantId, cronExpression, input, {
+      // Create cron job via backend API
+      await createCronJob({
         name,
-        created_by: "user",
-        schedule_type: scheduleType,
+        schedule: cronExpression,
+        workflow_id: useWorkflow && workflow ? workflow : undefined,
+        custom_prompt: !useWorkflow && prompt ? prompt : undefined,
+        input_config: {
+          schedule_type: scheduleType,
+        },
       });
 
       // Reset form
