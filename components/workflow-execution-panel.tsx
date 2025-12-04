@@ -9,12 +9,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle2, Circle, Loader2, XCircle, PlayCircle, StopCircle, Check, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { WorkflowToolCallBox } from './workflow-tool-call-box';
 
 interface ExecutionLog {
   timestamp: string;
   type: 'started' | 'parsing_complete' | 'chunk' | 'completed' | 'error';
   message: string;
   data?: any;
+}
+
+interface ToolCall {
+  id: string;
+  name: string;
+  status: 'pending' | 'completed';
+  input?: any;
 }
 
 interface WorkflowExecutionPanelProps {
@@ -28,6 +36,7 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionId, setExecutionId] = useState<string | null>(null);
   const [logs, setLogs] = useState<ExecutionLog[]>([]);
+  const [toolCalls, setToolCalls] = useState<ToolCall[]>([]);
   const [currentStep, setCurrentStep] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [humanInLoop, setHumanInLoop] = useState(false);
@@ -51,6 +60,7 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
   const executeWorkflow = () => {
     updateExecutionState(true);
     setLogs([]);
+    setToolCalls([]);
     setCurrentStep(null);
     setCompletedSteps([]);
 
@@ -89,6 +99,25 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
           // Workflow paused for human approval
           setPendingApproval(message.data);
           addLog('started', `⏸️ Paused for approval: ${message.data.action}`);
+          break;
+
+        case 'tool_start':
+          // Agent is calling a tool
+          setToolCalls(prev => [...prev, {
+            id: `${message.tool_name}_${Date.now()}`,
+            name: message.tool_name,
+            status: 'pending',
+            input: message.tool_input
+          }]);
+          break;
+
+        case 'tool_end':
+          // Tool execution completed
+          setToolCalls(prev => prev.map(tc =>
+            tc.name === message.tool_name && tc.status === 'pending'
+              ? { ...tc, status: 'completed' }
+              : tc
+          ));
           break;
 
         case 'chunk':
@@ -317,35 +346,58 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
           </div>
         )}
 
-        {/* Execution Logs */}
+        {/* Tool Calls & Execution Logs */}
         <ScrollArea className="flex-1 p-4" ref={scrollRef as any}>
-          <div className="space-y-2 font-mono text-xs">
-            {logs.length === 0 && (
+          <div className="space-y-3">
+            {toolCalls.length === 0 && logs.length === 0 && (
               <div className="text-center text-muted-foreground py-8">
                 Click Execute to start the workflow
               </div>
             )}
-            {logs.map((log, index) => (
-              <div
-                key={index}
-                className={`p-2 rounded ${
-                  log.type === 'error'
-                    ? 'bg-red-500/10 text-red-500'
-                    : log.type === 'completed'
-                    ? 'bg-green-500/10 text-green-500'
-                    : log.type === 'started'
-                    ? 'bg-blue-500/10 text-blue-500'
-                    : 'bg-muted'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-muted-foreground text-[10px]">
-                    {new Date(log.timestamp).toLocaleTimeString()}
-                  </span>
-                  <span className="flex-1 break-all">{log.message}</span>
-                </div>
+
+            {/* Tool Calls */}
+            {toolCalls.length > 0 && (
+              <div className="space-y-1">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                  Agent Actions
+                </h4>
+                {toolCalls.map((toolCall) => (
+                  <WorkflowToolCallBox
+                    key={toolCall.id}
+                    toolName={toolCall.name}
+                    status={toolCall.status}
+                    toolInput={toolCall.input}
+                  />
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* Execution Logs */}
+            {logs.length > 0 && (
+              <div className="space-y-2 font-mono text-xs">
+                {logs.map((log, index) => (
+                  <div
+                    key={index}
+                    className={`p-2 rounded ${
+                      log.type === 'error'
+                        ? 'bg-red-500/10 text-red-500'
+                        : log.type === 'completed'
+                        ? 'bg-green-500/10 text-green-500'
+                        : log.type === 'started'
+                        ? 'bg-blue-500/10 text-blue-500'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground text-[10px]">
+                        {new Date(log.timestamp).toLocaleTimeString()}
+                      </span>
+                      <span className="flex-1 break-all">{log.message}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </ScrollArea>
       </CardContent>
