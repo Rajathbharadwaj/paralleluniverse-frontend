@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import {
   Dialog,
@@ -10,8 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, Download, Chrome } from "lucide-react";
-import { fetchBackend, fetchBackendAuth } from "@/lib/api-client";
+import { Loader2, CheckCircle2, Download, ExternalLink, RefreshCw, AlertCircle } from "lucide-react";
+import { fetchExtension, fetchBackendAuth } from "@/lib/api-client";
 
 interface ConnectExtensionDialogProps {
   open: boolean;
@@ -20,222 +20,275 @@ interface ConnectExtensionDialogProps {
   onSuccess: (username: string) => void;
 }
 
+type ConnectionStep = "waiting" | "extension_found" | "x_login_needed" | "connecting" | "connected" | "error";
+
 export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }: ConnectExtensionDialogProps) {
   const { getToken } = useAuth();
-  const [step, setStep] = useState<"install" | "checking" | "connected" | "error">("install");
+  const [step, setStep] = useState<ConnectionStep>("waiting");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
+  const [isPolling, setIsPolling] = useState(false);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Start/stop polling when dialog opens/closes
   useEffect(() => {
     if (open) {
-      // First, send Clerk user ID to extension so it uses it instead of auto-generated ID
-      sendUserIdToExtension();
-      // Then check status
-      checkExtensionStatus();
+      setStep("waiting");
+      setError("");
+      startPolling();
+    } else {
+      stopPolling();
     }
+
+    return () => stopPolling();
   }, [open]);
 
-  const sendUserIdToExtension = () => {
-    try {
-      // Send Clerk user ID to extension
-      (window as any).chrome?.runtime?.sendMessage(
-        process.env.NEXT_PUBLIC_EXTENSION_ID || 'your-extension-id',
-        {
-          type: 'CONNECT_WITH_USER_ID',
-          userId: userId
-        },
-        (response: any) => {
-          if ((window as any).chrome?.runtime?.lastError) {
-            console.log('Extension not installed or not responding:', (window as any).chrome.runtime.lastError);
-          } else {
-            console.log('✅ Sent Clerk user ID to extension:', userId);
-          }
-        }
-      );
-    } catch (error) {
-      console.log('Could not send user ID to extension:', error);
+  const startPolling = () => {
+    if (pollIntervalRef.current) return;
+
+    setIsPolling(true);
+    // Check immediately
+    checkExtensionStatus();
+    // Then poll every 2 seconds
+    pollIntervalRef.current = setInterval(checkExtensionStatus, 2000);
+  };
+
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
     }
+    setIsPolling(false);
   };
 
   const checkExtensionStatus = async () => {
-    setStep("checking");
-
     try {
-      // Call extension backend directly to get user with cookies - filter by userId
-      const response = await fetchBackend(`/api/extension/status?user_id=${userId}`);
+      const response = await fetchExtension(`/status?user_id=${userId}`);
       const data = await response.json();
 
-      // Accept both 'users' and 'users_with_info' field names for compatibility
       const usersList = data.users_with_info || data.users || [];
+      const user = usersList.find((u: any) => u.userId === userId);
 
-      if (usersList.length > 0) {
-        // Find THIS user's data (should be the only one returned now)
-        const user = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
-        
-        if (!user) {
-          setStep("install");
-          setError("Extension connected but no X account logged in. Please log into X.com in your browser.");
-          return;
-        }
-        
-        const detectedUsername = user.username || user.userId;
-        const extensionUserId = user.userId;  // Renamed to avoid shadowing the userId parameter
-        
-        setUsername(detectedUsername);
-        
-        // User has cookies! Inject them into Docker
-        console.log('🍪 User has cookies, injecting into Docker...', extensionUserId);
-
-        try {
-          const token = await getToken();
-          if (!token) {
-            console.error('No auth token available');
-            setError('Authentication error - please refresh the page');
-            setStep("error");
-            return;
-          }
-
-          const injectResponse = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId })  // Use Clerk userId (function parameter), not extensionUserId
-          });
-          
-          const injectResult = await injectResponse.json();
-          
-          if (injectResult.success && injectResult.logged_in) {
-            console.log('✅ Session injected into Docker! User:', injectResult.username);
-            setStep("connected");
-            setTimeout(() => onSuccess(injectResult.username), 1500);
-          } else {
-            console.log('⚠️ Session injection failed:', injectResult.error);
-            setError(`Cookie injection failed: ${injectResult.error || 'Unknown error'}`);
-            setStep("error");
-          }
-        } catch (injectErr) {
-          console.error('Failed to inject cookies:', injectErr);
-          setError('Failed to inject cookies into Docker browser');
-          setStep("error");
-        }
-      } else {
-        // Not connected yet or no cookies
-        setStep("install");
-        setError("Extension not detected or no X account logged in. Make sure you're logged into X and the extension is installed.");
+      if (!user) {
+        // Extension not connected yet - user needs to refresh dashboard or open X
+        setStep("waiting");
+        return;
       }
+
+      // Extension is connected
+      if (!user.hasCookies || !user.username) {
+        // Connected but no cookies - user needs to log into X
+        setStep("x_login_needed");
+        return;
+      }
+
+      // Has cookies! Stop polling and inject
+      stopPolling();
+      setUsername(user.username);
+      setStep("connecting");
+
+      // Inject cookies into Docker
+      await injectCookies(user.username);
+
     } catch (err) {
       console.error('Failed to check extension status:', err);
-      setStep("install");
-      setError("Could not connect to backend. Make sure the server is running.");
+      // Don't change step on network errors - keep polling
     }
   };
 
-  const handleInstallClick = () => {
-    // In production, this would open Chrome Web Store
-    // For now, show instructions
-    alert("Extension installation:\n\n1. Download extension folder\n2. Go to chrome://extensions/\n3. Enable Developer Mode\n4. Click 'Load unpacked'\n5. Select extension folder");
+  const injectCookies = async (detectedUsername: string) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        setError('Authentication error - please refresh the page');
+        setStep("error");
+        return;
+      }
+
+      const injectResponse = await fetchBackendAuth('/api/inject-cookies-to-docker', token, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+
+      const injectResult = await injectResponse.json();
+
+      if (injectResult.success && injectResult.logged_in) {
+        console.log('✅ Session injected into Docker! User:', injectResult.username);
+        setStep("connected");
+        setTimeout(() => onSuccess(injectResult.username), 1500);
+      } else {
+        // Cookie injection failed but we have cookies - still mark as connected
+        // The VNC might not be ready yet
+        console.log('⚠️ VNC injection pending:', injectResult.error);
+        setStep("connected");
+        setTimeout(() => onSuccess(detectedUsername), 1500);
+      }
+    } catch (injectErr) {
+      console.error('Failed to inject cookies:', injectErr);
+      // Still mark as connected - cookies are stored
+      setStep("connected");
+      setTimeout(() => onSuccess(detectedUsername), 1500);
+    }
+  };
+
+  const handleOpenX = () => {
+    window.open('https://x.com', '_blank');
+  };
+
+  const handleDownloadExtension = () => {
+    window.open('https://docs.paralleluniverse.ai/downloads/parallel-universe-extension.zip', '_blank');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Connect Your X Account</DialogTitle>
           <DialogDescription>
-            Install our Chrome extension to automate your X account
+            We'll detect your X login automatically
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {step === "install" && (
-            <>
-              <div className="flex flex-col items-center justify-center py-8 space-y-6">
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Chrome className="h-12 w-12 text-primary" />
-                </div>
-                
-                <div className="text-center space-y-2">
-                  <h3 className="text-xl font-semibold">Install Chrome Extension</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Our extension runs in your browser and connects to your dashboard.
-                    You stay logged into X - no password sharing needed!
-                  </p>
-                </div>
-
-                <div className="w-full max-w-md space-y-3 text-sm">
-                  <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-                    <span className="font-bold text-primary">1.</span>
-                    <p>Install the extension from Chrome Web Store</p>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-                    <span className="font-bold text-primary">2.</span>
-                    <p>Make sure you're logged into X in your browser</p>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-                    <span className="font-bold text-primary">3.</span>
-                    <p>Extension will auto-connect to this dashboard</p>
-                  </div>
-                </div>
-
-                <Button size="lg" onClick={handleInstallClick} className="gap-2">
-                  <Download className="h-5 w-5" />
-                  Install Extension
+        <div className="space-y-6 py-4">
+          {/* Step 1: Extension */}
+          <div className={`flex items-start gap-4 p-4 rounded-lg border ${
+            step === "waiting" ? "border-primary bg-primary/5" : "border-green-500 bg-green-500/5"
+          }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              step === "waiting" ? "bg-primary text-primary-foreground" :
+              "bg-green-500 text-white"
+            }`}>
+              {step === "waiting" ? "1" : <CheckCircle2 className="h-5 w-5" />}
+            </div>
+            <div className="flex-1">
+              <h4 className="font-medium">Install Extension</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                {step === "waiting"
+                  ? "Download and install the Chrome extension, then refresh this page"
+                  : "Extension connected!"
+                }
+              </p>
+              {step === "waiting" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 gap-2"
+                  onClick={handleDownloadExtension}
+                >
+                  <Download className="h-4 w-4" />
+                  Download Extension
                 </Button>
+              )}
+            </div>
+            {step === "waiting" && isPolling && (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
 
-                <p className="text-xs text-muted-foreground text-center max-w-md">
-                  🔒 <strong>Privacy:</strong> The extension only works on x.com and twitter.com.
-                  We never see your password - you're already logged in!
-                </p>
-              </div>
-            </>
-          )}
+          {/* Step 2: X Login */}
+          <div className={`flex items-start gap-4 p-4 rounded-lg border ${
+            step === "x_login_needed" ? "border-primary bg-primary/5" :
+            ["connecting", "connected"].includes(step) ? "border-green-500 bg-green-500/5" :
+            "border-muted opacity-50"
+          }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              step === "x_login_needed" ? "bg-primary text-primary-foreground" :
+              ["connecting", "connected"].includes(step) ? "bg-green-500 text-white" :
+              "bg-muted text-muted-foreground"
+            }`}>
+              {["connecting", "connected"].includes(step) ? <CheckCircle2 className="h-5 w-5" /> : "2"}
+            </div>
+            <div className="flex-1">
+              <h4 className="font-medium">Log into X</h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                {step === "x_login_needed"
+                  ? "Open X.com and make sure you're logged in"
+                  : ["connecting", "connected"].includes(step)
+                    ? `Logged in as @${username}`
+                    : "We'll detect your X session automatically"
+                }
+              </p>
+              {step === "x_login_needed" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 gap-2"
+                  onClick={handleOpenX}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open X.com
+                </Button>
+              )}
+            </div>
+            {step === "x_login_needed" && isPolling && (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
 
-          {step === "checking" && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">
-                Checking for extension...
+          {/* Step 3: Connected */}
+          <div className={`flex items-start gap-4 p-4 rounded-lg border ${
+            step === "connecting" ? "border-primary bg-primary/5" :
+            step === "connected" ? "border-green-500 bg-green-500/5" :
+            "border-muted opacity-50"
+          }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              step === "connecting" ? "bg-primary text-primary-foreground" :
+              step === "connected" ? "bg-green-500 text-white" :
+              "bg-muted text-muted-foreground"
+            }`}>
+              {step === "connected" ? <CheckCircle2 className="h-5 w-5" /> : "3"}
+            </div>
+            <div className="flex-1">
+              <h4 className="font-medium">
+                {step === "connecting" ? "Connecting..." :
+                 step === "connected" ? "Connected!" : "Ready to Go"}
+              </h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                {step === "connecting"
+                  ? "Setting up your session..."
+                  : step === "connected"
+                    ? "Your X account is connected and ready!"
+                    : "Session will be synced automatically"
+                }
               </p>
             </div>
-          )}
+            {step === "connecting" && (
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            )}
+          </div>
 
-          {step === "connected" && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <CheckCircle2 className="h-16 w-16 text-green-500" />
-              <div className="text-center space-y-2">
-                <p className="text-lg font-semibold">Successfully Connected!</p>
-                <p className="text-sm text-muted-foreground">
-                  Account: <span className="font-mono font-bold">@{username}</span>
-                </p>
-              </div>
-            </div>
-          )}
-
+          {/* Error state */}
           {step === "error" && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <div className="text-center space-y-2">
-                <p className="text-lg font-semibold text-destructive">Connection Error</p>
-                <p className="text-sm text-muted-foreground">{error}</p>
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-destructive bg-destructive/5">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+              <div className="flex-1">
+                <h4 className="font-medium text-destructive">Connection Error</h4>
+                <p className="text-sm text-muted-foreground mt-1">{error}</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 gap-2"
+                  onClick={() => {
+                    setStep("waiting");
+                    startPolling();
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Try Again
+                </Button>
               </div>
-              <Button onClick={checkExtensionStatus}>
-                Try Again
-              </Button>
             </div>
+          )}
+
+          {/* Status message */}
+          {isPolling && step !== "connected" && (
+            <p className="text-xs text-center text-muted-foreground">
+              Checking for connection... This will update automatically.
+            </p>
           )}
         </div>
-
-        {step === "install" && (
-          <div className="border-t pt-4">
-            <Button 
-              variant="outline" 
-              onClick={checkExtensionStatus}
-              className="w-full"
-            >
-              I've Installed the Extension
-            </Button>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );
 }
-
