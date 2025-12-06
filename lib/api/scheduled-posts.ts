@@ -185,9 +185,10 @@ export async function fetchAIDrafts(
 
 /**
  * Generate AI content suggestions
+ *
+ * IMPORTANT: Uses JWT authentication - user_id is extracted from token on backend
  */
 export async function generateAIContent(
-  userId: string,
   token: string,
   count: number = 5
 ): Promise<Array<{
@@ -198,13 +199,12 @@ export async function generateAIContent(
   ai_generated: boolean;
 }>> {
   const params = new URLSearchParams({
-    user_id: userId,
     count: count.toString(),
   });
 
   const url = `${API_BASE_URL}/api/scheduled-posts/generate-ai?${params}`;
   console.log("🌐 Fetching AI content from:", url);
-  console.log("📊 Request params:", { userId, count });
+  console.log("📊 Request params:", { count });
 
   try {
     const response = await fetch(url, {

@@ -91,12 +91,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
   // Generate more AI content
   const generateMoreContent = async () => {
-    if (!userId) {
-      alert("User ID is required");
-      return;
-    }
-
-    console.log("🚀 Starting AI content generation for user:", userId);
+    console.log("🚀 Starting AI content generation...");
 
     try {
       setIsGenerating(true);
@@ -110,7 +105,8 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
       }
 
       // Call AI generation API (generate 7 posts for the week)
-      const generatedPosts = await generateAIContent(userId, token, 7);
+      // Backend will use authenticated user from JWT token
+      const generatedPosts = await generateAIContent(token, 7);
 
       console.log("✅ Received response with", generatedPosts?.length || 0, "posts");
       console.log("Response data:", generatedPosts);
