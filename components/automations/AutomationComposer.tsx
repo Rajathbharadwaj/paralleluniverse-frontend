@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { createCronJob } from "@/hooks/useCrons";
 import {
   PRESET_SCHEDULES,
@@ -45,6 +46,7 @@ export function AutomationComposer({
   onClose,
   onSuccess,
 }: AutomationComposerProps) {
+  const { getToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
@@ -107,6 +109,13 @@ export function AutomationComposer({
       }
 
       // Create cron job via backend API
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsSubmitting(false);
+        return;
+      }
+
       await createCronJob({
         name,
         schedule: cronExpression,
@@ -115,7 +124,7 @@ export function AutomationComposer({
         input_config: {
           schedule_type: scheduleType,
         },
-      });
+      }, token);
 
       // Reset form
       setName("");

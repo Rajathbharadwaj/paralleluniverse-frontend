@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { deleteCronJob, type CronJob } from "@/hooks/useCrons";
 import { cronToHumanReadable, getNextRunTime } from "@/lib/schedule-helper";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ interface CronJobCardProps {
 }
 
 export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
+  const { getToken } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -44,7 +46,14 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteCronJob(cronJob.id);
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsDeleting(false);
+        return;
+      }
+
+      await deleteCronJob(cronJob.id, token);
       onDeleted?.();
     } catch (error) {
       console.error("Failed to delete cron job:", error);

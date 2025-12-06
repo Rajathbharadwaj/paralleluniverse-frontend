@@ -58,17 +58,21 @@ export function useCronRuns(cronJobId: number | null) {
   );
 }
 
-export async function createCronJob(data: {
-  name: string;
-  schedule: string;
-  workflow_id?: string;
-  custom_prompt?: string;
-  input_config?: Record<string, any>;
-}) {
+export async function createCronJob(
+  data: {
+    name: string;
+    schedule: string;
+    workflow_id?: string;
+    custom_prompt?: string;
+    input_config?: Record<string, any>;
+  },
+  token: string
+) {
   const response = await fetch(`${API_BASE_URL}/api/cron-jobs`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
@@ -80,9 +84,12 @@ export async function createCronJob(data: {
   return response.json();
 }
 
-export async function deleteCronJob(cronJobId: number) {
+export async function deleteCronJob(cronJobId: number, token: string) {
   const response = await fetch(`${API_BASE_URL}/api/cron-jobs/${cronJobId}`, {
     method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {

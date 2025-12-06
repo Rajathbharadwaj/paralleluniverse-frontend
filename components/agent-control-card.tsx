@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ChatHistorySidebar } from './chat-history-sidebar';
 import { useWebSocket } from '@/contexts/websocket-context';
 import { ResizableSidebar } from './resizable-sidebar';
-import { fetchBackend } from '@/lib/api-client';
+import { fetchBackendAuth } from '@/lib/api-client';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -31,6 +31,7 @@ interface AgentStatus {
 
 export function AgentControlCard() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const userId = user?.id || '';
   const { ws, subscribe } = useWebSocket(); // Use shared WebSocket
   
@@ -64,7 +65,13 @@ export function AgentControlCard() {
         
         // Fetch messages from LangGraph (PostgreSQL) - single source of truth
         try {
-          const response = await fetchBackend(`/api/agent/threads/${savedThreadId}/messages`);
+          const token = await getToken();
+          if (!token) {
+            console.error('No auth token available');
+            return;
+          }
+
+          const response = await fetchBackendAuth(`/api/agent/threads/${savedThreadId}/messages`, token);
           const data = await response.json();
           
           if (data.success && data.messages && data.messages.length > 0) {
@@ -270,7 +277,13 @@ export function AgentControlCard() {
     addMessage('user', userMessage);
 
     try {
-      const response = await fetchBackend('/api/agent/run', {
+      const token = await getToken();
+      if (!token) {
+        addMessage('system', '❌ Authentication required. Please sign in again.');
+        return;
+      }
+
+      const response = await fetchBackendAuth('/api/agent/run', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -298,7 +311,13 @@ export function AgentControlCard() {
     if (!status.threadId) return;
 
     try {
-      const response = await fetchBackend('/api/agent/stop', {
+      const token = await getToken();
+      if (!token) {
+        console.error('No auth token available');
+        return;
+      }
+
+      const response = await fetchBackendAuth('/api/agent/stop', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -320,22 +339,28 @@ export function AgentControlCard() {
     if (!userId) return;
 
     try {
-      const response = await fetchBackend('/api/agent/threads/new', {
+      const token = await getToken();
+      if (!token) {
+        console.error('No auth token available');
+        return;
+      }
+
+      const response = await fetchBackendAuth('/api/agent/threads/new', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId })
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         // Clear UI and set new thread_id
         setMessages([]);
         setStatus({ isRunning: false, currentTask: null, threadId: result.thread_id });
-        
+
         // Update current thread in localStorage (only thread ID, not messages)
         localStorage.setItem(`agent_thread_${userId}`, result.thread_id);
-        
+
         console.log(`✨ Started new chat with thread: ${result.thread_id}`);
       }
     } catch (error) {
@@ -348,9 +373,15 @@ export function AgentControlCard() {
 
     try {
       console.log(`📖 Loading messages for thread: ${threadId}`);
-      
+
+      const token = await getToken();
+      if (!token) {
+        console.error('No auth token available');
+        return;
+      }
+
       // Fetch messages from backend (PostgreSQL via LangGraph)
-      const response = await fetchBackend(`/api/agent/threads/${threadId}/messages`);
+      const response = await fetchBackendAuth(`/api/agent/threads/${threadId}/messages`, token);
       const data = await response.json();
       
       if (data.success && data.messages) {

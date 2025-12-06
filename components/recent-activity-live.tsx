@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageSquare, FileText, ThumbsUp, ThumbsDown, Clock, CheckCircle2, XCircle, Search, ChevronDown, ChevronUp, Activity } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 
 interface ActivityItem {
   id: string;
@@ -83,6 +83,7 @@ const formatTimestamp = (isoString: string) => {
 
 export function RecentActivityLive() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,8 +94,18 @@ export function RecentActivityLive() {
     if (!user?.id) return;
 
     try {
+      const token = await getToken();
+      if (!token) {
+        console.error("No auth token available");
+        return;
+      }
+
       const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
-      const res = await fetch(`${backendUrl}/api/activity/recent/${user.id}?limit=20`);
+      const res = await fetch(`${backendUrl}/api/activity/recent/${user.id}?limit=20`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
 
       if (data.success && data.activities) {
@@ -128,6 +139,11 @@ export function RecentActivityLive() {
         };
 
         ws.onmessage = (event) => {
+          // Ignore keepalive messages
+          if (event.data === "keepalive") {
+            return;
+          }
+
           try {
             const data = JSON.parse(event.data);
 

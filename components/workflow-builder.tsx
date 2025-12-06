@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -15,7 +17,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CustomWorkflowNode from './custom-workflow-node';
-import { WorkflowExecutionPanel } from './workflow-execution-panel';
+import { WorkflowAgentChat } from './workflow-agent-chat';
 import { WorkflowVNCViewer } from './workflow-vnc-viewer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +54,7 @@ interface WorkflowBuilderProps {
 }
 
 export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
+  const { getToken } = useAuth();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -78,8 +81,18 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
 
   const loadWorkflow = async (id: string) => {
     try {
+      const token = await getToken();
+      if (!token) {
+        console.error("No auth token available");
+        return;
+      }
+
       const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
-      const response = await fetch(`${backendUrl}/api/workflows/${id}`);
+      const response = await fetch(`${backendUrl}/api/workflows/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
 
       setWorkflowName(data.name);
@@ -170,12 +183,22 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
   const executeWorkflow = async () => {
     setIsExecuting(true);
     try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsExecuting(false);
+        return;
+      }
+
       const workflow = generateWorkflowJSON();
 
       const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
       const response = await fetch(`${backendUrl}/api/workflow/execute`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
           workflow_json: workflow,
           user_id: null,
@@ -230,7 +253,35 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setShowJSON(!showJSON)}
+              onClick={() => {
+                // Trigger fresh execution by forcing Deep Agent Chat to reload
+                // This causes the autoSend to trigger again with the latest workflow
+                setShowExecution(false);
+                setTimeout(() => {
+                  setShowExecution(true);
+                }, 100);
+              }}
+              variant="default"
+              size="sm"
+              className="bg-purple-500 hover:bg-purple-600"
+              disabled={nodes.length === 0}
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Execute Workflow
+            </Button>
+            <Button
+              onClick={() => {
+                if (showJSON) {
+                  // Currently showing JSON, about to hide it
+                  // Restore the execution panel
+                  setShowJSON(false);
+                  setShowExecution(true);
+                } else {
+                  // Currently showing execution, about to show JSON
+                  setShowJSON(true);
+                  setShowExecution(false);
+                }
+              }}
               variant="outline"
               size="sm"
             >
@@ -307,14 +358,8 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
           {/* Execution Panel or JSON View */}
           <div className="flex-1 overflow-hidden flex flex-col">
             {showExecution ? (
-              <WorkflowExecutionPanel
+              <WorkflowAgentChat
                 workflowJson={generateWorkflowJSON()}
-                onExecutionComplete={(result) => {
-                  console.log('Workflow execution completed:', result);
-                }}
-                onExecutionStateChange={(executing) => {
-                  setVncIsExecuting(executing);
-                }}
               />
             ) : showJSON ? (
               <div className="p-4 flex-1 overflow-y-auto">
