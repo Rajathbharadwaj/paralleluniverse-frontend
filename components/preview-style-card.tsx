@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, MessageSquare, FileText, Eye, EyeOff, Send, CheckCircle } from 'lucide-react';
-import { fetchExtension, fetchBackend } from '@/lib/api-client';
+import { fetchExtension, fetchBackend, fetchBackendAuth } from '@/lib/api-client';
 
 export function PreviewStyleCard() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const userId = user?.id || '';
 
   const [isCollapsed, setIsCollapsed] = useState(false); // Start expanded so it's visible
@@ -35,37 +36,18 @@ export function PreviewStyleCard() {
     setError('');
 
     try {
-      // Get extension user ID - pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
-      const statusData = await statusResponse.json();
-
-      console.log('📡 Status data:', statusData);
-      console.log('📡 users_with_info:', statusData.users_with_info);
-
-      // Find THIS user's data (should be the only one returned now)
-      // Accept both 'users' and 'users_with_info' field names for compatibility
-      const usersList = statusData.users_with_info || statusData.users || [];
-      const userData = usersList.find((u: any) => {
-        console.log('🔍 Checking user:', u, 'hasCookies:', u.hasCookies, 'username:', u.username);
-        return u.hasCookies && u.username && u.userId === userId;
-      });
-
-      console.log('👤 Found user data:', userData);
-      const extensionUserId = userData?.userId;
-
-      console.log('🔍 Extension user ID:', extensionUserId);
-
-      if (!extensionUserId) {
-        console.error('❌ No extension user ID found. Full status:', JSON.stringify(statusData, null, 2));
-        throw new Error('Please connect your X account first');
+      // Get authentication token
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Authentication required');
       }
 
-      const response = await fetchBackend('/api/generate-preview', {
+      // Generate content using authenticated endpoint
+      // Backend will use clerk_user_id from JWT to ensure user isolation
+      const response = await fetchBackendAuth('/api/generate-preview', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: extensionUserId,
-          clerk_user_id: userId,
           content_type: contentType,
           context: context,
           feedback: feedback
@@ -95,26 +77,17 @@ export function PreviewStyleCard() {
     }
 
     try {
-      // Get extension user ID - pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
-      const statusData = await statusResponse.json();
-
-      // Find THIS user's data (should be the only one returned now)
-      // Accept both 'users' and 'users_with_info' field names for compatibility
-      const usersList = statusData.users_with_info || statusData.users || [];
-      const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
-      const extensionUserId = userData?.userId;
-
-      if (!extensionUserId) {
-        console.error('❌ No extension user ID found for feedback');
-        throw new Error('Please connect your X account first');
+      // Get authentication token
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Authentication required');
       }
 
-      const response = await fetchBackend('/api/save-feedback', {
+      // Save feedback using authenticated endpoint
+      const response = await fetchBackendAuth('/api/save-feedback', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: extensionUserId,
           feedback: feedback,
           original_content: generatedContent,
           context: context
@@ -146,31 +119,32 @@ export function PreviewStyleCard() {
     setPostSuccess(false);
 
     try {
-      // Get extension user ID
-      // Pass user_id to only get THIS user's data (security fix)
+      // Get authentication token
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      // Get extension user ID (needed for posting via extension)
       const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
-      console.log('📡 Status data:', statusData);
-
-      // Find THIS user's data (should be the only one returned now)
-      // Accept both 'users' and 'users_with_info' field names for compatibility
+      // Find THIS user's extension data
       const usersList = statusData.users_with_info || statusData.users || [];
       const userData = usersList.find((u: any) => u.hasCookies && u.username && u.userId === userId);
       const extensionUserId = userData?.userId;
-
-      console.log('👤 Extension user ID:', extensionUserId);
 
       if (!extensionUserId) {
         throw new Error('Please connect your X account first');
       }
 
-      const response = await fetchBackend('/api/agent/create-post', {
+      // Post using authenticated endpoint
+      // Backend will use clerk_user_id from JWT for style, extension_user_id for posting
+      const response = await fetchBackendAuth('/api/agent/create-post', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: extensionUserId,
-          clerk_user_id: userId,
           post_text: generatedContent
         })
       });
