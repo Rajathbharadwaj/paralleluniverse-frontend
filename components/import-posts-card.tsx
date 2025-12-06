@@ -54,7 +54,35 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
   const [targetCount, setTargetCount] = useState(50);
   const [scrapedPosts, setScrapedPosts] = useState<ScrapedPost[]>([]);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  
+
+  // SECURITY: Send Clerk user ID to extension on component mount
+  // This ensures extension uses Clerk ID instead of generating random ID
+  useEffect(() => {
+    const extensionId = process.env.NEXT_PUBLIC_EXTENSION_ID;
+    if (!userId || !extensionId || extensionId === 'your-extension-id') {
+      return;
+    }
+
+    try {
+      (window as any).chrome?.runtime?.sendMessage(
+        extensionId,
+        {
+          type: 'CONNECT_WITH_USER_ID',
+          userId: userId
+        },
+        () => {
+          if ((window as any).chrome?.runtime?.lastError) {
+            console.log('Extension not installed:', (window as any).chrome.runtime.lastError);
+          } else {
+            console.log('Configured extension with Clerk user ID:', userId);
+          }
+        }
+      );
+    } catch (error) {
+      console.log('Extension communication not available');
+    }
+  }, [userId]);
+
   // Fetch actual count from database on mount
   useEffect(() => {
     const fetchPostsCount = async () => {
@@ -196,16 +224,18 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     setImportResult(null);
 
     try {
-      // First, get the actual user_id from extension backend
+      // First, get the actual user_id from extension backend - MUST pass user_id for security!
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetchBackend('/api/extension/status');
+      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       let extensionUserId = 'default_user';
       // Accept both 'users' and 'users_with_info' field names for compatibility
       const usersList = statusData.users_with_info || statusData.users || [];
-      if (usersList.length > 0) {
-        extensionUserId = usersList[0].userId;
+      // SECURITY: Filter to only THIS user's data
+      const connectedUser = usersList.find((u: any) => u.userId === userId);
+      if (connectedUser) {
+        extensionUserId = connectedUser.userId;
         console.log(`✅ Found extension user: ${extensionUserId}`);
       } else {
         console.warn('⚠️ No connected users, using default_user');
