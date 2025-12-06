@@ -101,7 +101,8 @@ export function RecentActivityLive() {
       }
 
       const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
-      const res = await fetch(`${backendUrl}/api/activity/recent/${user.id}?limit=20`, {
+      // user_id comes from auth token, not URL parameter (multi-tenancy security)
+      const res = await fetch(`${backendUrl}/api/activity/recent?limit=20`, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
