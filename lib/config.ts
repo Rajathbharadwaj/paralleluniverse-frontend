@@ -8,7 +8,7 @@
 export const EXTENSION_BACKEND_URL =
   process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL ||
   (typeof window === 'undefined' && process.env.K_SERVICE
-    ? 'https://extension-backend-service-644185288504.us-central1.run.app'
+    ? 'https://extension-backend-service-bw5qfm5d5a-uc.a.run.app'
     : 'http://localhost:8001');
 
 // Main Backend URL - uses backend-api service in production
