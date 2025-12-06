@@ -29,9 +29,17 @@ interface WorkflowExecutionPanelProps {
   workflowJson: any;
   onExecutionComplete?: (result: any) => void;
   onExecutionStateChange?: (isExecuting: boolean) => void;
+  externalExecutionId?: string | null;  // NEW: Allow parent to provide execution ID
+  onExecutionIdCreated?: (executionId: string) => void;  // NEW: Notify parent when execution ID created
 }
 
-export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onExecutionStateChange }: WorkflowExecutionPanelProps) {
+export function WorkflowExecutionPanel({
+  workflowJson,
+  onExecutionComplete,
+  onExecutionStateChange,
+  externalExecutionId,
+  onExecutionIdCreated
+}: WorkflowExecutionPanelProps) {
   const { user } = useUser();
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionId, setExecutionId] = useState<string | null>(null);
@@ -56,6 +64,82 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [logs]);
+
+  // localStorage persistence - save execution state
+  useEffect(() => {
+    if (executionId) {
+      const executionState = {
+        executionId,
+        logs,
+        toolCalls,
+        currentStep,
+        completedSteps,
+        isExecuting,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(`workflow_execution_${executionId}`, JSON.stringify(executionState));
+    }
+  }, [executionId, logs, toolCalls, currentStep, completedSteps, isExecuting]);
+
+  // Restore state from localStorage on mount if execution ID provided
+  useEffect(() => {
+    if (externalExecutionId && !executionId) {
+      const saved = localStorage.getItem(`workflow_execution_${externalExecutionId}`);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+
+          // Check if state is recent (< 1 hour old)
+          const isRecent = (Date.now() - state.timestamp) < 3600000;
+
+          if (isRecent) {
+            setExecutionId(state.executionId);
+            setLogs(state.logs);
+            setToolCalls(state.toolCalls);
+            setCurrentStep(state.currentStep);
+            setCompletedSteps(state.completedSteps);
+
+            // If execution was running, it's likely completed or failed now
+            // We'll handle reconnection in Fix #5
+            if (state.isExecuting) {
+              addLog('started', '🔄 Restored execution state from previous session');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to restore execution state:', error);
+        }
+      }
+    }
+  }, [externalExecutionId, executionId]);
+
+  // Cleanup old localStorage entries on mount
+  useEffect(() => {
+    const cleanupOldExecutionStates = () => {
+      const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours in ms
+      const now = Date.now();
+
+      // Iterate through all localStorage keys
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('workflow_execution_')) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            const age = now - (data.timestamp || 0);
+
+            // Remove if older than 24 hours
+            if (age > MAX_AGE) {
+              localStorage.removeItem(key);
+              console.log(`Cleaned up old execution state: ${key}`);
+            }
+          } catch (error) {
+            // Invalid JSON - remove it
+            localStorage.removeItem(key);
+          }
+        }
+      });
+    };
+
+    cleanupOldExecutionStates();
+  }, []);
 
   const executeWorkflow = () => {
     updateExecutionState(true);
@@ -82,13 +166,24 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
     };
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('WebSocket message:', message);
+      // Ignore keepalive messages
+      if (event.data === "keepalive") {
+        return;
+      }
 
-      switch (message.type) {
+      try {
+        const message = JSON.parse(event.data);
+        console.log('WebSocket message:', message);
+
+        switch (message.type) {
         case 'started':
           setExecutionId(message.execution_id);
           addLog('started', `Execution ID: ${message.execution_id}`);
+
+          // NEW: Notify parent of execution ID (for URL update)
+          if (onExecutionIdCreated) {
+            onExecutionIdCreated(message.execution_id);
+          }
           break;
 
         case 'parsing_complete':
@@ -120,23 +215,30 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
           ));
           break;
 
+        case 'step_start':
+          // Backend notifies that a step has started
+          const startStepId = String(message.step_index + 1);
+          setCurrentStep(startStepId);
+          addLog('started', `▶️ Step ${startStepId}: ${message.description}`);
+          break;
+
+        case 'step_complete':
+          // Backend notifies that a step has completed
+          const completeStepId = String(message.step_index + 1);
+          if (!completedSteps.includes(completeStepId)) {
+            setCompletedSteps(prev => [...prev, completeStepId]);
+          }
+          addLog('completed', `✅ Step ${completeStepId} completed`);
+          break;
+
         case 'chunk':
           // Parse agent output to track steps
           const chunkData = message.data;
           addLog('chunk', chunkData);
 
-          // Try to extract step information from chunk
-          if (typeof chunkData === 'string') {
-            // Look for step patterns like "Step 1:", "Step 2:", etc.
-            const stepMatch = chunkData.match(/Step (\d+):|task\("([^"]+)"/);
-            if (stepMatch) {
-              const stepInfo = stepMatch[1] || stepMatch[2];
-              setCurrentStep(stepInfo);
-              if (!completedSteps.includes(stepInfo)) {
-                setCompletedSteps(prev => [...prev, stepInfo]);
-              }
-            }
-          }
+          // REMOVED: Fragile regex-based step detection
+          // Let tool completions drive step progress instead (see tool_end case above)
+          // The backend will also send step_start/step_complete events (Fix #4)
           break;
 
         case 'completed':
@@ -155,6 +257,9 @@ export function WorkflowExecutionPanel({ workflowJson, onExecutionComplete, onEx
           setCurrentStep(null);
           ws.close();
           break;
+        }
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', event.data, error);
       }
     };
 

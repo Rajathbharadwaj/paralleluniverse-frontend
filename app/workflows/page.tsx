@@ -7,10 +7,12 @@ import { ThreadHistory } from '@/components/thread-history';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, LayoutGrid, PenTool, History } from 'lucide-react';
+import { useUser } from '@clerk/nextjs'; // SECURITY: Required for multi-tenancy
 
 type ViewMode = 'library' | 'builder' | 'edit' | 'history';
 
 export default function WorkflowsPage() {
+  const { user } = useUser(); // SECURITY: Get logged-in user ID
   const [viewMode, setViewMode] = useState<ViewMode>('library');
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | undefined>();
 
@@ -90,6 +92,7 @@ export default function WorkflowsPage() {
               <WorkflowLibrary
                 onSelectWorkflow={handleSelectWorkflow}
                 onCreateNew={handleCreateNew}
+                userId={user?.id} // SECURITY: Pass user ID for multi-tenancy
               />
             </div>
           )}

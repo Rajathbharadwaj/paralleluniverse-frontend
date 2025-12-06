@@ -30,6 +30,7 @@ interface Workflow {
 interface WorkflowLibraryProps {
   onSelectWorkflow: (workflowId: string) => void;
   onCreateNew: () => void;
+  userId?: string; // SECURITY: Required for multi-tenancy
 }
 
 const ROI_ICONS: { [key: string]: string } = {
@@ -52,7 +53,7 @@ const CATEGORY_ICONS: { [key: string]: string } = {
   custom: '⚙️',
 };
 
-export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibraryProps) {
+export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: WorkflowLibraryProps) {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -63,7 +64,15 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibra
 
   const loadWorkflows = async () => {
     try {
-      const response = await fetchBackend('/api/workflows');
+      // SECURITY: MUST pass user_id to prevent cross-user data leakage
+      if (!userId) {
+        console.error('⚠️  SECURITY: Cannot load workflows without userId!');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔒 Loading workflows for user:', userId);
+      const response = await fetchBackend(`/api/workflows?user_id=${userId}`);
       const data = await response.json();
       setWorkflows(data.workflows || []);
     } catch (error) {
@@ -180,7 +189,7 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibra
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    executeWorkflow(workflow.id);
+                    executeWorkflow(workflow.id, userId);
                   }}
                   variant="default"
                   className="flex-1"
@@ -208,19 +217,29 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew }: WorkflowLibra
   );
 }
 
-async function executeWorkflow(workflowId: string) {
+async function executeWorkflow(workflowId: string, userId?: string) {
   try {
-    // Load workflow JSON
-    const response = await fetchBackend(`/api/workflows/${workflowId}`);
+    // SECURITY: MUST pass user_id to prevent cross-user workflow access
+    if (!userId) {
+      console.error('⚠️  SECURITY: Cannot execute workflow without userId!');
+      alert('Error: User authentication required to execute workflows.');
+      return;
+    }
+
+    console.log('🔒 Loading workflow for user:', userId);
+
+    // Load workflow JSON - SECURITY: Add user_id to verify ownership
+    const response = await fetchBackend(`/api/workflows/${workflowId}?user_id=${userId}`);
     const workflowJson = await response.json();
 
-    // Execute it
+    // Execute it - SECURITY: Pass actual userId instead of null!
+    console.log('🔒 Executing workflow for user:', userId);
     const executeResponse = await fetchBackend('/api/workflow/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         workflow_json: workflowJson,
-        user_id: null,
+        user_id: userId, // FIXED: Was null before - CRITICAL security vulnerability!
       }),
     });
 

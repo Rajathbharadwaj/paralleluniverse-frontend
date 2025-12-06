@@ -39,17 +39,26 @@ export function WebSocketProvider({
     };
 
     websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('📨 Shared WebSocket received:', data);
-      
-      // Notify all subscribers
-      subscribersRef.current.forEach(callback => {
-        try {
-          callback(data);
-        } catch (error) {
-          console.error('Error in WebSocket subscriber:', error);
-        }
-      });
+      // Ignore keepalive messages
+      if (event.data === "keepalive") {
+        return;
+      }
+
+      try {
+        const data = JSON.parse(event.data);
+        console.log('📨 Shared WebSocket received:', data);
+
+        // Notify all subscribers
+        subscribersRef.current.forEach(callback => {
+          try {
+            callback(data);
+          } catch (error) {
+            console.error('Error in WebSocket subscriber:', error);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', event.data, error);
+      }
     };
 
     websocket.onerror = (error) => {
