@@ -8,12 +8,13 @@ import { CalendarGrid } from "@/components/content/calendar-grid";
 import { AIContentTab } from "@/components/content/ai-content-tab";
 import { PostComposer } from "@/components/content/post-composer";
 import { Plus, Calendar, Sparkles } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import { fetchScheduledPosts, deleteScheduledPost, type ScheduledPost } from "@/lib/api/scheduled-posts";
-import { fetchBackend } from "@/lib/api-client";
+import { fetchBackendAuth } from "@/lib/api-client";
 
 export default function ContentCalendarPage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [composerOpen, setComposerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("scheduled");
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
@@ -44,6 +45,14 @@ export default function ContentCalendarPage() {
     const loadPosts = async () => {
       try {
         setLoading(true);
+
+        const token = await getToken();
+        if (!token) {
+          console.error("No auth token available");
+          setLoading(false);
+          return;
+        }
+
         // Use local midnight, not UTC
         const startDate = new Date(next7Days[0]);
         const endDate = new Date(next7Days[6]);
@@ -70,7 +79,7 @@ export default function ContentCalendarPage() {
         params.append("start_date", startDateStr);
         params.append("end_date", endDateStr);
 
-        const response = await fetchBackend(`/api/scheduled-posts?${params}`);
+        const response = await fetchBackendAuth(`/api/scheduled-posts?${params}`, token);
         const data = await response.json();
         const fetchedPosts = data.posts || [];
         console.log('📊 Fetched posts:', fetchedPosts.length, 'posts');
@@ -99,11 +108,17 @@ export default function ContentCalendarPage() {
   const refreshPosts = async () => {
     if (!user) return;
     try {
+      const token = await getToken();
+      if (!token) {
+        console.error("No auth token available");
+        return;
+      }
+
       const startDate = next7Days[0];
       const endDate = new Date(next7Days[6]);
       endDate.setHours(23, 59, 59, 999);
 
-      const fetchedPosts = await fetchScheduledPosts(user.id, startDate, endDate);
+      const fetchedPosts = await fetchScheduledPosts(user.id, token, startDate, endDate);
       setPosts(fetchedPosts);
     } catch (error) {
       console.error("Failed to refresh posts:", error);
@@ -113,9 +128,16 @@ export default function ContentCalendarPage() {
   // Handle post deletion
   const handleDeletePost = async (postId: number) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
+    if (!user?.id) return;
 
     try {
-      await deleteScheduledPost(postId);
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        return;
+      }
+
+      await deleteScheduledPost(postId, user.id, token);
       await refreshPosts();
     } catch (error) {
       console.error("Failed to delete post:", error);
@@ -162,7 +184,7 @@ export default function ContentCalendarPage() {
           </div>
 
           {/* Date Range */}
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground" suppressHydrationWarning>
             {next7Days[0].toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
             {' '}-{' '}
             {next7Days[6].toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

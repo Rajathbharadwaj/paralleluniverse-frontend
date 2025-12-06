@@ -43,6 +43,7 @@ export interface UpdatePostData {
  */
 export async function fetchScheduledPosts(
   userId: string,
+  token: string,
   startDate?: Date,
   endDate?: Date
 ): Promise<ScheduledPost[]> {
@@ -55,7 +56,11 @@ export async function fetchScheduledPosts(
     params.append("end_date", endDate.toISOString());
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts?${params}`);
+  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts?${params}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch scheduled posts: ${response.statusText}`);
@@ -68,11 +73,12 @@ export async function fetchScheduledPosts(
 /**
  * Create a new scheduled post
  */
-export async function createScheduledPost(postData: CreatePostData): Promise<ScheduledPost> {
+export async function createScheduledPost(postData: CreatePostData, token: string): Promise<ScheduledPost> {
   const response = await fetch(`${API_BASE_URL}/api/scheduled-posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
     },
     body: JSON.stringify(postData),
   });
@@ -90,12 +96,17 @@ export async function createScheduledPost(postData: CreatePostData): Promise<Sch
  */
 export async function updateScheduledPost(
   postId: number,
-  updateData: UpdatePostData
+  userId: string,
+  updateData: UpdatePostData,
+  token: string
 ): Promise<ScheduledPost> {
-  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts/${postId}`, {
+  const params = new URLSearchParams({ user_id: userId });
+
+  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts/${postId}?${params}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
     },
     body: JSON.stringify(updateData),
   });
@@ -111,9 +122,14 @@ export async function updateScheduledPost(
 /**
  * Delete a scheduled post
  */
-export async function deleteScheduledPost(postId: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts/${postId}`, {
+export async function deleteScheduledPost(postId: number, userId: string, token: string): Promise<void> {
+  const params = new URLSearchParams({ user_id: userId });
+
+  const response = await fetch(`${API_BASE_URL}/api/scheduled-posts/${postId}?${params}`, {
     method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -169,9 +185,11 @@ export async function fetchAIDrafts(
 
 /**
  * Generate AI content suggestions
+ *
+ * IMPORTANT: Uses JWT authentication - user_id is extracted from token on backend
  */
 export async function generateAIContent(
-  userId: string,
+  token: string,
   count: number = 5
 ): Promise<Array<{
   id: number;  // Database ID
@@ -181,17 +199,19 @@ export async function generateAIContent(
   ai_generated: boolean;
 }>> {
   const params = new URLSearchParams({
-    user_id: userId,
     count: count.toString(),
   });
 
   const url = `${API_BASE_URL}/api/scheduled-posts/generate-ai?${params}`;
   console.log("🌐 Fetching AI content from:", url);
-  console.log("📊 Request params:", { userId, count });
+  console.log("📊 Request params:", { count });
 
   try {
     const response = await fetch(url, {
       method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     });
 
     console.log("📥 Response received:", {

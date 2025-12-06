@@ -9,6 +9,7 @@ import { MAIN_BACKEND_URL } from '@/lib/config';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300; // 5 minutes timeout for AI generation endpoints
 
 async function proxyRequest(request: NextRequest, params: { path: string[] }) {
   const path = params.path;

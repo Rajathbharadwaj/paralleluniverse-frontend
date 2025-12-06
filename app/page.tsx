@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
-import { fetchBackend, fetchBackendAuth } from "@/lib/api-client";
+import { fetchExtension, fetchBackend, fetchBackendAuth } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
@@ -43,27 +43,32 @@ export default function DashboardPage() {
     }
   }, [user?.id]);
 
-  // Send Clerk user ID to extension on page load
+  // Send Clerk user ID to extension on page load (fallback method)
+  // Primary method is via content script reading clerk-user-id meta tag
   useEffect(() => {
-    if (user?.id) {
-      try {
-        (window as any).chrome?.runtime?.sendMessage(
-          process.env.NEXT_PUBLIC_EXTENSION_ID || 'your-extension-id',
-          {
-            type: 'CONNECT_WITH_USER_ID',
-            userId: user.id
-          },
-          (response: any) => {
-            if ((window as any).chrome?.runtime?.lastError) {
-              console.log('Extension not installed:', (window as any).chrome.runtime.lastError);
-            } else {
-              console.log('✅ Sent Clerk user ID to extension on page load:', user.id);
-            }
+    const extensionId = process.env.NEXT_PUBLIC_EXTENSION_ID;
+    if (!user?.id || !extensionId || extensionId === 'your-extension-id') {
+      // No valid extension ID configured - rely on content script method instead
+      return;
+    }
+
+    try {
+      (window as any).chrome?.runtime?.sendMessage(
+        extensionId,
+        {
+          type: 'CONNECT_WITH_USER_ID',
+          userId: user.id
+        },
+        () => {
+          if ((window as any).chrome?.runtime?.lastError) {
+            console.log('Extension not installed:', (window as any).chrome.runtime.lastError);
+          } else {
+            console.log('✅ Sent Clerk user ID to extension on page load:', user.id);
           }
-        );
-      } catch (error) {
-        console.log('Could not send user ID to extension:', error);
-      }
+        }
+      );
+    } catch {
+      // Silently fail - content script method will handle this
     }
   }, [user?.id]);
 
@@ -83,7 +88,7 @@ export default function DashboardPage() {
       
       try {
         // Check if user has cookies - pass user ID to filter to only this user's data
-        const statusResponse = await fetchBackend(`/api/extension/status?user_id=${user.id}`);
+        const statusResponse = await fetchExtension(`/status?user_id=${user.id}`);
         const statusData = await statusResponse.json();
 
         // Should only have this user's data now, but still check
@@ -154,7 +159,7 @@ export default function DashboardPage() {
         try {
           console.log('🔍 No cache found, checking backend...');
           // Pass user_id to only get THIS user's data (security fix)
-          const response = await fetchBackend(`/api/extension/status?user_id=${user.id}`);
+          const response = await fetchExtension(`/status?user_id=${user.id}`);
           const data = await response.json();
 
           console.log('📡 Backend status:', data);
@@ -280,7 +285,7 @@ export default function DashboardPage() {
 
       // Call backend to clear cookies from extension backend (database + memory)
       try {
-        const response = await fetchBackend(`/api/extension/disconnect/${user.id}`, {
+        const response = await fetchExtension(`/disconnect/${user.id}`, {
           method: 'DELETE'
         });
         const result = await response.json();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +44,7 @@ interface AIContentTabProps {
 }
 
 export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
+  const { getToken } = useAuth();
   const [aiPosts, setAIPosts] = useState<AIPost[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
@@ -89,19 +91,22 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
   // Generate more AI content
   const generateMoreContent = async () => {
-    if (!userId) {
-      alert("User ID is required");
-      return;
-    }
-
-    console.log("🚀 Starting AI content generation for user:", userId);
+    console.log("🚀 Starting AI content generation...");
 
     try {
       setIsGenerating(true);
       console.log("⏳ Calling generateAIContent API...");
 
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsGenerating(false);
+        return;
+      }
+
       // Call AI generation API (generate 7 posts for the week)
-      const generatedPosts = await generateAIContent(userId, 7);
+      // Backend will use authenticated user from JWT token
+      const generatedPosts = await generateAIContent(token, 7);
 
       console.log("✅ Received response with", generatedPosts?.length || 0, "posts");
       console.log("Response data:", generatedPosts);
@@ -164,10 +169,16 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     try {
       console.log(`✅ Approving post ${postId}, updating status to scheduled...`);
 
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        return;
+      }
+
       // Update the existing draft post's status to "scheduled"
-      await updateScheduledPost(postId, {
+      await updateScheduledPost(postId, userId, {
         status: "scheduled"
-      });
+      }, token);
 
       console.log("✅ Post approved and status updated");
 
@@ -186,9 +197,21 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
   // Reject post (delete from database)
   const rejectPost = async (postId: number) => {
+    if (!userId) {
+      alert("User ID is required");
+      return;
+    }
+
     try {
       console.log(`🗑️  Deleting post ${postId} from database...`);
-      await deleteScheduledPost(postId);
+
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        return;
+      }
+
+      await deleteScheduledPost(postId, userId, token);
       setAIPosts(prev => prev.filter(p => p.id !== postId));
       console.log("✅ Post deleted successfully");
     } catch (error) {

@@ -199,9 +199,9 @@ export function PostCard({ post, compact = false, onEdit, onDelete, onDuplicate,
           <div className="flex items-center gap-2">
             {getMediaIcon()}
             {post.status === "posted" && post.postedAt ? (
-              <span className="text-green-600 font-medium">Posted {post.postedAt}</span>
+              <span className="text-green-600 font-medium" suppressHydrationWarning>Posted {post.postedAt}</span>
             ) : (
-              <span>{post.time}</span>
+              <span suppressHydrationWarning>{post.time}</span>
             )}
           </div>
           {post.content.length > 0 && (

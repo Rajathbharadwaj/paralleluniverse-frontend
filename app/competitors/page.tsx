@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { SocialGraphVisualization } from "@/components/social-graph-visualization";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +10,11 @@ import { Network, RefreshCw, Users, TrendingUp, AlertCircle, ChevronDown, Messag
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { fetchExtension, fetchBackend } from "@/lib/api-client";
+import { fetchExtension, fetchBackend, fetchBackendAuth } from "@/lib/api-client";
 
 export default function CompetitorsPage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [graphData, setGraphData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [discovering, setDiscovering] = useState(false);
@@ -162,9 +163,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setDiscovering(false);
+        return;
+      }
+
       // Follower-based discovery - analyzes YOUR followers
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/discover-followers/${user.id}?user_handle=${username}`,
+      const res = await fetchBackendAuth(
+        `/api/social-graph/discover-followers?user_handle=${username}`,
+        token,
         { method: "POST" }
       );
 
@@ -195,9 +204,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setDiscovering(false);
+        return;
+      }
+
       // X Native discovery - uses X's "Followed by" feature (FASTEST!)
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/discover-native/${user.id}?user_handle=${username}`,
+      const res = await fetchBackendAuth(
+        `/api/social-graph/discover-native?user_handle=${username}`,
+        token,
         { method: "POST" }
       );
 

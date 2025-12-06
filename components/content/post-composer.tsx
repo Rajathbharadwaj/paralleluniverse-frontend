@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ interface PostComposerProps {
 }
 
 export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }: PostComposerProps) {
+  const { getToken } = useAuth();
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<Array<{ type: string; file: File; preview: string }>>([]);
   const [selectedDate, setSelectedDate] = useState("");
@@ -142,6 +144,13 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }
     try {
       setIsSubmitting(true);
 
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Upload media files and collect URLs
       const mediaUrls: string[] = [];
       for (const item of media) {
@@ -154,12 +163,12 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }
 
       if (editPost) {
         // Update existing post
-        await updateScheduledPost(editPost.id, {
+        await updateScheduledPost(editPost.id, userId!, {
           content: caption,
           media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
           scheduled_at: scheduledDateTime.toISOString(),
           status: action === "draft" ? "draft" : "scheduled",
-        });
+        }, token);
       } else {
         // Create new post
         await createScheduledPost({
@@ -168,7 +177,7 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }
           media_urls: mediaUrls,
           scheduled_at: scheduledDateTime.toISOString(),
           status: action === "draft" ? "draft" : "scheduled",
-        });
+        }, token);
       }
 
       // Reset and close

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { ConnectExtensionDialog } from "@/components/connect-extension-dialog";
+import { fetchExtension } from "@/lib/api-client";
 
 interface XAccountCardProps {
   onConnectionChange?: (isConnected: boolean, username: string) => void;
@@ -14,6 +15,7 @@ interface XAccountCardProps {
 
 export function XAccountCard({ onConnectionChange }: XAccountCardProps = {}) {
   const { user } = useUser(); // Get authenticated user
+  const { getToken } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -44,9 +46,8 @@ export function XAccountCard({ onConnectionChange }: XAccountCardProps = {}) {
         }
 
         // Then verify with backend (but don't clear cache if it fails)
-        const extensionUrl = process.env.NEXT_PUBLIC_EXTENSION_BACKEND_URL || 'http://localhost:8001';
         // Pass user_id to only get THIS user's data (security fix)
-        const response = await fetch(`${extensionUrl}/api/extension/status?user_id=${user.id}`);
+        const response = await fetchExtension(`/status?user_id=${user.id}`);
         const data = await response.json();
 
         console.log('📡 Extension backend status:', data);

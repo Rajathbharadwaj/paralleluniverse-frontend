@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network } from "lucide-react";
+import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network, Clock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
@@ -25,6 +25,7 @@ export function DashboardHeader() {
     { href: "/workflows", label: "Workflows", icon: Workflow },
     { href: "/content", label: "Content Calendar", icon: Calendar },
     { href: "/competitors", label: "Competitors", icon: Network },
+    { href: "/automations", label: "Automations", icon: Clock },
   ];
 
   const handleSignOut = () => {

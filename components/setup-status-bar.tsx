@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, RefreshCw, X, Loader2, Monitor } from "lucide-react";
-import { fetchBackend, fetchBackendAuth } from '@/lib/api-client';
+import { fetchExtension, fetchBackend, fetchBackendAuth } from '@/lib/api-client';
 import { useAuth } from "@clerk/nextjs";
 
 interface SetupStatusBarProps {
@@ -42,7 +42,7 @@ export function SetupStatusBar({
       }
 
       // Get the user ID - pass user_id to only get THIS user's data (security fix)
-      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
       const statusData = await statusResponse.json();
 
       // Find THIS user's data (should be the only one returned now)

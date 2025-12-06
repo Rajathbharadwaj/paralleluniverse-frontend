@@ -65,7 +65,7 @@ export function CalendarGrid({ days, posts, onCreatePost, onRefresh, onEditPost,
     const isToday = date.toDateString() === new Date().toDateString();
 
     return (
-      <div className={`text-center p-4 ${isToday ? 'bg-primary/10' : ''}`}>
+      <div className={`text-center p-4 ${isToday ? 'bg-primary/10' : ''}`} suppressHydrationWarning>
         <div className="text-sm font-medium text-muted-foreground uppercase">
           {dayName}
         </div>
