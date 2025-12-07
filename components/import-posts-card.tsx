@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -46,6 +46,7 @@ interface ImportPostsCardProps {
 
 export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {}) {
   const { user } = useUser();
+  const { getToken } = useAuth();  // Add getToken from useAuth
   const userId = user?.id || '';
   
   const [isImporting, setIsImporting] = useState(false);
@@ -224,9 +225,19 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     setImportResult(null);
 
     try {
+      // CRITICAL: Get Clerk JWT token for authentication ONCE at the beginning
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Authentication required. Please sign in again.');
+      }
+
       // First, get the actual user_id from extension backend - MUST pass user_id for security!
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const statusData = await statusResponse.json();
 
       let extensionUserId = 'default_user';
@@ -253,7 +264,10 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       try {
         const response = await fetchBackend('/api/scrape-posts-docker', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`  // CRITICAL: Include Clerk JWT token
+          },
           body: JSON.stringify({
             user_id: extensionUserId,  // Extension user ID for scraping
             clerk_user_id: userId,      // Clerk user ID for WebSocket messages

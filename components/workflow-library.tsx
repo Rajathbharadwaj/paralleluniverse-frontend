@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,7 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 };
 
 export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: WorkflowLibraryProps) {
+  const { getToken } = useAuth();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -71,8 +73,13 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
         return;
       }
 
+      const token = await getToken();
+      if (!token) return;
+
       console.log('🔒 Loading workflows for user:', userId);
-      const response = await fetchBackend(`/api/workflows?user_id=${userId}`);
+      const response = await fetchBackend(`/api/workflows?user_id=${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       setWorkflows(data.workflows || []);
     } catch (error) {
@@ -187,9 +194,10 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
                   View
                 </Button>
                 <Button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    executeWorkflow(workflow.id, userId);
+                    const token = await getToken();
+                    executeWorkflow(workflow.id, userId, token || undefined);
                   }}
                   variant="default"
                   className="flex-1"
@@ -217,7 +225,7 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
   );
 }
 
-async function executeWorkflow(workflowId: string, userId?: string) {
+async function executeWorkflow(workflowId: string, userId?: string, token?: string) {
   try {
     // SECURITY: MUST pass user_id to prevent cross-user workflow access
     if (!userId) {
@@ -226,17 +234,27 @@ async function executeWorkflow(workflowId: string, userId?: string) {
       return;
     }
 
+    if (!token) {
+      alert('Authentication required. Please sign in again.');
+      return;
+    }
+
     console.log('🔒 Loading workflow for user:', userId);
 
     // Load workflow JSON - SECURITY: Add user_id to verify ownership
-    const response = await fetchBackend(`/api/workflows/${workflowId}?user_id=${userId}`);
+    const response = await fetchBackend(`/api/workflows/${workflowId}?user_id=${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     const workflowJson = await response.json();
 
     // Execute it - SECURITY: Pass actual userId instead of null!
     console.log('🔒 Executing workflow for user:', userId);
     const executeResponse = await fetchBackend('/api/workflow/execute', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({
         workflow_json: workflowJson,
         user_id: userId, // FIXED: Was null before - CRITICAL security vulnerability!

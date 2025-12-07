@@ -97,7 +97,12 @@ export default function CompetitorsPage() {
 
     const pollProgress = async () => {
       try {
-        const res = await fetchBackend(`/api/social-graph/progress/${user.id}`);
+        const token = await getToken();
+        if (!token) return;
+
+        const res = await fetchBackend(`/api/social-graph/progress/${user.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
         if (data.success && data.progress) {
           setProgress(data.progress);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Plus, Trash2, Clock } from 'lucide-react';
@@ -24,6 +24,7 @@ interface ChatHistorySidebarProps {
 
 export function ChatHistorySidebar({ currentThreadId, onThreadSelect, onNewChat }: ChatHistorySidebarProps) {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const userId = user?.id || '';
   
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -38,11 +39,17 @@ export function ChatHistorySidebar({ currentThreadId, onThreadSelect, onNewChat 
 
   const loadThreads = async () => {
     if (!userId) return;
-    
+
     try {
       setIsLoading(true);
       console.log('📡 Fetching threads for user:', userId);
-      const response = await fetchBackend(`/api/agent/threads/list/${userId}`);
+
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetchBackend(`/api/agent/threads/list/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       
       console.log('📦 Received data:', data);
