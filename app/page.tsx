@@ -189,7 +189,14 @@ export default function DashboardPage() {
       // Load posts count from database (more reliable than localStorage)
       if (cachedUsername) {
         try {
-          const countResponse = await fetchBackend(`/api/posts/count/${cachedUsername}`);
+          const token = await getToken();
+          if (!token) {
+            console.warn('⚠️ No auth token available for posts count');
+            return;
+          }
+          const countResponse = await fetchBackend(`/api/posts/count/${cachedUsername}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {
