@@ -65,9 +65,12 @@ export default function CompetitorsPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/${user.id}`
-      );
+      const token = await getToken();
+      if (!token) return;
+
+      const res = await fetchBackend(`/api/social-graph`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await res.json();
 
       if (data.success && data.graph) {
@@ -82,7 +85,7 @@ export default function CompetitorsPage() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, getToken]);
 
   useEffect(() => {
     fetchGraphData();
@@ -124,11 +127,18 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setDiscovering(false);
+        return;
+      }
+
       // Smart discovery with auto-validation and fallback
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/smart-discover/${user.id}`,
-        { method: "POST" }
-      );
+      const res = await fetchBackend(`/api/social-graph/smart-discover/${user.id}`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
@@ -254,11 +264,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
-      const res = await fetch(
-        `${backendUrl}/api/social-graph/scrape-posts/${user.id}`,
-        { method: "POST" }
-      );
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setScrapingPosts(false);
+        return;
+      }
+
+      const res = await fetchBackend(`/api/social-graph/scrape-posts/${user.id}`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
@@ -282,10 +298,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/insights/${user.id}`,
-        { method: "POST" }
-      );
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setAnalyzingInsights(false);
+        return;
+      }
+
+      const res = await fetchBackend(`/api/social-graph/insights/${user.id}`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
@@ -309,10 +332,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/calculate-relevancy/${user.id}?user_handle=${username}&batch_size=20`,
-        { method: "POST" }
-      );
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setCalculatingRelevancy(false);
+        return;
+      }
+
+      const res = await fetchBackend(`/api/social-graph/calculate-relevancy/${user.id}?user_handle=${username}&batch_size=20`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
@@ -337,10 +367,17 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/reset-relevancy/${user.id}`,
-        { method: "POST" }
-      );
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setResettingAnalysis(false);
+        return;
+      }
+
+      const res = await fetchBackend(`/api/social-graph/reset-relevancy/${user.id}`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
@@ -383,6 +420,13 @@ export default function CompetitorsPage() {
     setError(null);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError("Authentication required");
+        setScrapingFiltered(false);
+        return;
+      }
+
       // Create a minimal graph data with only the filtered competitors
       const filteredGraphData = {
         ...graphData,
@@ -391,18 +435,17 @@ export default function CompetitorsPage() {
         )
       };
 
-      const backendUrl = process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:8002';
-      console.log("📡 Sending fetch request to:", `${backendUrl}/api/social-graph/scrape-posts/${user.id}`);
+      console.log("📡 Sending fetch request to:", `/api/social-graph/scrape-posts/${user.id}`);
       console.log("📦 Request body:", { filtered_usernames: filteredUsernames });
 
-      const res = await fetch(
-        `${backendUrl}/api/social-graph/scrape-posts/${user.id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filtered_usernames: filteredUsernames })
-        }
-      );
+      const res = await fetchBackend(`/api/social-graph/scrape-posts/${user.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ filtered_usernames: filteredUsernames })
+      });
 
       console.log("✅ Response status:", res.status);
       const data = await res.json();
@@ -435,9 +478,12 @@ export default function CompetitorsPage() {
 
     const fetchCachedInsights = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/insights/${user.id}`
-        );
+        const token = await getToken();
+        if (!token) return;
+
+        const res = await fetchBackend(`/api/social-graph/insights/${user.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
 
         if (data.success && data.insights) {
@@ -449,7 +495,7 @@ export default function CompetitorsPage() {
     };
 
     fetchCachedInsights();
-  }, [user?.id]);
+  }, [user?.id, getToken]);
 
   const cancelDiscovery = async () => {
     if (!user?.id) return;
@@ -457,10 +503,16 @@ export default function CompetitorsPage() {
     setCancelling(true);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MAIN_BACKEND_URL}/api/social-graph/cancel/${user.id}`,
-        { method: "POST" }
-      );
+      const token = await getToken();
+      if (!token) {
+        setCancelling(false);
+        return;
+      }
+
+      const res = await fetchBackend(`/api/social-graph/cancel/${user.id}`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       const data = await res.json();
 
