@@ -161,7 +161,8 @@ export async function uploadMedia(file: File): Promise<string> {
  * Fetch AI-generated draft posts
  */
 export async function fetchAIDrafts(
-  userId: string
+  userId: string,
+  token: string
 ): Promise<Array<{
   id: number;
   content: string;
@@ -172,7 +173,12 @@ export async function fetchAIDrafts(
   const params = new URLSearchParams({ user_id: userId });
 
   const response = await fetch(
-    `${API_BASE_URL}/api/scheduled-posts/ai-drafts?${params}`
+    `${API_BASE_URL}/api/scheduled-posts/ai-drafts?${params}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    }
   );
 
   if (!response.ok) {
