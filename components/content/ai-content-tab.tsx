@@ -14,10 +14,13 @@ import {
   RefreshCw,
   Loader2,
   Info,
-  Clock
+  Clock,
+  Download
 } from "lucide-react";
 import { PostCard } from "./post-card";
+import { EditPostModal } from "./edit-post-modal";
 import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost } from "@/lib/api/scheduled-posts";
+import { fetchBackendAuth } from "@/lib/api-client";
 
 interface AIPost {
   id: number;  // Database ID
@@ -47,9 +50,12 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
   const { getToken } = useAuth();
   const [aiPosts, setAIPosts] = useState<AIPost[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
   const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [editingPost, setEditingPost] = useState<AIPost | null>(null);
 
   // Load AI drafts on mount
   useEffect(() => {
@@ -97,13 +103,54 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     loadDrafts();
   }, [userId, getToken]);
 
+  // Sync posts from X before generating AI content
+  const syncPostsFromX = async (token: string): Promise<{ imported: number; message: string }> => {
+    console.log("🔄 Syncing posts from X...");
+    setIsSyncing(true);
+    setSyncStatus("Checking for new posts on X...");
+
+    try {
+      const response = await fetchBackendAuth('/api/scrape-posts-docker', token, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetCount: 50,  // Check for up to 50 posts
+          forceFullImport: false  // Don't force, let backend decide
+        })
+      });
+
+      const result = await response.json();
+      console.log("📥 Sync result:", result);
+
+      if (result.success) {
+        if (result.imported > 0) {
+          setSyncStatus(`Imported ${result.imported} new posts for better AI learning`);
+          return { imported: result.imported, message: `Imported ${result.imported} new posts` };
+        } else {
+          setSyncStatus("Your posts are up to date");
+          return { imported: 0, message: result.message || "Already up to date" };
+        }
+      } else {
+        // Don't block generation if sync fails
+        console.warn("⚠️ Sync failed:", result.error);
+        setSyncStatus(null);
+        return { imported: 0, message: result.error || "Sync failed" };
+      }
+    } catch (error) {
+      console.error("❌ Sync error:", error);
+      setSyncStatus(null);
+      return { imported: 0, message: "Failed to sync" };
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // Generate more AI content
   const generateMoreContent = async () => {
     console.log("🚀 Starting AI content generation...");
 
     try {
       setIsGenerating(true);
-      console.log("⏳ Calling generateAIContent API...");
 
       const token = await getToken();
       if (!token) {
@@ -111,6 +158,20 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         setIsGenerating(false);
         return;
       }
+
+      // Step 1: Sync posts from X (incremental - only imports new posts)
+      console.log("📡 Step 1: Syncing posts from X...");
+      const syncResult = await syncPostsFromX(token);
+      console.log("✅ Sync complete:", syncResult);
+
+      // Brief pause to let user see sync status
+      if (syncResult.imported > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+
+      // Step 2: Generate AI content
+      console.log("⏳ Step 2: Calling generateAIContent API...");
+      setSyncStatus(null);
 
       // Call AI generation API (generate 7 posts for the week)
       // Backend will use authenticated user from JWT token
@@ -261,6 +322,55 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     setSelectedPosts(new Set());
   };
 
+  // Save edited post
+  const savePost = async (postId: number, content: string, scheduledAt: string) => {
+    if (!userId) {
+      alert("User ID is required");
+      return;
+    }
+
+    try {
+      console.log(`💾 Saving post ${postId}...`);
+
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        return;
+      }
+
+      await updateScheduledPost(postId, userId, {
+        content,
+        scheduled_at: scheduledAt
+      }, token);
+
+      console.log("✅ Post saved successfully");
+
+      // Update local state
+      setAIPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          const scheduledDate = new Date(scheduledAt);
+          return {
+            ...p,
+            content,
+            scheduled_at: scheduledAt,
+            date: scheduledDate,
+            time: scheduledDate.toTimeString().substring(0, 5)
+          };
+        }
+        return p;
+      }));
+    } catch (error) {
+      console.error("❌ Failed to save post:", error);
+      alert("Failed to save post. Please try again.");
+      throw error;
+    }
+  };
+
+  // Open edit modal
+  const openEditModal = (post: AIPost) => {
+    setEditingPost(post);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -279,10 +389,15 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
           <Button
             onClick={generateMoreContent}
-            disabled={isGenerating}
+            disabled={isGenerating || isSyncing}
             className="gap-2"
           >
-            {isGenerating ? (
+            {isSyncing ? (
+              <>
+                <Download className="h-4 w-4 animate-bounce" />
+                Syncing...
+              </>
+            ) : isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating...
@@ -295,6 +410,18 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
             )}
           </Button>
         </div>
+
+        {/* Sync Status */}
+        {syncStatus && (
+          <div className="mt-4 flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-2">
+            {isSyncing ? (
+              <Download className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-bounce" />
+            ) : (
+              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+            )}
+            <span className="text-blue-700 dark:text-blue-300">{syncStatus}</span>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mt-6">
@@ -454,6 +581,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
                       variant="outline"
                       size="sm"
                       className="gap-2"
+                      onClick={() => openEditModal(post)}
                     >
                       <Edit className="h-4 w-4" />
                       Edit
@@ -473,6 +601,16 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
           })}
         </div>
       )}
+
+      {/* Edit Post Modal */}
+      <EditPostModal
+        isOpen={!!editingPost}
+        onClose={() => setEditingPost(null)}
+        post={editingPost}
+        onSave={savePost}
+        onDelete={rejectPost}
+        onApprove={approvePost}
+      />
     </div>
   );
 }
