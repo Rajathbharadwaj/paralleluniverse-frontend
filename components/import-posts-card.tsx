@@ -88,8 +88,11 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
   useEffect(() => {
     const fetchPostsCount = async () => {
       if (!userId) return;
-      
+
       try {
+        const token = await getToken();
+        if (!token) return;
+
         // Get connected user's username - pass user_id to only get THIS user's data (security fix)
         const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
         const statusData = await statusResponse.json();
@@ -99,7 +102,9 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
 
         if (connectedUser && connectedUser.username) {
           // Fetch count from database
-          const countResponse = await fetchBackend(`/api/posts/count/${connectedUser.username}`);
+          const countResponse = await fetchBackend(`/api/posts/count/${connectedUser.username}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {
@@ -120,13 +125,13 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         console.error('Failed to fetch posts count from database:', error);
       }
     };
-    
+
     fetchPostsCount();
-    
+
     // Also load cached data as fallback
     const cachedResult = localStorage.getItem(`import_result_${userId}`);
     const cachedDate = localStorage.getItem(`last_import_date_${userId}`);
-    
+
     if (cachedResult && !importResult) {
       try {
         const parsed = JSON.parse(cachedResult);
@@ -135,11 +140,11 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         console.error('Failed to parse cached import result:', error);
       }
     }
-    
+
     if (cachedDate) {
       setLastImportDate(cachedDate);
     }
-  }, [userId]);
+  }, [userId, getToken]);
   const [error, setError] = useState<string | null>(null);
   const { ws, subscribe } = useWebSocket(); // Use shared WebSocket
   const [lastImportDate, setLastImportDate] = useState<string | null>(null);
@@ -212,8 +217,8 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     return unsubscribe;
   }, [userId, subscribe]);
 
-  const handleImportPosts = async (isSync: boolean = false) => {
-    console.log('🚀 handleImportPosts called, isSync:', isSync);
+  const handleImportPosts = async (isSync: boolean = false, forceFullImport: boolean = false) => {
+    console.log('🚀 handleImportPosts called, isSync:', isSync, 'forceFullImport:', forceFullImport);
     console.log('   userId:', userId);
     console.log('   isImporting:', isImporting);
     
@@ -271,7 +276,8 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
           body: JSON.stringify({
             user_id: extensionUserId,  // Extension user ID for scraping
             clerk_user_id: userId,      // Clerk user ID for WebSocket messages
-            targetCount: isSync ? 20 : 50
+            targetCount: isSync ? 20 : 50,
+            forceFullImport: forceFullImport  // Skip optimization and do full import
           }),
           signal: controller.signal
         });
@@ -373,7 +379,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
         {/* Action Buttons - Always show so user can import more */}
         <div className="flex gap-2 animate-in fade-in slide-in-from-bottom duration-500 delay-200">
               <Button
-                onClick={() => handleImportPosts(false)}
+                onClick={() => handleImportPosts(false, true)}
                 disabled={isImporting}
                 className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 size="lg"
@@ -442,7 +448,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
             <Button
               onClick={() => {
                 setError(null);
-                handleImportPosts(false);
+                handleImportPosts(false, true);
               }}
               variant="outline"
               size="sm"
