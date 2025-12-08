@@ -58,7 +58,12 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
 
       try {
         console.log("📥 Loading AI drafts from database...");
-        const drafts = await fetchAIDrafts(userId);
+        const token = await getToken();
+        if (!token) {
+          console.error("❌ No auth token available");
+          return;
+        }
+        const drafts = await fetchAIDrafts(userId, token);
         console.log(`✅ Loaded ${drafts.length} AI drafts`);
 
         // Transform to AIPost format
@@ -87,7 +92,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     };
 
     loadDrafts();
-  }, [userId]);
+  }, [userId, getToken]);
 
   // Generate more AI content
   const generateMoreContent = async () => {
