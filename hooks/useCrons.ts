@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import { useAuth } from "@clerk/nextjs";
 import { getApiUrl } from "@/lib/config";
 
 const API_BASE_URL = typeof window !== 'undefined'
@@ -25,10 +26,18 @@ export interface CronJobRun {
 }
 
 export function useCrons() {
+  const { getToken } = useAuth();
+
   return useSWR<{ cron_jobs: CronJob[] }>(
     `${API_BASE_URL}/api/cron-jobs`,
     async (url: string) => {
-      const response = await fetch(url);
+      const token = await getToken();
+      const response = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch cron jobs");
       }
@@ -42,10 +51,18 @@ export function useCrons() {
 }
 
 export function useCronRuns(cronJobId: number | null) {
+  const { getToken } = useAuth();
+
   return useSWR<{ runs: CronJobRun[] }>(
     cronJobId ? `${API_BASE_URL}/api/cron-jobs/${cronJobId}/runs` : null,
     async (url: string) => {
-      const response = await fetch(url);
+      const token = await getToken();
+      const response = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch cron job runs");
       }
