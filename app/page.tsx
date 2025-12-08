@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
-import { fetchExtension, fetchBackend, fetchBackendAuth } from "@/lib/api-client";
+import { fetchExtension, fetchBackendAuth } from "@/lib/api-client";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
@@ -189,7 +189,12 @@ export default function DashboardPage() {
       // Load posts count from database (more reliable than localStorage)
       if (cachedUsername) {
         try {
-          const countResponse = await fetchBackend(`/api/posts/count/${cachedUsername}`);
+          const token = await getToken();
+          if (!token) {
+            console.error('No auth token available');
+            return;
+          }
+          const countResponse = await fetchBackendAuth(`/api/posts/count/${cachedUsername}`, token);
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Plus, Trash2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { fetchBackend } from '@/lib/api-client';
+import { fetchBackendAuth } from '@/lib/api-client';
 
 interface Thread {
   thread_id: string;
@@ -24,8 +24,9 @@ interface ChatHistorySidebarProps {
 
 export function ChatHistorySidebar({ currentThreadId, onThreadSelect, onNewChat }: ChatHistorySidebarProps) {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const userId = user?.id || '';
-  
+
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,15 +39,22 @@ export function ChatHistorySidebar({ currentThreadId, onThreadSelect, onNewChat 
 
   const loadThreads = async () => {
     if (!userId) return;
-    
+
     try {
       setIsLoading(true);
+      const token = await getToken();
+      if (!token) {
+        console.error('❌ No auth token available');
+        setIsLoading(false);
+        return;
+      }
+
       console.log('📡 Fetching threads for user:', userId);
-      const response = await fetchBackend(`/api/agent/threads/list/${userId}`);
+      const response = await fetchBackendAuth(`/api/agent/threads/list/${userId}`, token);
       const data = await response.json();
-      
+
       console.log('📦 Received data:', data);
-      
+
       if (data.success) {
         setThreads(data.threads);
         console.log(`✅ Loaded ${data.count} threads:`, data.threads);

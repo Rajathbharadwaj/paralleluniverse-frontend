@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,7 @@ import {
   Plus,
   Zap,
 } from 'lucide-react';
-import { fetchBackend } from '@/lib/api-client';
+import { fetchBackendAuth } from '@/lib/api-client';
 
 interface Workflow {
   id: string;
@@ -31,6 +32,7 @@ interface WorkflowLibraryProps {
   onSelectWorkflow: (workflowId: string) => void;
   onCreateNew: () => void;
   userId?: string; // SECURITY: Required for multi-tenancy
+  token?: string; // Auth token for API calls
 }
 
 const ROI_ICONS: { [key: string]: string } = {
@@ -54,9 +56,11 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 };
 
 export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: WorkflowLibraryProps) {
+  const { getToken } = useAuth();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   useEffect(() => {
     loadWorkflows();
@@ -71,8 +75,16 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
         return;
       }
 
+      const token = await getToken();
+      if (!token) {
+        console.error('⚠️  No auth token available');
+        setLoading(false);
+        return;
+      }
+      setAuthToken(token);
+
       console.log('🔒 Loading workflows for user:', userId);
-      const response = await fetchBackend(`/api/workflows?user_id=${userId}`);
+      const response = await fetchBackendAuth(`/api/workflows?user_id=${userId}`, token);
       const data = await response.json();
       setWorkflows(data.workflows || []);
     } catch (error) {
@@ -189,7 +201,7 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    executeWorkflow(workflow.id, userId);
+                    executeWorkflow(workflow.id, userId, authToken);
                   }}
                   variant="default"
                   className="flex-1"
@@ -217,29 +229,29 @@ export function WorkflowLibrary({ onSelectWorkflow, onCreateNew, userId }: Workf
   );
 }
 
-async function executeWorkflow(workflowId: string, userId?: string) {
+async function executeWorkflow(workflowId: string, userId?: string, token?: string | null) {
   try {
-    // SECURITY: MUST pass user_id to prevent cross-user workflow access
-    if (!userId) {
-      console.error('⚠️  SECURITY: Cannot execute workflow without userId!');
+    // SECURITY: MUST pass user_id and token to prevent cross-user workflow access
+    if (!userId || !token) {
+      console.error('⚠️  SECURITY: Cannot execute workflow without userId and token!');
       alert('Error: User authentication required to execute workflows.');
       return;
     }
 
     console.log('🔒 Loading workflow for user:', userId);
 
-    // Load workflow JSON - SECURITY: Add user_id to verify ownership
-    const response = await fetchBackend(`/api/workflows/${workflowId}?user_id=${userId}`);
+    // Load workflow JSON - SECURITY: Add user_id and auth token
+    const response = await fetchBackendAuth(`/api/workflows/${workflowId}?user_id=${userId}`, token);
     const workflowJson = await response.json();
 
-    // Execute it - SECURITY: Pass actual userId instead of null!
+    // Execute it - SECURITY: Pass actual userId and token
     console.log('🔒 Executing workflow for user:', userId);
-    const executeResponse = await fetchBackend('/api/workflow/execute', {
+    const executeResponse = await fetchBackendAuth('/api/workflow/execute', token, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         workflow_json: workflowJson,
-        user_id: userId, // FIXED: Was null before - CRITICAL security vulnerability!
+        user_id: userId,
       }),
     });
 

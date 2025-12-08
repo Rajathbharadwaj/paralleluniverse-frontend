@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Download, RefreshCw, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 import { useWebSocket } from '@/contexts/websocket-context';
-import { fetchExtension, fetchBackend } from '@/lib/api-client';
+import { fetchExtension, fetchBackendAuth } from '@/lib/api-client';
 
 interface ScrapedPost {
   content: string;
@@ -46,6 +46,7 @@ interface ImportPostsCardProps {
 
 export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {}) {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const userId = user?.id || '';
   
   const [isImporting, setIsImporting] = useState(false);
@@ -87,8 +88,14 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
   useEffect(() => {
     const fetchPostsCount = async () => {
       if (!userId) return;
-      
+
       try {
+        const token = await getToken();
+        if (!token) {
+          console.error('No auth token available');
+          return;
+        }
+
         // Get connected user's username - pass user_id to only get THIS user's data (security fix)
         const statusResponse = await fetchExtension(`/status?user_id=${userId}`);
         const statusData = await statusResponse.json();
@@ -98,7 +105,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
 
         if (connectedUser && connectedUser.username) {
           // Fetch count from database
-          const countResponse = await fetchBackend(`/api/posts/count/${connectedUser.username}`);
+          const countResponse = await fetchBackendAuth(`/api/posts/count/${connectedUser.username}`, token);
           const countData = await countResponse.json();
           
           if (countData.success && countData.count > 0) {
@@ -224,9 +231,16 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
     setImportResult(null);
 
     try {
+      const token = await getToken();
+      if (!token) {
+        setError('Authentication required. Please sign in again.');
+        setIsImporting(false);
+        return;
+      }
+
       // First, get the actual user_id from extension backend - MUST pass user_id for security!
       console.log('🔍 Fetching connected user ID...');
-      const statusResponse = await fetchBackend(`/api/extension/status?user_id=${userId}`);
+      const statusResponse = await fetchBackendAuth(`/api/extension/status?user_id=${userId}`, token);
       const statusData = await statusResponse.json();
 
       let extensionUserId = 'default_user';
@@ -251,7 +265,7 @@ export function ImportPostsCard({ onImportComplete }: ImportPostsCardProps = {})
       const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
 
       try {
-        const response = await fetchBackend('/api/scrape-posts-docker', {
+        const response = await fetchBackendAuth('/api/scrape-posts-docker', token, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
