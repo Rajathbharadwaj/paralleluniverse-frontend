@@ -1,69 +1,77 @@
 /**
- * Available workflow definitions for automation scheduling
+ * Workflow definitions - now fetched from API
  */
+import useSWR from "swr";
+import { useAuth } from "@clerk/nextjs";
+import { getApiUrl } from "@/lib/config";
+
+const API_BASE_URL = typeof window !== 'undefined'
+  ? getApiUrl('backend')
+  : (process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || "http://localhost:8002");
 
 export interface WorkflowDefinition {
   id: string;
   name: string;
   description: string;
   category: string;
-  estimatedTime: string;
+  difficulty?: string;
+  estimatedTime?: string;
+  estimated_time_minutes?: number;
+  expected_roi?: string;
   recommendedSchedule?: string;
 }
 
-export const WORKFLOWS: WorkflowDefinition[] = [
-  {
-    id: "reply_guy_strategy",
-    name: "Reply Guy Strategy",
-    description: "Reply to viral threads EARLY to get massive visibility. Targets posts going viral (100-500 likes, <1hr old) from accounts with 10k-500k followers.",
-    category: "engagement",
-    estimatedTime: "30 min",
-    recommendedSchedule: "Every 2 hours (9am, 2pm, 7pm)",
-  },
-  {
-    id: "follower_farming",
-    name: "Follower Farming",
-    description: "Strategic follow/unfollow tactics to grow your follower base. Targets accounts in your niche with engaged audiences.",
-    category: "growth",
-    estimatedTime: "45 min",
-    recommendedSchedule: "Daily at 9am",
-  },
-  {
-    id: "early_bird_special",
-    name: "Early Bird Special",
-    description: "Be first to engage with fresh content from influencers. Catch posts within first 5 minutes for maximum visibility.",
-    category: "engagement",
-    estimatedTime: "20 min",
-    recommendedSchedule: "Every hour during peak times",
-  },
-  {
-    id: "reciprocal_engagement",
-    name: "Reciprocal Engagement",
-    description: "Engage with people who engaged with you. Build relationships through thoughtful replies and likes.",
-    category: "relationship",
-    estimatedTime: "30 min",
-    recommendedSchedule: "Twice daily (morning and evening)",
-  },
-  {
-    id: "learning_workflow",
-    name: "Competitor Learning",
-    description: "Analyze successful posts from competitors to learn what works. Adapts your strategy based on trending content.",
-    category: "learning",
-    estimatedTime: "60 min",
-    recommendedSchedule: "Weekly on Mondays",
-  },
-];
-
 /**
- * Get workflow by ID
+ * Hook to fetch workflows from the API
  */
-export function getWorkflowById(id: string): WorkflowDefinition | undefined {
-  return WORKFLOWS.find((w) => w.id === id);
+export function useWorkflows() {
+  const { getToken } = useAuth();
+
+  return useSWR<{ workflows: WorkflowDefinition[] }>(
+    `${API_BASE_URL}/api/workflows`,
+    async (url: string) => {
+      const token = await getToken();
+      const response = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch workflows");
+      }
+      const data = await response.json();
+      // Transform the API response to match our interface
+      return {
+        workflows: data.workflows.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          description: w.description,
+          category: w.category,
+          difficulty: w.difficulty,
+          estimatedTime: w.estimated_time_minutes ? `${w.estimated_time_minutes} min` : undefined,
+          estimated_time_minutes: w.estimated_time_minutes,
+          expected_roi: w.expected_roi,
+        }))
+      };
+    },
+    {
+      refreshInterval: 60000, // Refresh every minute
+      revalidateOnFocus: true,
+    }
+  );
 }
 
 /**
- * Get workflows by category
+ * Get workflow by ID from a list of workflows
  */
-export function getWorkflowsByCategory(category: string): WorkflowDefinition[] {
-  return WORKFLOWS.filter((w) => w.category === category);
+export function getWorkflowById(workflows: WorkflowDefinition[], id: string): WorkflowDefinition | undefined {
+  return workflows.find((w) => w.id === id);
+}
+
+/**
+ * Get workflows by category from a list of workflows
+ */
+export function getWorkflowsByCategory(workflows: WorkflowDefinition[], category: string): WorkflowDefinition[] {
+  return workflows.filter((w) => w.category === category);
 }

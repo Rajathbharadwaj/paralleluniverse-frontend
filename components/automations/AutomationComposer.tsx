@@ -10,7 +10,7 @@ import {
   isValidCronExpression,
   cronToHumanReadable,
 } from "@/lib/schedule-helper";
-import { WORKFLOWS, getWorkflowById } from "@/lib/workflows";
+import { useWorkflows, getWorkflowById, type WorkflowDefinition } from "@/lib/workflows";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,6 +47,8 @@ export function AutomationComposer({
   onSuccess,
 }: AutomationComposerProps) {
   const { getToken } = useAuth();
+  const { data: workflowsData, isLoading: workflowsLoading } = useWorkflows();
+  const workflows = workflowsData?.workflows || [];
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
@@ -62,14 +64,14 @@ export function AutomationComposer({
   // Auto-fill name and schedule when workflow is selected
   useEffect(() => {
     if (workflow && useWorkflow) {
-      const selectedWorkflow = getWorkflowById(workflow);
+      const selectedWorkflow = getWorkflowById(workflows, workflow);
       if (selectedWorkflow) {
         if (!name) {
           setName(selectedWorkflow.name);
         }
       }
     }
-  }, [workflow, useWorkflow, name]);
+  }, [workflow, useWorkflow, name, workflows]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,12 +213,12 @@ export function AutomationComposer({
           {useWorkflow ? (
             <div className="space-y-2">
               <Label htmlFor="workflow">Select Workflow *</Label>
-              <Select value={workflow} onValueChange={setWorkflow}>
+              <Select value={workflow} onValueChange={setWorkflow} disabled={workflowsLoading}>
                 <SelectTrigger id="workflow">
-                  <SelectValue placeholder="Choose a pre-built workflow" />
+                  <SelectValue placeholder={workflowsLoading ? "Loading workflows..." : "Choose a pre-built workflow"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {WORKFLOWS.map((wf) => (
+                  {workflows.map((wf) => (
                     <SelectItem key={wf.id} value={wf.id}>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{wf.name}</span>
@@ -229,7 +231,7 @@ export function AutomationComposer({
                 </SelectContent>
               </Select>
               {workflow && (() => {
-                const selected = getWorkflowById(workflow);
+                const selected = getWorkflowById(workflows, workflow);
                 return selected ? (
                   <div className="p-3 bg-muted/50 rounded-lg space-y-2">
                     <p className="text-sm text-muted-foreground">
@@ -237,8 +239,8 @@ export function AutomationComposer({
                     </p>
                     <div className="flex gap-2 text-xs text-muted-foreground">
                       <span>⏱️ {selected.estimatedTime}</span>
-                      {selected.recommendedSchedule && (
-                        <span>📅 Recommended: {selected.recommendedSchedule}</span>
+                      {selected.expected_roi && (
+                        <span>📈 ROI: {selected.expected_roi}</span>
                       )}
                     </div>
                   </div>
