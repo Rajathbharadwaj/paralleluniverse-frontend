@@ -26,6 +26,7 @@ export function DashboardHeader() {
     { href: "/content", label: "Content Calendar", icon: Calendar },
     { href: "/competitors", label: "Competitors", icon: Network },
     { href: "/automations", label: "Automations", icon: Clock },
+    { href: "/settings", label: "Settings", icon: Settings },
   ];
 
   const handleSignOut = () => {
