@@ -20,20 +20,31 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }) {
   console.log(`[Backend Proxy] ${request.method} ${url}`);
 
   try {
-    let body = undefined;
+    let body: BodyInit | undefined = undefined;
+    const contentType = request.headers.get('content-type');
+
     if (request.method !== 'GET' && request.method !== 'HEAD') {
-      const contentType = request.headers.get('content-type');
       if (contentType?.includes('application/json')) {
         body = JSON.stringify(await request.json());
+      } else if (contentType?.includes('multipart/form-data')) {
+        // For file uploads, pass the raw body to preserve binary data
+        body = await request.arrayBuffer();
       } else {
         body = await request.text();
       }
     }
 
     // Forward the Authorization header from the client request
-    const headers: Record<string, string> = {
-      'Content-Type': request.headers.get('content-type') || 'application/json',
-    };
+    const headers: Record<string, string> = {};
+
+    // Only set Content-Type for non-multipart requests (let fetch set boundary for multipart)
+    if (contentType && !contentType.includes('multipart/form-data')) {
+      headers['Content-Type'] = contentType;
+    } else if (contentType) {
+      headers['Content-Type'] = contentType;
+    } else {
+      headers['Content-Type'] = 'application/json';
+    }
 
     // Pass through the client's Authorization header (Clerk token)
     const authHeader = request.headers.get('authorization');

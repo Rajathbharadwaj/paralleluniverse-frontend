@@ -22,7 +22,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Settings, Zap, Bot, Shield, Loader2, CheckCircle, Info } from "lucide-react";
+import { Settings, Zap, Bot, Shield, Loader2, CheckCircle, Info, CreditCard } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { getToken } = useAuth();
@@ -120,6 +121,24 @@ export default function SettingsPage() {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
+
+        {/* Billing Link */}
+        <Link href="/settings/billing">
+          <Card className="mb-6 hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <CardTitle>Billing & Subscription</CardTitle>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </div>
+              <CardDescription>
+                Manage your subscription, view usage, and update payment methods
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
 
         {/* Settings Cards */}
         {preferences && (

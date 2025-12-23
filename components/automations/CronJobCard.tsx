@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { deleteCronJob, type CronJob } from "@/hooks/useCrons";
+import { deleteCronJob, toggleCronJob, type CronJob } from "@/hooks/useCrons";
 import { cronToHumanReadable, getNextRunTime } from "@/lib/schedule-helper";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Trash2, Calendar, Code } from "lucide-react";
+import { Clock, Trash2, Calendar, Code, Pause, Play } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface CronJobCardProps {
@@ -35,6 +35,8 @@ interface CronJobCardProps {
 export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
   const { getToken } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+  const [isActive, setIsActive] = useState(cronJob.is_active);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const name = cronJob.name || "Untitled Automation";
@@ -64,6 +66,26 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
     }
   };
 
+  const handleToggle = async () => {
+    setIsToggling(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsToggling(false);
+        return;
+      }
+
+      const result = await toggleCronJob(cronJob.id, token);
+      setIsActive(result.is_active);
+    } catch (error) {
+      console.error("Failed to toggle cron job:", error);
+      alert("Failed to toggle automation");
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   return (
     <>
       <Card>
@@ -76,8 +98,11 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
                 {scheduleDescription}
               </CardDescription>
             </div>
-            <Badge variant="outline" className="text-xs">
-              Active
+            <Badge
+              variant={isActive ? "outline" : "secondary"}
+              className={`text-xs ${!isActive ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : ""}`}
+            >
+              {isActive ? "Active" : "Paused"}
             </Badge>
           </div>
         </CardHeader>
@@ -116,10 +141,23 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="text-muted-foreground"
-            disabled
+            onClick={handleToggle}
+            disabled={isToggling}
+            className={isActive ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"}
           >
-            View History
+            {isToggling ? (
+              "..."
+            ) : isActive ? (
+              <>
+                <Pause className="h-4 w-4 mr-2" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Resume
+              </>
+            )}
           </Button>
           <Button
             variant="ghost"

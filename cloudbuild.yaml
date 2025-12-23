@@ -29,6 +29,8 @@ steps:
       - 'NEXT_PUBLIC_LANGGRAPH_URL=${_NEXT_PUBLIC_LANGGRAPH_URL}'
       - '--build-arg'
       - 'NEXT_PUBLIC_LANGGRAPH_API_KEY=${_NEXT_PUBLIC_LANGGRAPH_API_KEY}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}'
       - '.'
 
   # Push the container image to Container Registry

@@ -10,24 +10,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network, Clock } from "lucide-react";
+import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network, Clock, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export function DashboardHeader() {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut, openUserProfile } = useClerk();
+  const { data: subscription } = useSubscription();
+
+  // Plans that have access to Ads feature
+  const adsPlans = ["pro_plus", "ultimate"];
+  const hasAdsAccess = subscription?.plan && adsPlans.includes(subscription.plan);
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/workflows", label: "Workflows", icon: Workflow },
     { href: "/content", label: "Content Calendar", icon: Calendar },
+    { href: "/ads", label: "Ads", icon: Megaphone, requiresAds: true },
     { href: "/competitors", label: "Competitors", icon: Network },
     { href: "/automations", label: "Automations", icon: Clock },
     { href: "/settings", label: "Settings", icon: Settings },
-  ];
+  ].filter(item => !item.requiresAds || hasAdsAccess);
 
   const handleSignOut = () => {
     signOut({ redirectUrl: "/sign-in" });

@@ -37,13 +37,14 @@ CLERK_PUBLISHABLE=$(gcloud secrets versions access latest --secret=clerk-publish
 CLERK_SECRET=$(gcloud secrets versions access latest --secret=clerk-secret-key --project=$PROJECT_ID)
 LANGGRAPH_URL=$(gcloud secrets versions access latest --secret=langgraph-url --project=$PROJECT_ID)
 LANGGRAPH_API_KEY=$(gcloud secrets versions access latest --secret=langgraph-api-key --project=$PROJECT_ID)
+STRIPE_PUBLISHABLE=$(gcloud secrets versions access latest --secret=stripe-publishable-key --project=$PROJECT_ID)
 
 echo "📦 Building and deploying with Cloud Build..."
 
 gcloud builds submit \
   --config=cloudbuild.yaml \
   --project=$PROJECT_ID \
-  --substitutions="_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE,_CLERK_SECRET_KEY=$CLERK_SECRET,_NEXT_PUBLIC_LANGGRAPH_URL=$LANGGRAPH_URL,_NEXT_PUBLIC_LANGGRAPH_API_KEY=$LANGGRAPH_API_KEY"
+  --substitutions="_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE,_CLERK_SECRET_KEY=$CLERK_SECRET,_NEXT_PUBLIC_LANGGRAPH_URL=$LANGGRAPH_URL,_NEXT_PUBLIC_LANGGRAPH_API_KEY=$LANGGRAPH_API_KEY,_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE"
 
 echo ""
 echo "✅ Deployment complete!"

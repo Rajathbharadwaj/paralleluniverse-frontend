@@ -115,3 +115,18 @@ export async function deleteCronJob(cronJobId: number, token: string) {
 
   return response.json();
 }
+
+export async function toggleCronJob(cronJobId: number, token: string): Promise<{ is_active: boolean; message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/cron-jobs/${cronJobId}/toggle`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to toggle cron job");
+  }
+
+  return response.json();
+}
