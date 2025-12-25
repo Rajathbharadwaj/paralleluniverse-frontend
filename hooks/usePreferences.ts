@@ -19,6 +19,9 @@ export interface UserPreferences {
   optimal_times: string[];
   avoid_topics: string[];
   thread_topics: string[] | null;
+  // Onboarding tracking
+  onboarding_completed?: boolean;
+  onboarding_completed_at?: string | null;
 }
 
 export function usePreferences() {

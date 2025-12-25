@@ -6,8 +6,16 @@ import { useAuth } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 
-// Routes that don't require subscription
-const BILLING_ROUTES = ["/pricing", "/settings/billing"];
+// Routes that don't require subscription (public routes)
+const PUBLIC_ROUTES = [
+  "/pricing",
+  "/settings/billing",
+  "/landing",
+  "/terms",
+  "/privacy",
+  "/sign-in",
+  "/sign-up",
+];
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -26,8 +34,8 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   const { data: subscription, isLoading: subLoading, error } = useSubscription();
   const [isChecking, setIsChecking] = useState(true);
 
-  // Check if current route is a billing route (always allowed)
-  const isBillingRoute = BILLING_ROUTES.some(
+  // Check if current route is a public route (always allowed)
+  const isPublicRoute = PUBLIC_ROUTES.some(
     (route) => pathname?.startsWith(route)
   );
 
@@ -41,8 +49,8 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
       return;
     }
 
-    // Billing routes are always accessible
-    if (isBillingRoute) {
+    // Public routes are always accessible
+    if (isPublicRoute) {
       setIsChecking(false);
       return;
     }
@@ -74,11 +82,11 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
     error,
     router,
     pathname,
-    isBillingRoute,
+    isPublicRoute,
   ]);
 
   // Show loading while checking
-  if (isChecking && isSignedIn && !isBillingRoute) {
+  if (isChecking && isSignedIn && !isPublicRoute) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -13,14 +13,17 @@ import { AgentBrowserViewer } from "@/components/agent-browser-viewer";
 import { SetupStatusBar } from "@/components/setup-status-bar";
 import { ResizableSidebar } from "@/components/resizable-sidebar";
 import { PreviewStyleCard } from "@/components/preview-style-card";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, RefreshCw } from "lucide-react";
 import { WebSocketProvider } from "@/contexts/websocket-context";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const { shouldShowOnboarding, completeOnboarding } = useOnboarding();
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
   const [postsImported, setPostsImported] = useState(0);
@@ -315,7 +318,13 @@ export default function DashboardPage() {
     <WebSocketProvider userId={user?.id || null}>
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <DashboardHeader />
-      
+
+        {/* Onboarding Wizard - shows on first visit after payment */}
+        <OnboardingWizard
+          open={shouldShowOnboarding}
+          onComplete={completeOnboarding}
+        />
+
       <main className="flex-1 flex overflow-hidden min-h-0">
         {/* Left Column - Main Content (scrollable) */}
         <div className="flex-1 overflow-y-auto h-full">

@@ -123,7 +123,11 @@ export function AssetUploader({ onAssetCreated, triggerButton }: AssetUploaderPr
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Upload Brand Asset</DialogTitle>
           <DialogDescription>

@@ -154,7 +154,7 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }
       // Upload media files and collect URLs
       const mediaUrls: string[] = [];
       for (const item of media) {
-        const url = await uploadMedia(item.file);
+        const url = await uploadMedia(item.file, token);
         mediaUrls.push(url);
       }
 
@@ -206,7 +206,11 @@ export function PostComposer({ open, onOpenChange, userId, onSuccess, editPost }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>{editPost ? 'Edit Post' : 'Create Post'}</DialogTitle>
         </DialogHeader>

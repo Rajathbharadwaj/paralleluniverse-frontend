@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import { Check, X, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { createCheckout, getPlans, Plan } from "@/lib/api/billing";
 import { useSubscription } from "@/hooks/useSubscription";
+import { LegalFooter } from "@/components/legal-footer";
 
 export default function PricingPage() {
   const { isSignedIn, getToken } = useAuth();
@@ -247,7 +249,24 @@ export default function PricingPage() {
             </a>
           </p>
         </div>
+
+        {/* Terms notice */}
+        <div className="max-w-2xl mx-auto mt-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            By subscribing, you agree to our{" "}
+            <Link href="/terms" className="text-primary hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-primary hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </div>
       </div>
+
+      <LegalFooter />
     </div>
   );
 }

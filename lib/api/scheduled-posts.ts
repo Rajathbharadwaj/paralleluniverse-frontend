@@ -140,12 +140,15 @@ export async function deleteScheduledPost(postId: number, userId: string, token:
 /**
  * Upload a media file and get back the URL
  */
-export async function uploadMedia(file: File): Promise<string> {
+export async function uploadMedia(file: File, token: string): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
   const response = await fetch(`${API_BASE_URL}/api/upload`, {
     method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
     body: formData,
   });
 
@@ -155,6 +158,34 @@ export async function uploadMedia(file: File): Promise<string> {
 
   const data = await response.json();
   return data.url;
+}
+
+/**
+ * Generate an AI image for a post using KIE AI
+ */
+export async function generateAIImage(
+  postContent: string,
+  token: string,
+  aspectRatio: string = "1:1"
+): Promise<{ success: boolean; image_url?: string; error?: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/generate-ai-image`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      post_content: postContent,
+      aspect_ratio: aspectRatio,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate image: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**

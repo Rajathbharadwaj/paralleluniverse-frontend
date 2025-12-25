@@ -130,3 +130,24 @@ export async function toggleCronJob(cronJobId: number, token: string): Promise<{
 
   return response.json();
 }
+
+export async function runCronJobNow(cronJobId: number, token: string): Promise<{
+  message: string;
+  run_id: number | null;
+  status: string;
+  thread_id: string | null;
+}> {
+  const response = await fetch(`${API_BASE_URL}/api/cron-jobs/${cronJobId}/run`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: "Failed to run automation" }));
+    throw new Error(error.detail || "Failed to run automation");
+  }
+
+  return response.json();
+}

@@ -1,10 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Sparkles,
   Calendar,
@@ -14,10 +30,14 @@ import {
   RefreshCw,
   Loader2,
   Info,
-  Clock
+  Clock,
+  ImagePlus,
+  Trash2,
+  Upload,
+  Wand2
 } from "lucide-react";
 import { PostCard } from "./post-card";
-import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost } from "@/lib/api/scheduled-posts";
+import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost, uploadMedia, generateAIImage } from "@/lib/api/scheduled-posts";
 
 interface AIPost {
   id: number;  // Database ID
@@ -51,6 +71,15 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
   const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
+  // Edit modal state
+  const [editingPost, setEditingPost] = useState<AIPost | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editMediaUrls, setEditMediaUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingAIImage, setIsGeneratingAIImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Load AI drafts on mount
   useEffect(() => {
     const loadDrafts = async () => {
@@ -69,12 +98,17 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         // Transform to AIPost format
         const transformedPosts: AIPost[] = drafts.map((draft: any) => {
           const scheduledDate = new Date(draft.scheduled_at);
+          // Convert media_urls array to media objects
+          const mediaObjects = (draft.media_urls || []).map((url: string) => ({
+            type: "image",
+            url
+          }));
           return {
             id: draft.id,
             content: draft.content,
             scheduled_at: draft.scheduled_at,
             confidence: draft.confidence,
-            media: [],
+            media: mediaObjects,
             status: "draft" as const,
             date: scheduledDate,
             time: scheduledDate.toTimeString().substring(0, 5),
@@ -256,6 +290,130 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
     const promises = Array.from(selectedPosts).map(postId => approvePost(postId));
     await Promise.all(promises);
     setSelectedPosts(new Set());
+  };
+
+  // Open edit modal
+  const openEditModal = (post: AIPost) => {
+    setEditingPost(post);
+    setEditContent(post.content);
+    setEditMediaUrls(post.media?.map((m: any) => m.url) || []);
+  };
+
+  // Close edit modal
+  const closeEditModal = () => {
+    setEditingPost(null);
+    setEditContent("");
+    setEditMediaUrls([]);
+  };
+
+  // Handle media file upload
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required");
+        return;
+      }
+
+      for (const file of Array.from(files)) {
+        console.log(`📤 Uploading ${file.name}...`);
+        const url = await uploadMedia(file, token);
+        if (url) {
+          setEditMediaUrls(prev => [...prev, url]);
+          console.log(`✅ Uploaded: ${url}`);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Upload failed:", error);
+      alert("Failed to upload media. Please try again.");
+    } finally {
+      setIsUploading(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Remove media from edit
+  const removeMedia = (index: number) => {
+    setEditMediaUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Save edited post
+  const saveEdit = async () => {
+    if (!editingPost || !userId) return;
+
+    setIsSaving(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required");
+        return;
+      }
+
+      console.log(`💾 Saving post ${editingPost.id}...`);
+      await updateScheduledPost(editingPost.id, userId, {
+        content: editContent,
+        media_urls: editMediaUrls
+      }, token);
+
+      // Update local state
+      setAIPosts(prev => prev.map(p =>
+        p.id === editingPost.id
+          ? { ...p, content: editContent, media: editMediaUrls.map(url => ({ type: "image", url })) }
+          : p
+      ));
+
+      console.log("✅ Post saved");
+      closeEditModal();
+    } catch (error) {
+      console.error("❌ Save failed:", error);
+      alert("Failed to save changes. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Generate AI image for the post
+  const handleGenerateAIImage = async () => {
+    if (!editContent.trim()) {
+      alert("Please enter some post content first to generate a relevant image.");
+      return;
+    }
+
+    if (editMediaUrls.length >= 4) {
+      alert("Maximum 4 images allowed. Remove an existing image first.");
+      return;
+    }
+
+    setIsGeneratingAIImage(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required");
+        return;
+      }
+
+      console.log("🎨 Generating AI image for post...");
+      const result = await generateAIImage(editContent, token, "1:1");
+
+      if (result.success && result.image_url) {
+        setEditMediaUrls(prev => [...prev, result.image_url!]);
+        console.log("✅ AI image generated:", result.image_url);
+      } else {
+        throw new Error(result.error || "Failed to generate image");
+      }
+    } catch (error) {
+      console.error("❌ AI image generation failed:", error);
+      alert(`Failed to generate AI image: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsGeneratingAIImage(false);
+    }
   };
 
   return (
@@ -451,6 +609,7 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
                       variant="outline"
                       size="sm"
                       className="gap-2"
+                      onClick={() => openEditModal(post)}
                     >
                       <Edit className="h-4 w-4" />
                       Edit
@@ -470,6 +629,165 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
           })}
         </div>
       )}
+
+      {/* Edit Modal - Does not close on outside click, only via Cancel/Save */}
+      <Dialog open={!!editingPost} onOpenChange={(open) => !open && closeEditModal()}>
+        <DialogContent
+          className="max-w-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5" />
+              Edit Post
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Content Editor */}
+            <div className="space-y-2">
+              <Label htmlFor="content">Post Content</Label>
+              <Textarea
+                id="content"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="What's on your mind?"
+                className="min-h-[150px] resize-none"
+                maxLength={280}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Character count</span>
+                <span className={editContent.length > 280 ? "text-red-500" : ""}>
+                  {editContent.length}/280
+                </span>
+              </div>
+            </div>
+
+            {/* Media Upload */}
+            <div className="space-y-2">
+              <Label>Media Attachments</Label>
+
+              {/* Uploaded Media Preview */}
+              {editMediaUrls.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {editMediaUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Media ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                      <button
+                        onClick={() => removeMedia(index)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleMediaUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading || isGeneratingAIImage || editMediaUrls.length >= 4}
+                  className="gap-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="h-4 w-4" />
+                      Add Media
+                    </>
+                  )}
+                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleGenerateAIImage}
+                        disabled={isUploading || isGeneratingAIImage || editMediaUrls.length >= 4 || !editContent.trim()}
+                        className="gap-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 hover:from-purple-500/20 hover:to-blue-500/20 border-purple-300"
+                      >
+                        {isGeneratingAIImage ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Wand2 className="h-4 w-4 text-purple-600" />
+                            Generate AI Image
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-slate-900 text-white">
+                      <p className="text-xs">Costs 27 credits</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <span className="text-xs text-muted-foreground">
+                  {editMediaUrls.length}/4 images (max)
+                </span>
+              </div>
+            </div>
+
+            {/* Scheduled Time Display */}
+            {editingPost && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                <Calendar className="h-4 w-4" />
+                <span>
+                  Scheduled for:{" "}
+                  {editingPost.date.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                  })}{" "}
+                  at {editingPost.time}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={closeEditModal} disabled={isSaving}>
+              Cancel
+            </Button>
+            <Button onClick={saveEdit} disabled={isSaving || editContent.length === 0}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

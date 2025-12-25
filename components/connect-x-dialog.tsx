@@ -63,7 +63,11 @@ export function ConnectXDialog({ open, onOpenChange, onSuccess }: ConnectXDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent
+        className="max-w-5xl max-h-[90vh]"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Connect Your X Account</DialogTitle>
           <DialogDescription>

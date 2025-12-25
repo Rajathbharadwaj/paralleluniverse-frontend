@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { deleteCronJob, toggleCronJob, type CronJob } from "@/hooks/useCrons";
+import { deleteCronJob, toggleCronJob, runCronJobNow, type CronJob } from "@/hooks/useCrons";
 import { cronToHumanReadable, getNextRunTime } from "@/lib/schedule-helper";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Trash2, Calendar, Code, Pause, Play } from "lucide-react";
+import { Clock, Trash2, Calendar, Code, Pause, Play, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface CronJobCardProps {
@@ -36,8 +36,11 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
   const { getToken } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [isActive, setIsActive] = useState(cronJob.is_active);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRunDialog, setShowRunDialog] = useState(false);
+  const [runError, setRunError] = useState<string | null>(null);
 
   const name = cronJob.name || "Untitled Automation";
   const workflow = cronJob.workflow_id;
@@ -83,6 +86,28 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
       alert("Failed to toggle automation");
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  const handleRunNow = async () => {
+    setIsRunning(true);
+    setRunError(null);
+    try {
+      const token = await getToken();
+      if (!token) {
+        setRunError("Authentication required. Please sign in again.");
+        setIsRunning(false);
+        return;
+      }
+
+      await runCronJobNow(cronJob.id, token);
+      setShowRunDialog(false);
+      // Could add a toast notification here for success
+    } catch (error) {
+      console.error("Failed to run automation:", error);
+      setRunError(error instanceof Error ? error.message : "Failed to run automation");
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -138,27 +163,39 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
         </CardContent>
 
         <CardFooter className="flex justify-between border-t pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleToggle}
-            disabled={isToggling}
-            className={isActive ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"}
-          >
-            {isToggling ? (
-              "..."
-            ) : isActive ? (
-              <>
-                <Pause className="h-4 w-4 mr-2" />
-                Pause
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Resume
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleToggle}
+              disabled={isToggling}
+              className={isActive ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"}
+            >
+              {isToggling ? (
+                "..."
+              ) : isActive ? (
+                <>
+                  <Pause className="h-4 w-4 mr-2" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Resume
+                </>
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowRunDialog(true)}
+              disabled={isRunning}
+              className="text-orange-600 hover:text-orange-700"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Run Now
+            </Button>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -188,6 +225,36 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showRunDialog} onOpenChange={(open) => {
+        setShowRunDialog(open);
+        if (!open) setRunError(null);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Run Automation Now?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will immediately execute "{name}" once. This does not affect the regular schedule.
+              Credits will be charged based on usage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {runError && (
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {runError}
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRunning}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRunNow}
+              disabled={isRunning}
+              className="bg-orange-600 text-white hover:bg-orange-700"
+            >
+              {isRunning ? "Starting..." : "Run Now"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
