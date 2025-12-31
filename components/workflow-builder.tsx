@@ -22,6 +22,7 @@ import { WorkflowVNCViewer } from './workflow-vnc-viewer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Play,
   Save,
@@ -63,6 +64,17 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
   const [workflowName, setWorkflowName] = useState('New Workflow');
   const [isExecuting, setIsExecuting] = useState(false);
   const [vncIsExecuting, setVncIsExecuting] = useState(false);
+
+  // Model selection for multi-model support
+  const MODEL_OPTIONS = [
+    { label: "Claude Sonnet 4.5", value: "claude-sonnet-4-5-20250929", provider: "anthropic" },
+    { label: "Claude Opus 4.5", value: "claude-opus-4-5-20251101", provider: "anthropic" },
+    { label: "GPT-5.2", value: "gpt-5.2", provider: "openai" },
+    { label: "GPT-5.2 Pro", value: "gpt-5.2-pro", provider: "openai" },
+    { label: "GPT-5 Mini", value: "gpt-5-mini", provider: "openai" },
+  ];
+  const [selectedModel, setSelectedModel] = useState<string>("claude-sonnet-4-5-20250929");
+  const [selectedProvider, setSelectedProvider] = useState<string>("anthropic");
 
   // Define custom node types
   const customNodeTypes = useMemo(() => ({ custom: CustomWorkflowNode }), []);
@@ -162,6 +174,8 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
       expected_roi: 'high',
       version: '1.0',
       config: {},
+      model_name: selectedModel,
+      model_provider: selectedProvider,
       steps: nodes.map((node, index) => {
         const outgoingEdge = edges.find((edge) => edge.source === node.id);
         return {
@@ -249,6 +263,30 @@ export function WorkflowBuilder({ workflowId, onSave }: WorkflowBuilderProps) {
               className="text-2xl font-bold bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary rounded px-2"
               placeholder="Workflow Name"
             />
+
+            {/* LLM Selection Dropdown */}
+            <div className="flex items-center gap-2 ml-4">
+              <span className="text-xs text-muted-foreground uppercase font-medium">LLM</span>
+              <Select
+                value={selectedModel}
+                onValueChange={(val) => {
+                  setSelectedModel(val);
+                  const option = MODEL_OPTIONS.find(m => m.value === val);
+                  setSelectedProvider(option?.provider || "anthropic");
+                }}
+              >
+                <SelectTrigger className="w-[160px] h-8">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5</SelectItem>
+                  <SelectItem value="claude-opus-4-5-20251101">Claude Opus 4.5</SelectItem>
+                  <SelectItem value="gpt-5.2">GPT-5.2</SelectItem>
+                  <SelectItem value="gpt-5.2-pro">GPT-5.2 Pro</SelectItem>
+                  <SelectItem value="gpt-5-mini">GPT-5 Mini</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

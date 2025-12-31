@@ -155,14 +155,18 @@ export function WorkflowExecutionPanel({
 
     ws.onopen = () => {
       console.log('WebSocket connected');
-      // Send workflow JSON to execute with HIL setting
+      // Send workflow JSON to execute with HIL setting and model selection
       ws.send(JSON.stringify({
         workflow_json: workflowJson,
         user_id: user?.id || null,  // Send Clerk user ID
         human_in_loop: humanInLoop,  // ← Send HIL toggle state
+        // Model selection from workflow (passed through from workflow-builder)
+        model_name: workflowJson.model_name || "claude-sonnet-4-5-20250929",
+        model_provider: workflowJson.model_provider || "anthropic",
       }));
 
-      addLog('started', 'Workflow execution started...');
+      const modelLabel = workflowJson.model_name || "Claude Sonnet 4.5";
+      addLog('started', `Workflow execution started with ${modelLabel}...`);
     };
 
     ws.onmessage = (event) => {
