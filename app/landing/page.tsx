@@ -1,8 +1,270 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, Shield, Eye, FileText, AlertTriangle, Check, X } from "lucide-react";
+
+// Typewriter hook for cycling through words
+function useTypewriter(words: string[], typingSpeed = 100, deletingSpeed = 50, pauseDuration = 2000) {
+  const [displayText, setDisplayText] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = words[wordIndex];
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (displayText.length < currentWord.length) {
+          setDisplayText(currentWord.slice(0, displayText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), pauseDuration);
+        }
+      } else {
+        if (displayText.length > 0) {
+          setDisplayText(displayText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, isDeleting ? deletingSpeed : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseDuration]);
+
+  return displayText;
+}
+
+// Interactive Agent Demo showing the engage flow
+function AgentActivityDemo() {
+  const [phase, setPhase] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [tasks, setTasks] = useState<Array<{ text: string; done: boolean }>>([]);
+  const [results, setResults] = useState<Array<{ label: string; value: string }>>([]);
+  const [qualityChecks, setQualityChecks] = useState<string[]>([]);
+
+  const fullCommand = "engage";
+
+  const taskList = [
+    "Analyze page to see what posts are visible",
+    "Navigate to For You page",
+    "Find and reply to viral threads",
+    "Generate authentic comments",
+    "Post engagements",
+    "Workflow complete",
+  ];
+
+  const campaignResults = [
+    { label: "Total Engagements", value: "13 successful interactions" },
+    { label: "Early Bird Special", value: "3 comments" },
+    { label: "Follower Farming", value: "4 like + comment combos" },
+    { label: "Reply Guy Strategy", value: "3 like + comment on viral posts" },
+  ];
+
+  const qualityItems = [
+    "13 high-quality engagements with smart filtering",
+    "All comments authentic to your voice",
+    "Mix of technical depth + relatable content",
+    "Strategic positioning on viral threads",
+  ];
+
+  useEffect(() => {
+    let cancelled = false;
+    const timeouts: NodeJS.Timeout[] = [];
+    const intervals: NodeJS.Timeout[] = [];
+
+    if (phase === 0) {
+      let i = 0;
+      const typeInterval = setInterval(() => {
+        if (cancelled) return;
+        if (i < fullCommand.length) {
+          setTypedText(fullCommand.slice(0, i + 1));
+          i++;
+        } else {
+          clearInterval(typeInterval);
+          const t = setTimeout(() => !cancelled && setPhase(1), 600);
+          timeouts.push(t);
+        }
+      }, 120);
+      intervals.push(typeInterval);
+    }
+
+    if (phase === 1) {
+      let i = 0;
+      const taskInterval = setInterval(() => {
+        if (cancelled) return;
+        if (i < taskList.length) {
+          setTasks(taskList.slice(0, i + 1).map(text => ({ text, done: true })));
+          i++;
+        } else {
+          clearInterval(taskInterval);
+          const t = setTimeout(() => !cancelled && setPhase(2), 400);
+          timeouts.push(t);
+        }
+      }, 350);
+      intervals.push(taskInterval);
+    }
+
+    if (phase === 2) {
+      let i = 0;
+      const resultInterval = setInterval(() => {
+        if (cancelled) return;
+        if (i < campaignResults.length) {
+          setResults(campaignResults.slice(0, i + 1));
+          i++;
+        } else {
+          clearInterval(resultInterval);
+          let q = 0;
+          const qualityInterval = setInterval(() => {
+            if (cancelled) return;
+            if (q < qualityItems.length) {
+              setQualityChecks(qualityItems.slice(0, q + 1));
+              q++;
+            } else {
+              clearInterval(qualityInterval);
+              const t = setTimeout(() => {
+                if (cancelled) return;
+                setPhase(0);
+                setTypedText("");
+                setTasks([]);
+                setResults([]);
+                setQualityChecks([]);
+              }, 3500);
+              timeouts.push(t);
+            }
+          }, 300);
+          intervals.push(qualityInterval);
+        }
+      }, 400);
+      intervals.push(resultInterval);
+    }
+
+    return () => {
+      cancelled = true;
+      intervals.forEach(clearInterval);
+      timeouts.forEach(clearTimeout);
+    };
+  }, [phase]);
+
+  return (
+    <div className="relative max-w-4xl mx-auto mt-16">
+      <div className="absolute -inset-px bg-gradient-to-b from-orange-500/20 to-transparent rounded-2xl blur-xl opacity-50" />
+
+      <div className="relative bg-[#111111] border border-zinc-800/80 rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/50 bg-zinc-900/50">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-zinc-800 rounded flex items-center justify-center">
+                <InfinityLogo className="w-4 h-4" />
+              </div>
+              <span className="text-white text-sm font-medium">Parallel Universe</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-1 text-xs text-zinc-500">
+              <span className="px-2 py-1 bg-zinc-800/50 rounded">Dashboard</span>
+              <span className="px-2 py-1 hover:bg-zinc-800/50 rounded">Workflows</span>
+              <span className="px-2 py-1 hover:bg-zinc-800/50 rounded">Automations</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-green-400 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+              VNC Connected
+            </span>
+          </div>
+        </div>
+
+        <div className="flex">
+          <div className="w-1/2 border-r border-zinc-800/50 p-4 min-h-[340px] relative">
+            <div className="mb-3">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider">Tasks</span>
+              <span className="ml-2 text-xs text-zinc-600">COMPLETED</span>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              {tasks.map((task, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 text-sm"
+                  style={{ animation: "slideIn 0.2s ease-out" }}
+                >
+                  <span className="text-green-400 text-xs">✓</span>
+                  <span className="text-zinc-400">{task.text}</span>
+                </div>
+              ))}
+              {tasks.length === 0 && phase === 0 && (
+                <div className="text-zinc-600 text-sm">Waiting for command...</div>
+              )}
+            </div>
+
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="bg-zinc-900/80 border border-zinc-700/50 rounded-lg px-3 py-2.5">
+                <div className="flex items-center gap-2 text-zinc-300 text-sm">
+                  <span className="text-zinc-500">{phase === 0 ? "Write your message..." : ""}</span>
+                  {phase === 0 && typedText && <span className="text-white">{typedText}</span>}
+                  {phase === 0 && <span className="w-0.5 h-4 bg-orange-500 animate-pulse" />}
+                  {phase > 0 && <span className="text-zinc-400">engage</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-1/2 p-4 min-h-[340px] bg-zinc-900/20">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-orange-400 text-sm font-medium">PsY Agent</span>
+              <span className="text-zinc-600 text-xs">Threads</span>
+            </div>
+
+            {results.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-blue-400">📊</span>
+                  <span className="text-white text-sm font-medium">Campaign Results</span>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  {results.filter(Boolean).map((result, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between"
+                      style={{ animation: "slideIn 0.2s ease-out" }}
+                    >
+                      <span className="text-zinc-400">{result?.label}:</span>
+                      <span className="text-zinc-300">{result?.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {qualityChecks.length > 0 && (
+              <div>
+                <div className="text-zinc-500 text-xs mb-2">Quality Summary:</div>
+                <div className="space-y-1">
+                  {qualityChecks.filter(check => check && check.trim()).map((check, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2 text-xs"
+                      style={{ animation: "slideIn 0.2s ease-out" }}
+                    >
+                      <span className="text-green-400 mt-0.5">✅</span>
+                      <span className="text-zinc-400">{check}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {results.length === 0 && (
+              <div className="flex items-center justify-center h-[200px] text-zinc-600 text-sm">
+                Results will appear here...
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Custom Infinity Logo Component
 function InfinityLogo({ className = "w-7 h-7" }: { className?: string }) {
@@ -55,6 +317,11 @@ export default function LandingPage() {
       <style jsx global>{`
         .font-mono { font-family: 'MonoLisa', monospace !important; }
 
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-10px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+
         @keyframes twinkle {
           0%, 100% { opacity: 0.3; }
           50% { opacity: 1; }
@@ -63,6 +330,17 @@ export default function LandingPage() {
         @keyframes float-slow {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        @keyframes heartbeat-glow {
+          0%, 100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.1);
+          }
         }
 
         .gradient-text {
@@ -172,6 +450,30 @@ export default function LandingPage() {
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10 text-center">
+          {/* Tagline with infinity heartbeat */}
+          <div className="relative mb-8 max-w-2xl mx-auto overflow-visible">
+            {/* Background glow with heartbeat */}
+            <div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[120px] rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(249, 115, 22, 0.6) 0%, rgba(249, 115, 22, 0.3) 40%, transparent 70%)',
+                filter: 'blur(30px)',
+                animation: 'heartbeat-glow 2.5s ease-in-out infinite'
+              }}
+            />
+            <p className="relative text-zinc-300 text-lg md:text-xl flex items-center justify-center gap-2">
+              <span>Presence</span>
+              <span
+                className="text-orange-400 text-3xl font-bold"
+                style={{
+                  textShadow: '0 0 20px rgba(249, 115, 22, 0.8), 0 0 40px rgba(249, 115, 22, 0.5), 0 0 60px rgba(249, 115, 22, 0.3)',
+                  filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.6))'
+                }}
+              >∞</span>
+              <span>without the time cost.</span>
+            </p>
+          </div>
+
           {/* Main headline */}
           <h1 className="font-extrabold text-4xl md:text-6xl lg:text-7xl tracking-tight leading-[1.1] mb-6">
             <span className="text-white">Delegate Your Presence</span>
@@ -202,6 +504,9 @@ export default function LandingPage() {
               Built for people with reputations to protect.
             </p>
           </div>
+
+          {/* Interactive Workflow Demo */}
+          <AgentActivityDemo />
         </div>
       </section>
 
