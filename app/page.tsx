@@ -14,22 +14,52 @@ import { SetupStatusBar } from "@/components/setup-status-bar";
 import { ResizableSidebar } from "@/components/resizable-sidebar";
 import { PreviewStyleCard } from "@/components/preview-style-card";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
+import { OnboardingPreferencesWizard } from "@/components/onboarding-preferences-wizard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, RefreshCw } from "lucide-react";
 import { WebSocketProvider } from "@/contexts/websocket-context";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const { shouldShowOnboarding, completeOnboarding } = useOnboarding();
+  const { data: preferencesData, mutate: mutatePreferences } = usePreferences();
+  const { data: subscription } = useSubscription();
+  const [showPreferencesWizard, setShowPreferencesWizard] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
   const [postsImported, setPostsImported] = useState(0);
   const [showSetupCards, setShowSetupCards] = useState(true);
   const [manuallyOpened, setManuallyOpened] = useState(false); // Track if user manually opened setup
   const minimizeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Determine if preferences wizard should be shown (BEFORE feature tour)
+  useEffect(() => {
+    // Only show if:
+    // 1. User has active subscription
+    // 2. Preferences onboarding not completed
+    // 3. Preferences data is loaded
+    if (
+      subscription?.has_subscription &&
+      preferencesData?.preferences &&
+      preferencesData.preferences.preferences_onboarding_completed !== true
+    ) {
+      setShowPreferencesWizard(true);
+    } else {
+      setShowPreferencesWizard(false);
+    }
+  }, [subscription?.has_subscription, preferencesData?.preferences]);
+
+  // Handle preferences wizard completion
+  const handlePreferencesComplete = async () => {
+    setShowPreferencesWizard(false);
+    // Refresh preferences to update the state
+    await mutatePreferences();
+  };
 
   // Add Clerk user ID to page for extension to read
   useEffect(() => {
@@ -319,9 +349,15 @@ export default function DashboardPage() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <DashboardHeader />
 
-        {/* Onboarding Wizard - shows on first visit after payment */}
+        {/* Preferences Wizard - shows FIRST after subscription (before feature tour) */}
+        <OnboardingPreferencesWizard
+          open={showPreferencesWizard}
+          onComplete={handlePreferencesComplete}
+        />
+
+        {/* Feature Tour - shows AFTER preferences wizard is complete */}
         <OnboardingWizard
-          open={shouldShowOnboarding}
+          open={!showPreferencesWizard && shouldShowOnboarding}
           onComplete={completeOnboarding}
         />
 
