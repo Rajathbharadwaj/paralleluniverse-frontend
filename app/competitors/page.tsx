@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { SocialGraphVisualization } from "@/components/social-graph-visualization";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -509,10 +509,9 @@ export default function CompetitorsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="container mx-auto p-6 max-w-7xl">
+    <DashboardLayout>
+      <div className="min-h-screen bg-background">
+        <main className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -1716,7 +1715,8 @@ export default function CompetitorsPage() {
             </CardContent>
           </Card>
         )}
-      </main>
-    </div>
+        </main>
+      </div>
+    </DashboardLayout>
   );
 }

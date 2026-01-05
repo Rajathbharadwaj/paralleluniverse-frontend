@@ -17,7 +17,7 @@ import {
   type EmotionalPostHandling,
   type WorseOutcome,
 } from "@/hooks/usePreferences";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -264,8 +264,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <>
-      <DashboardHeader />
+    <DashboardLayout>
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -798,6 +797,6 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
-    </>
+    </DashboardLayout>
   );
 }

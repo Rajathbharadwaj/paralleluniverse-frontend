@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { DeepAgentChat } from "@/components/deep-agent-chat";
 import { AssetGallery } from "@/components/ads/AssetGallery";
 import { CampaignList } from "@/components/ads/CampaignList";
@@ -149,14 +149,12 @@ export default function AdsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* OAuth callback handler */}
-      <Suspense fallback={null}>
-        <OAuthHandler onOAuthResult={handleOAuthResult} />
-      </Suspense>
-
-      {/* Header with Navigation */}
-      <DashboardHeader />
+    <DashboardLayout>
+      <div className="min-h-screen bg-background">
+        {/* OAuth callback handler */}
+        <Suspense fallback={null}>
+          <OAuthHandler onOAuthResult={handleOAuthResult} />
+        </Suspense>
 
       {/* Page Header */}
       <div className="border-b bg-card">
@@ -352,7 +350,8 @@ export default function AdsPage() {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

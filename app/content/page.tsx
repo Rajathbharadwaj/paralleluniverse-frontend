@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { CalendarGrid } from "@/components/content/calendar-grid";
 import { AIContentTab } from "@/components/content/ai-content-tab";
 import { PostComposer } from "@/components/content/post-composer";
@@ -155,12 +155,10 @@ export default function ContentCalendarPage() {
   const postToEdit = editingPost ? posts.find(p => p.id === editingPost) : null;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with Navigation */}
-      <DashboardHeader />
-
-      {/* Page Header */}
-      <div className="border-b bg-card">
+    <DashboardLayout>
+      <div className="min-h-screen bg-background">
+        {/* Page Header */}
+        <div className="border-b bg-card">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -254,20 +252,21 @@ export default function ContentCalendarPage() {
         </Tabs>
       </div>
 
-      {/* Post Composer Modal */}
-      <PostComposer
-        open={composerOpen}
-        onOpenChange={(open) => {
-          setComposerOpen(open);
-          if (!open) {
-            setEditingPost(null);
-          }
-        }}
-        userId={user?.id}
-        editPost={postToEdit}
-        onSuccess={refreshPosts}
-      />
-    </div>
+        {/* Post Composer Modal */}
+        <PostComposer
+          open={composerOpen}
+          onOpenChange={(open) => {
+            setComposerOpen(open);
+            if (!open) {
+              setEditingPost(null);
+            }
+          }}
+          userId={user?.id}
+          editPost={postToEdit}
+          onSuccess={refreshPosts}
+        />
+      </div>
+    </DashboardLayout>
   );
 }
 
