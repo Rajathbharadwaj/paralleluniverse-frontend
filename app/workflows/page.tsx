@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { WorkflowLibrary } from '@/components/workflow-library';
 import { WorkflowBuilder } from '@/components/workflow-builder';
 import { ThreadHistory } from '@/components/thread-history';
-import { DashboardHeader } from '@/components/dashboard-header';
+import { DashboardLayout } from '@/components/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, LayoutGrid, PenTool, History } from 'lucide-react';
 import { useUser } from '@clerk/nextjs'; // SECURITY: Required for multi-tenancy
@@ -32,10 +32,8 @@ export default function WorkflowsPage() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <DashboardHeader />
-
-      <main className="flex-1 flex flex-col overflow-hidden">
+    <DashboardLayout>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* View Switcher */}
         <div className="border-b bg-card/50 px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -113,7 +111,7 @@ export default function WorkflowsPage() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCrons } from "@/hooks/useCrons";
 import { AutomationComposer } from "@/components/automations/AutomationComposer";
 import { CronJobCard } from "@/components/automations/CronJobCard";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Clock, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -28,8 +28,7 @@ export default function AutomationsPage() {
   };
 
   return (
-    <>
-      <DashboardHeader />
+    <DashboardLayout>
       <div className="container mx-auto py-8 px-4 max-w-6xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -121,6 +120,6 @@ export default function AutomationsPage() {
         onSuccess={handleAutomationCreated}
       />
       </div>
-    </>
+    </DashboardLayout>
   );
 }

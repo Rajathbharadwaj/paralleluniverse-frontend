@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network, Clock, Megaphone, Sparkles, BarChart3 } from "lucide-react";
+import { Settings, LogOut, Calendar, LayoutDashboard, Workflow, Network, Clock, Megaphone, Sparkles, BarChart3, Plug, Brain } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
@@ -31,9 +31,11 @@ export function DashboardHeader() {
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/workflows", label: "Workflows", icon: Workflow },
+    { href: "/engage", label: "Engage", icon: Brain },
     { href: "/content", label: "Content Calendar", icon: Calendar },
     { href: "/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/ads", label: "Ads", icon: Megaphone, requiresAds: true },
+    { href: "/integrations", label: "Integrations", icon: Plug },
     { href: "/competitors", label: "Competitors", icon: Network },
     { href: "/automations", label: "Automations", icon: Clock },
     { href: "/settings", label: "Settings", icon: Settings },

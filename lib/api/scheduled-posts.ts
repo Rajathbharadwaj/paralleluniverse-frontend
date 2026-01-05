@@ -277,3 +277,59 @@ export async function generateAIContent(
     throw error;
   }
 }
+
+// ============================================================================
+// STYLE FEEDBACK API
+// Sends feedback to the continual learning system
+// ============================================================================
+
+export interface StyleFeedbackData {
+  original_content: string;
+  edited_content?: string;
+  action: "approved" | "edited" | "rejected" | "thumbs_up" | "thumbs_down";
+  generation_type: "post" | "comment";
+  feedback_text?: string;
+  rating?: number;
+  context?: string;
+  tags?: string[];
+}
+
+/**
+ * Send style feedback for continual learning
+ * This helps the AI learn the user's writing preferences
+ */
+export async function sendStyleFeedback(
+  feedbackData: StyleFeedbackData,
+  token: string
+): Promise<{ success: boolean; feedback_id?: number; error?: string }> {
+  try {
+    console.log("📤 Sending style feedback:", {
+      action: feedbackData.action,
+      generation_type: feedbackData.generation_type,
+      has_edited_content: !!feedbackData.edited_content
+    });
+
+    const response = await fetch(`${API_BASE_URL}/api/save-feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(feedbackData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("❌ Style feedback failed:", errorData);
+      throw new Error(errorData.error || `Failed to send feedback: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log("✅ Style feedback sent successfully:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ Error sending style feedback:", error);
+    // Re-throw but don't block the caller
+    throw error;
+  }
+}

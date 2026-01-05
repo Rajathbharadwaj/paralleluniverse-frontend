@@ -49,24 +49,24 @@ function AgentActivityDemo() {
   const taskList = [
     "Analyze page to see what posts are visible",
     "Navigate to For You page",
-    "Find and reply to viral threads",
+    "Find relevant conversations",
     "Generate authentic comments",
-    "Post engagements",
+    "Send thoughtful replies",
     "Workflow complete",
   ];
 
   const campaignResults = [
-    { label: "Total Engagements", value: "13 successful interactions" },
-    { label: "Early Bird Special", value: "3 comments" },
-    { label: "Follower Farming", value: "4 like + comment combos" },
-    { label: "Reply Guy Strategy", value: "3 like + comment on viral posts" },
+    { label: "Thoughtful Interactions", value: "13 successful replies" },
+    { label: "Timely Responses", value: "3 comments" },
+    { label: "Genuine Engagement", value: "4 meaningful interactions" },
+    { label: "Strategic Replies", value: "3 well-placed responses" },
   ];
 
   const qualityItems = [
-    "13 high-quality engagements with smart filtering",
+    "Quality over quantity engagement",
     "All comments authentic to your voice",
     "Mix of technical depth + relatable content",
-    "Strategic positioning on viral threads",
+    "Strategic positioning in relevant threads",
   ];
 
   useEffect(() => {
@@ -476,19 +476,19 @@ export default function LandingPage() {
 
           {/* Main headline */}
           <h1 className="font-extrabold text-4xl md:text-6xl lg:text-7xl tracking-tight leading-[1.1] mb-6">
-            <span className="text-white">Delegate Your Presence</span>
+            <span className="text-white">Autonomous AI agents that grow your business</span>
             <br />
-            <span className="gradient-text">Without Losing Your Voice</span>
+            <span className="gradient-text">— without losing your voice.</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-zinc-300 text-xl md:text-2xl max-w-3xl mx-auto mb-4 leading-relaxed">
-            Parallel Universe is a governed AI engagement system that helps you stay present on X without being online all day.
+            Always-on growth engines that act with restraint, judgment, and control.
           </p>
 
-          {/* Clarifier */}
+          {/* Supporting line */}
           <p className="text-zinc-500 text-sm mb-10">
-            Not a growth bot. Not spam. Human judgment stays in the loop.
+            From X/Twitter engagement to local customer acquisition.
           </p>
 
           {/* CTA */}
@@ -497,12 +497,12 @@ export default function LandingPage() {
               href="/sign-up"
               className="group bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-lg transition-all flex items-center gap-2"
             >
-              Try Parallel Universe (Early Access)
+              Get Early Access
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <p className="text-zinc-600 text-sm">
-              Built for people with reputations to protect.
-            </p>
+            <a href="#how-it-works" className="text-zinc-500 hover:text-zinc-300 text-sm transition-colors">
+              See how it works →
+            </a>
           </div>
 
           {/* Interactive Workflow Demo */}
@@ -510,108 +510,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Filter - This Is Not for Everyone */}
+      {/* Problem Section */}
       <section className="py-20 px-6 border-t border-zinc-800/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-bold text-3xl md:text-4xl mb-6 text-white">
-              This Is Not for Everyone
-            </h2>
-            <p className="text-zinc-400 text-lg mb-8">
-              Parallel Universe is intentionally cautious.
-            </p>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-bold text-3xl md:text-4xl mb-10 text-white">
+            Growth today requires being everywhere.<br />
+            <span className="text-zinc-400">Founders don't have that time.</span>
+          </h2>
 
-            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 mb-8">
-              <p className="text-zinc-400 mb-4">If you're looking for:</p>
-              <div className="grid md:grid-cols-2 gap-3 text-left max-w-md mx-auto">
-                {[
-                  "mass automation",
-                  "growth hacks",
-                  "auto-replies everywhere",
-                  '"dominate X" tactics',
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-zinc-500">
-                    <span className="text-zinc-600">•</span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-zinc-500 mt-6 text-sm">
-                this is probably not for you.
-              </p>
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-10">
+            <div className="text-left space-y-3">
+              <p className="text-zinc-400">X for thought leadership.</p>
+              <p className="text-zinc-400">Instagram and Facebook for local reach.</p>
+            </div>
+            <div className="text-left space-y-3">
+              <p className="text-zinc-400">Google for discovery.</p>
+              <p className="text-zinc-400">WhatsApp for customers.</p>
             </div>
           </div>
 
-          {/* Who It's For */}
-          <div id="who-its-for" className="text-center">
-            <h2 className="font-bold text-3xl md:text-4xl mb-6 text-white">
-              Who It's For
-            </h2>
-            <p className="text-zinc-400 text-lg mb-8">
-              Parallel Universe is built for:
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 max-w-2xl mx-auto">
+            <p className="text-zinc-300 mb-4">
+              Founders and SMB owners have less than an hour a day for marketing.
             </p>
-            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-              {[
-                "Founders with an existing audience",
-                "Developers who reply thoughtfully",
-                "Researchers, builders, and operators",
-                "Anyone whose replies represent judgment",
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 bg-zinc-900/30 border border-zinc-800/50 rounded-lg p-4"
-                >
-                  <Check className="w-5 h-5 text-orange-400 flex-shrink-0" />
-                  <span className="text-zinc-300">{item}</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-zinc-400 mb-4">
+              Most tools demand weeks of setup and constant babysitting.
+            </p>
+            <p className="text-orange-400 font-medium">
+              That's not sustainable.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* What This Is / Isn't */}
+      {/* Category Definition */}
       <section className="py-20 px-6 bg-[#0d0d0d]">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* What It's Not */}
-            <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-8">
-              <h3 className="font-bold text-xl mb-6 text-zinc-400">
-                What Parallel Universe Is Not
-              </h3>
-              <div className="space-y-4">
-                {[
-                  "A growth hack",
-                  "An auto-reply bot",
-                  "A replacement for your judgment",
-                  "Mass engagement automation",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <X className="w-5 h-5 text-red-400/70" />
-                    <span className="text-zinc-500">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-bold text-3xl md:text-4xl mb-8 text-white">
+            This is not marketing software.<br />
+            <span className="gradient-text">It's autonomous execution.</span>
+          </h2>
 
-            {/* What It Is */}
-            <div className="bg-zinc-900/30 border border-orange-500/20 rounded-xl p-8">
-              <h3 className="font-bold text-xl mb-6 text-white">
-                What Parallel Universe Is
-              </h3>
-              <div className="space-y-4">
-                {[
-                  "Delegated presence with guardrails",
-                  "Signal over volume",
-                  "Reputation-first engagement",
-                  "Designed to back off aggressively",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="text-zinc-300">{item}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="space-y-6 mb-10">
+            <p className="text-zinc-400 text-lg">
+              Most tools assist you.<br />
+              <span className="text-white">Parallel Universe operates for you.</span>
+            </p>
+          </div>
+
+          <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-8 max-w-2xl mx-auto">
+            <p className="text-zinc-300 leading-relaxed mb-6">
+              Our agents observe live environments, make decisions continuously, execute actions autonomously, and back off when confidence is low.
+            </p>
+            <div className="grid md:grid-cols-3 gap-4 text-sm">
+              <div className="text-zinc-500">No prompts.</div>
+              <div className="text-zinc-500">No dashboards.</div>
+              <div className="text-zinc-500">No daily management.</div>
+            </div>
+            <p className="text-orange-400 mt-6 font-medium">
+              Growth happens while you work.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Restraint & Judgment */}
+      <section id="who-its-for" className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-bold text-3xl md:text-4xl mb-8 text-white">
+            Autonomy without restraint is reckless.
+          </h2>
+
+          <div className="space-y-4 mb-10 max-w-2xl mx-auto">
+            <p className="text-zinc-300 text-lg">
+              Replies aren't tasks. They're identity.<br />
+              <span className="text-zinc-500">One bad reply damages trust.</span>
+            </p>
+            <p className="text-zinc-400 text-lg mt-6">
+              Presence can be delegated. <span className="text-white">Judgment cannot.</span>
+            </p>
+          </div>
+
+          <div className="bg-zinc-900/50 border border-orange-500/20 rounded-xl p-8 max-w-2xl mx-auto">
+            <p className="text-zinc-300 leading-relaxed mb-6">
+              Parallel Universe learns your writing style and tone, avoids entire categories of engagement, acts only when confidence is high, and stays silent when unsure — by design.
+            </p>
+            <div className="bg-zinc-900/80 border border-zinc-700 rounded-lg p-4 mt-6">
+              <p className="text-xl font-semibold text-white">
+                Silence is not failure. <span className="text-orange-400">Silence is safety.</span>
+              </p>
             </div>
           </div>
         </div>
@@ -668,26 +655,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Behavior Over Features */}
+      {/* X Growth Wedge */}
       <section className="py-20 px-6 bg-[#0d0d0d]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-bold text-3xl md:text-4xl mb-4 text-white">
-              Designed to Behave Carefully
+              Start with X/Twitter — where voice matters most.
             </h2>
-            <p className="text-zinc-400 text-lg">
-              Parallel Universe behaves like this:
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Our first agent focuses on X because public presence directly impacts credibility, hiring, deals, and distribution.
             </p>
           </div>
 
-          <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-8">
-            <div className="space-y-4 max-w-xl mx-auto">
+          <div className="bg-zinc-900/30 border border-orange-500/20 rounded-xl p-8 max-w-2xl mx-auto">
+            <h3 className="font-semibold text-lg mb-6 text-white">The X Growth Agent:</h3>
+            <div className="space-y-4 mb-8">
               {[
-                "Replies only when confidence is high",
-                "Avoids sensitive or identity-defining contexts",
-                "Backs off aggressively when uncertain",
-                "Prefers silence over risky engagement",
-                "Logs every action for review",
+                "Engages in your writing style",
+                "Uses live web research for relevance",
+                "Avoids risky conversations",
+                "Logs every decision",
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-orange-400 flex-shrink-0" />
@@ -695,42 +682,31 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="text-center text-zinc-500 mt-8 text-sm">
-              If that sounds conservative — that's intentional.
-            </p>
+            <div className="border-t border-zinc-800 pt-6">
+              <p className="text-zinc-400 text-center">
+                No spam. No growth hacks. No bot behavior.<br />
+                <span className="text-white">Just delegated presence — carefully.</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Silence Callout */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-10">
-            <p className="text-2xl md:text-3xl font-semibold text-white mb-2">
-              Silence is not a failure state.
-            </p>
-            <p className="text-xl md:text-2xl text-zinc-400">
-              It's a safety mechanism.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Results / Social Proof */}
-      <section className="py-20 px-6 bg-[#0d0d0d]">
+      {/* Results / Qualitative Signals */}
+      <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-bold text-3xl md:text-4xl mb-4 text-white">
-              What Users Notice First
+              Real signals — not guaranteed growth
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10">
             {[
-              "They're present without being online all day",
-              "Replies feel natural, not automated",
-              "Nothing embarrassing happens",
-              "Conversations continue normally",
+              "Consistent presence without being online all day",
+              "Replies that feel natural",
+              "Backoff when uncertain",
+              "Full logging and control",
             ].map((item, i) => (
               <div
                 key={i}
@@ -741,11 +717,54 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="text-center text-zinc-500 text-sm space-y-1">
-            <p>No growth guarantees.</p>
-            <p>No artificial amplification.</p>
-            <p className="text-zinc-400">Just consistent presence.</p>
+      {/* Origin Story */}
+      <section className="py-20 px-6 bg-[#0d0d0d]">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-10">
+            <h2 className="font-bold text-2xl md:text-3xl mb-8 text-white">
+              We didn't start with a hypothesis.<br />
+              <span className="text-zinc-400">We started with a customer.</span>
+            </h2>
+            <div className="text-zinc-400 space-y-4 leading-relaxed">
+              <p>
+                A restaurant owner showed us the DIY system he built just to get customers — and asked us to turn it into something real.
+              </p>
+              <p>
+                He offered to invest if we built it right.
+              </p>
+              <p className="text-zinc-300">
+                We already had the agent infrastructure.<br />
+                Applying it to local marketing was the natural next step.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Expansion - SMB Roadmap */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-bold text-3xl md:text-4xl mb-6 text-white">
+            The same engine powers local growth.
+          </h2>
+          <p className="text-zinc-400 text-lg max-w-2xl mx-auto mb-10">
+            The same autonomous agents that manage presence on X can run local content, manage ads, respond to customer messages, and optimize for real-world outcomes.
+          </p>
+
+          <div className="flex justify-center gap-8 mb-8">
+            <span className="text-zinc-500">Restaurants.</span>
+            <span className="text-zinc-500">Salons.</span>
+            <span className="text-zinc-500">Gyms.</span>
+          </div>
+
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 max-w-md mx-auto">
+            <p className="text-zinc-300">
+              Same core system. Different surfaces.<br />
+              <span className="text-orange-400">Launching progressively.</span>
+            </p>
           </div>
         </div>
       </section>
@@ -779,40 +798,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Founder Note */}
-      <section className="py-20 px-6 bg-[#0d0d0d]">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-10">
-            <h2 className="font-bold text-2xl mb-6 text-white">
-              A Note From the Builder
-            </h2>
-            <div className="text-zinc-400 space-y-4 leading-relaxed">
-              <p>
-                I built Parallel Universe because being present online mattered — but being online all day didn't.
-              </p>
-              <p>
-                This system is intentionally cautious.
-                <br />
-                It will back off more than it replies.
-              </p>
-              <p className="text-zinc-500">
-                If that sounds boring, it's probably not for you.
-                <br />
-                If that sounds safe — <span className="text-orange-400">welcome</span>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6 bg-[#0d0d0d]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-bold text-3xl md:text-4xl mb-4 text-white">
-            Try Parallel Universe
+            We're onboarding early users.
           </h2>
-          <p className="text-zinc-400 text-lg mb-8">
-            Early users welcome. Honest feedback encouraged.
+          <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
+            Parallel Universe is for founders and operators who value autonomy and judgment. If that's you, we want your feedback.
           </p>
 
           <div className="flex flex-col items-center gap-3">
@@ -820,11 +813,11 @@ export default function LandingPage() {
               href="/sign-up"
               className="group bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-lg transition-all flex items-center gap-2"
             >
-              Test It Carefully
+              Get Early Access
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <p className="text-zinc-600 text-sm">
-              Built for people who care how they show up.
+            <p className="text-zinc-500 text-sm">
+              Early users receive <span className="text-orange-400">25% off</span>.
             </p>
           </div>
         </div>

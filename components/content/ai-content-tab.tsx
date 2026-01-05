@@ -37,7 +37,7 @@ import {
   Wand2
 } from "lucide-react";
 import { PostCard } from "./post-card";
-import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost, uploadMedia, generateAIImage } from "@/lib/api/scheduled-posts";
+import { generateAIContent, createScheduledPost, fetchAIDrafts, deleteScheduledPost, updateScheduledPost, uploadMedia, generateAIImage, sendStyleFeedback } from "@/lib/api/scheduled-posts";
 
 interface AIPost {
   id: number;  // Database ID
@@ -219,6 +219,20 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         status: "scheduled"
       }, token);
 
+      // Send approval feedback for continual learning (non-blocking)
+      try {
+        await sendStyleFeedback({
+          original_content: post.content,
+          action: "approved",
+          generation_type: "post",
+          context: post.metadata?.topic || ""
+        }, token);
+        console.log("✅ Style feedback sent: approved");
+      } catch (fbError) {
+        console.warn("⚠️ Could not send style feedback:", fbError);
+        // Don't block the approval if feedback fails
+      }
+
       console.log("✅ Post approved and status updated");
 
       // Remove from AI posts list
@@ -241,6 +255,9 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
       return;
     }
 
+    const post = aiPosts.find(p => p.id === postId);
+    if (!post) return;
+
     try {
       console.log(`🗑️  Deleting post ${postId} from database...`);
 
@@ -248,6 +265,20 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
       if (!token) {
         alert("Authentication required. Please sign in again.");
         return;
+      }
+
+      // Send rejection feedback for continual learning BEFORE deleting
+      try {
+        await sendStyleFeedback({
+          original_content: post.content,
+          action: "rejected",
+          generation_type: "post",
+          context: post.metadata?.topic || ""
+        }, token);
+        console.log("✅ Style feedback sent: rejected");
+      } catch (fbError) {
+        console.warn("⚠️ Could not send style feedback:", fbError);
+        // Continue with deletion even if feedback fails
       }
 
       await deleteScheduledPost(postId, userId, token);
@@ -361,6 +392,23 @@ export function AIContentTab({ days, userId, onRefresh }: AIContentTabProps) {
         content: editContent,
         media_urls: editMediaUrls
       }, token);
+
+      // Send edit feedback for continual learning if content changed
+      if (editContent !== editingPost.content) {
+        try {
+          await sendStyleFeedback({
+            original_content: editingPost.content,
+            edited_content: editContent,
+            action: "edited",
+            generation_type: "post",
+            context: editingPost.metadata?.topic || ""
+          }, token);
+          console.log("✅ Style feedback sent: edited");
+        } catch (fbError) {
+          console.warn("⚠️ Could not send style feedback:", fbError);
+          // Don't block the save if feedback fails
+        }
+      }
 
       // Update local state
       setAIPosts(prev => prev.map(p =>

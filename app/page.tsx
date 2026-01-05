@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { fetchExtension, fetchBackendAuth } from "@/lib/api-client";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { XAccountCard } from "@/components/x-account-card";
 import { ImportPostsCard } from "@/components/import-posts-card";
 import { DeepAgentChat } from "@/components/deep-agent-chat";
@@ -346,9 +346,7 @@ export default function DashboardPage() {
 
   return (
     <WebSocketProvider userId={user?.id || null}>
-      <div className="h-screen bg-background flex flex-col overflow-hidden">
-        <DashboardHeader />
-
+      <DashboardLayout>
         {/* Preferences Wizard - shows FIRST after subscription (before feature tour) */}
         <OnboardingPreferencesWizard
           open={showPreferencesWizard}
@@ -361,10 +359,10 @@ export default function DashboardPage() {
           onComplete={completeOnboarding}
         />
 
-      <main className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left Column - Main Content (scrollable) */}
-        <div className="flex-1 overflow-y-auto h-full">
-          <div className="container mx-auto px-4 py-8 space-y-6 max-w-5xl">
+        <div className="flex h-full overflow-hidden">
+          {/* Left Column - Main Content (scrollable) */}
+          <div className="flex-1 overflow-y-auto h-full">
+            <div className="container mx-auto px-4 py-8 space-y-6 max-w-5xl">
             {/* Status Bar - ALWAYS show when connected */}
             {isConnected && (
               <SetupStatusBar
@@ -415,25 +413,25 @@ export default function DashboardPage() {
             
             {/* Recent Activity */}
             <RecentActivityLive />
-              </div>
             </div>
+          </div>
 
-        {/* Right Column - AI Agent Control (resizable, full height) */}
-        <div className="hidden lg:flex flex-col">
-          <ResizableSidebar 
-            defaultWidth={500} 
-            minWidth={400} 
-            maxWidth={800}
-            side="right"
-            storageKey="agent-panel-width"
-          >
-            <div className="h-full border-l bg-card/50">
-              <DeepAgentChat />
-            </div>
-          </ResizableSidebar>
+          {/* Right Column - AI Agent Control (resizable, full height) */}
+          <div className="hidden lg:flex flex-col">
+            <ResizableSidebar
+              defaultWidth={500}
+              minWidth={400}
+              maxWidth={800}
+              side="right"
+              storageKey="agent-panel-width"
+            >
+              <div className="h-full border-l bg-card/50">
+                <DeepAgentChat />
+              </div>
+            </ResizableSidebar>
+          </div>
         </div>
-      </main>
-    </div>
+      </DashboardLayout>
     </WebSocketProvider>
   );
 }

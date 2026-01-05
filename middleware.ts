@@ -8,6 +8,7 @@ const isPublicRoute = createRouteMatcher([
   '/landing(.*)',
   '/terms(.*)',
   '/privacy(.*)',
+  '/booking(.*)',  // Voice agent booking form (prospects)
   '/api/webhooks(.*)',
   '/api/backend(.*)',
   '/api/extension(.*)',
