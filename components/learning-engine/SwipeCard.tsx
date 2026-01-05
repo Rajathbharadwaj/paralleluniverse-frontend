@@ -9,10 +9,10 @@ import {
   MessageCircle,
   Repeat2,
   ExternalLink,
-  Clock,
   Sparkles,
   ThumbsUp,
   ThumbsDown,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Recommendation } from "@/hooks/useRecommendations";
@@ -119,55 +119,79 @@ export function SwipeCard({ recommendation, onSwipe, isTop, index }: SwipeCardPr
           </>
         )}
 
-        <CardContent className="p-6 space-y-5">
-          {/* Post Header */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 via-pink-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                {post.author.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div className="font-semibold text-white text-lg">@{post.author}</div>
-                <div className="text-sm text-zinc-500 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {post.hours_ago < 1
-                    ? "Just now"
-                    : post.hours_ago < 24
-                    ? `${Math.round(post.hours_ago)}h ago`
-                    : `${Math.round(post.hours_ago / 24)}d ago`}
+        <CardContent className="p-5 space-y-4">
+          {/* Post Header - X/Twitter style */}
+          <div className="flex items-start gap-3">
+            {/* Avatar */}
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-base flex-shrink-0">
+              {post.author.charAt(0).toUpperCase()}
+            </div>
+
+            {/* User Info + External Link */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Display name */}
+                  <span className="font-bold text-white truncate">
+                    {post.author}
+                  </span>
+                  {/* Handle + Time with separator */}
+                  <span className="text-zinc-500 truncate">
+                    @{post.author}
+                  </span>
+                  <span className="text-zinc-600">·</span>
+                  <span className="text-zinc-500 whitespace-nowrap">
+                    {post.hours_ago < 1
+                      ? "now"
+                      : post.hours_ago < 24
+                      ? `${Math.round(post.hours_ago)}h`
+                      : `${Math.round(post.hours_ago / 24)}d`}
+                  </span>
                 </div>
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-500 hover:text-blue-400 transition-colors p-1.5 hover:bg-zinc-800/50 rounded-full ml-2 flex-shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
               </div>
             </div>
-            <a
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-500 hover:text-orange-400 transition-colors p-2 hover:bg-zinc-800 rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="w-5 h-5" />
-            </a>
           </div>
 
           {/* Post Content */}
-          <p className="text-base text-zinc-200 leading-relaxed line-clamp-6">
+          <p className="text-[15px] text-zinc-100 leading-relaxed line-clamp-6 whitespace-pre-wrap">
             {post.content}
           </p>
 
-          {/* Engagement Stats */}
-          <div className="flex items-center gap-6 text-sm text-zinc-400">
-            <span className="flex items-center gap-1.5 hover:text-red-400 transition-colors">
-              <Heart className="w-4 h-4" />
-              {formatNumber(post.likes)}
-            </span>
-            <span className="flex items-center gap-1.5 hover:text-blue-400 transition-colors">
-              <MessageCircle className="w-4 h-4" />
-              {formatNumber(post.replies)}
-            </span>
-            <span className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
-              <Repeat2 className="w-4 h-4" />
-              {formatNumber(post.retweets)}
-            </span>
+          {/* Engagement Stats - X/Twitter style */}
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+            <div className="flex items-center gap-5">
+              {/* Replies */}
+              <span className="flex items-center gap-1.5 text-zinc-500 hover:text-blue-400 transition-colors group">
+                <MessageCircle className="w-[18px] h-[18px] group-hover:bg-blue-400/10 rounded-full p-0.5 -m-0.5" />
+                <span className="text-sm">{formatNumber(post.replies)}</span>
+              </span>
+              {/* Retweets */}
+              <span className="flex items-center gap-1.5 text-zinc-500 hover:text-green-400 transition-colors group">
+                <Repeat2 className="w-[18px] h-[18px] group-hover:bg-green-400/10 rounded-full p-0.5 -m-0.5" />
+                <span className="text-sm">{formatNumber(post.retweets)}</span>
+              </span>
+              {/* Likes */}
+              <span className="flex items-center gap-1.5 text-zinc-500 hover:text-pink-500 transition-colors group">
+                <Heart className="w-[18px] h-[18px] group-hover:bg-pink-500/10 rounded-full p-0.5 -m-0.5" />
+                <span className="text-sm">{formatNumber(post.likes)}</span>
+              </span>
+              {/* Views (if available) */}
+              {post.author_followers && post.author_followers > 0 && (
+                <span className="flex items-center gap-1.5 text-zinc-500 transition-colors">
+                  <Eye className="w-[18px] h-[18px]" />
+                  <span className="text-sm">{formatNumber(post.author_followers)}</span>
+                </span>
+              )}
+            </div>
           </div>
 
           {/* AI Recommendation Reason */}
