@@ -46,11 +46,15 @@ import {
   fetchTopPosts,
   fetchAgentActivity,
   fetchAutomationPerformance,
+  fetchCommentsMadeSummary,
+  fetchTopCommentsMade,
   AnalyticsSummary,
   EngagementDataPoint,
   TopPost,
   AgentActivity,
   AutomationPerformance,
+  CommentsMadeSummary,
+  CommentMade,
 } from "@/lib/api/analytics";
 
 export default function AnalyticsPage() {
@@ -64,6 +68,8 @@ export default function AnalyticsPage() {
   const [topPosts, setTopPosts] = useState<TopPost[]>([]);
   const [agentActivity, setAgentActivity] = useState<AgentActivity | null>(null);
   const [automationPerformance, setAutomationPerformance] = useState<AutomationPerformance | null>(null);
+  const [commentsSummary, setCommentsSummary] = useState<CommentsMadeSummary | null>(null);
+  const [topComments, setTopComments] = useState<CommentMade[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadAnalytics = useCallback(async () => {
@@ -73,12 +79,14 @@ export default function AnalyticsPage() {
       const token = await getToken();
       if (!token) return;
 
-      const [summaryData, timelineData, postsData, activityData, automationData] = await Promise.all([
+      const [summaryData, timelineData, postsData, activityData, automationData, commentsSummaryData, topCommentsData] = await Promise.all([
         fetchAnalyticsSummary(token, period),
         fetchEngagementTimeline(token, period),
         fetchTopPosts(token, 10),
         fetchAgentActivity(token, period),
         fetchAutomationPerformance(token, period),
+        fetchCommentsMadeSummary(token, period),
+        fetchTopCommentsMade(token, 10, period),
       ]);
 
       setSummary(summaryData);
@@ -86,6 +94,8 @@ export default function AnalyticsPage() {
       setTopPosts(postsData.posts);
       setAgentActivity(activityData);
       setAutomationPerformance(automationData);
+      setCommentsSummary(commentsSummaryData);
+      setTopComments(topCommentsData.comments);
     } catch (err) {
       console.error("Failed to load analytics:", err);
     } finally {
@@ -281,6 +291,10 @@ export default function AnalyticsPage() {
             <TabsTrigger value="automations" className="gap-2">
               <Clock className="h-4 w-4" />
               Automations
+            </TabsTrigger>
+            <TabsTrigger value="comments" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Comments
             </TabsTrigger>
           </TabsList>
 
@@ -787,6 +801,182 @@ export default function AnalyticsPage() {
                         <Bar dataKey="failed" stackId="a" fill="#EF4444" name="Failed" />
                       </BarChart>
                     </ResponsiveContainer>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Comments Tab */}
+          <TabsContent value="comments">
+            <div className="space-y-6">
+              {/* Comments Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                        <MessageCircle className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">
+                          {commentsSummary?.total_comments.toLocaleString() || 0}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Comments Made
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-pink-100 dark:bg-pink-900/20 rounded-lg">
+                        <Heart className="h-6 w-6 text-pink-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">
+                          {commentsSummary?.total_likes.toLocaleString() || 0}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Likes on Comments
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                        <TrendingUp className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">
+                          {commentsSummary?.avg_likes.toFixed(1) || 0}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Avg Likes/Comment
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                        <Zap className="h-6 w-6 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold">
+                          {commentsSummary?.engagement_rate.toFixed(1) || 0}%
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Engagement Rate
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Top Comments Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Performing Comments</CardTitle>
+                  <CardDescription>
+                    Comments made by the agent sorted by engagement
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full" />
+                      ))}
+                    </div>
+                  ) : topComments.length === 0 ? (
+                    <div className="py-12 text-center text-muted-foreground">
+                      <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No comments found</p>
+                      <p className="text-sm">The agent hasn&apos;t made any comments yet</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">#</TableHead>
+                          <TableHead>Comment</TableHead>
+                          <TableHead>Target</TableHead>
+                          <TableHead className="text-right">Likes</TableHead>
+                          <TableHead className="text-right">Replies</TableHead>
+                          <TableHead className="text-right">Date</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {topComments.map((comment, index) => (
+                          <TableRow key={comment.id}>
+                            <TableCell>
+                              {index < 3 ? (
+                                <Badge
+                                  variant={
+                                    index === 0
+                                      ? "default"
+                                      : index === 1
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                >
+                                  #{index + 1}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  #{index + 1}
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell className="max-w-[300px]">
+                              <p className="truncate" title={comment.content || ""}>
+                                {comment.content}
+                              </p>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {comment.target_author ? `@${comment.target_author}` : "-"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {comment.likes.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {comment.replies.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right text-muted-foreground">
+                              {comment.commented_at
+                                ? new Date(comment.commented_at).toLocaleDateString()
+                                : "-"}
+                            </TableCell>
+                            <TableCell>
+                              {comment.comment_url && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() =>
+                                    window.open(comment.comment_url!, "_blank")
+                                  }
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   )}
                 </CardContent>
               </Card>
