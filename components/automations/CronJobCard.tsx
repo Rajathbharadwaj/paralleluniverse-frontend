@@ -242,61 +242,57 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between border-t pt-4">
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleToggle}
-              disabled={isToggling}
-              className={isActive ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"}
-            >
-              {isToggling ? (
-                "..."
-              ) : isActive ? (
-                <>
-                  <Pause className="h-4 w-4 mr-2" />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4 mr-2" />
-                  Resume
-                </>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowRunDialog(true)}
-              disabled={isRunning}
-              className="text-orange-600 hover:text-orange-700"
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              Run Now
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={openEditDialog}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              onClick={() => setShowDeleteDialog(true)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-          </div>
+        <CardFooter className="flex flex-wrap gap-2 border-t pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleToggle}
+            disabled={isToggling}
+            className={isActive ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"}
+          >
+            {isToggling ? (
+              "..."
+            ) : isActive ? (
+              <>
+                <Pause className="h-4 w-4 mr-1" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-1" />
+                Resume
+              </>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowRunDialog(true)}
+            disabled={isRunning}
+            className="text-orange-600 hover:text-orange-700"
+          >
+            <Zap className="h-4 w-4 mr-1" />
+            Run
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={openEditDialog}
+            className="text-blue-600 hover:text-blue-700"
+          >
+            <Pencil className="h-4 w-4 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            onClick={() => setShowDeleteDialog(true)}
+            disabled={isDeleting}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Delete
+          </Button>
         </CardFooter>
       </Card>
 
