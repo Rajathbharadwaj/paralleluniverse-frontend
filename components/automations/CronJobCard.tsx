@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { deleteCronJob, toggleCronJob, runCronJobNow, type CronJob } from "@/hooks/useCrons";
+import { deleteCronJob, toggleCronJob, runCronJobNow, updateCronJob, type CronJob } from "@/hooks/useCrons";
 import { cronToHumanReadable, getNextRunTime } from "@/lib/schedule-helper";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Trash2, Calendar, Code, Pause, Play, Zap, Cpu } from "lucide-react";
+import { Clock, Trash2, Calendar, Code, Pause, Play, Zap, Cpu, Pencil } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Map model values to human-readable names
 const MODEL_LABELS: Record<string, string> = {
@@ -50,6 +67,12 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRunDialog, setShowRunDialog] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
+
+  // Edit dialog state
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(cronJob.name || "");
+  const [editModel, setEditModel] = useState(cronJob.input_config?.model_name || "claude-sonnet-4-5-20250929");
 
   const name = cronJob.name || "Untitled Automation";
   const workflow = cronJob.workflow_id;
@@ -118,6 +141,44 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
     } finally {
       setIsRunning(false);
     }
+  };
+
+  const handleEdit = async () => {
+    setIsEditing(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        alert("Authentication required. Please sign in again.");
+        setIsEditing(false);
+        return;
+      }
+
+      // Get the model provider based on selected model
+      const modelProvider = editModel.startsWith("claude") ? "anthropic" : "openai";
+
+      await updateCronJob(cronJob.id, {
+        name: editName,
+        input_config: {
+          ...cronJob.input_config,
+          model_name: editModel,
+          model_provider: modelProvider,
+        },
+      }, token);
+
+      setShowEditDialog(false);
+      onDeleted?.(); // Trigger refresh
+    } catch (error) {
+      console.error("Failed to update automation:", error);
+      alert(error instanceof Error ? error.message : "Failed to update automation");
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const openEditDialog = () => {
+    setEditName(cronJob.name || "");
+    setEditModel(cronJob.input_config?.model_name || "claude-sonnet-4-5-20250929");
+    setShowEditDialog(true);
   };
 
   return (
@@ -214,6 +275,15 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
               <Zap className="h-4 w-4 mr-2" />
               Run Now
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={openEditDialog}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
           </div>
           <Button
             variant="ghost"
@@ -278,6 +348,87 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Automation</DialogTitle>
+            <DialogDescription>
+              Update the settings for this automation.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editName">Name</Label>
+              <Input
+                id="editName"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Automation name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editModel">AI Model</Label>
+              <Select value={editModel} onValueChange={setEditModel}>
+                <SelectTrigger id="editModel">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="claude-sonnet-4-5-20250929">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      Claude Sonnet 4.5
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="claude-opus-4-5-20251101">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      Claude Opus 4.5
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="gpt-5.2">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      GPT-5.2
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="gpt-5.2-pro">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      GPT-5.2 Pro
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="gpt-5-mini">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      GPT-5 Mini
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditDialog(false)}
+              disabled={isEditing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEdit}
+              disabled={isEditing || !editName.trim()}
+            >
+              {isEditing ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

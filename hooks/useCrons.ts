@@ -156,3 +156,31 @@ export async function runCronJobNow(cronJobId: number, token: string): Promise<{
 
   return response.json();
 }
+
+export async function updateCronJob(
+  cronJobId: number,
+  data: {
+    name?: string;
+    schedule?: string;
+    workflow_id?: string;
+    custom_prompt?: string;
+    input_config?: Record<string, any>;
+  },
+  token: string
+): Promise<{ message: string; cron_job_id: number; input_config: Record<string, any> }> {
+  const response = await fetch(`${API_BASE_URL}/api/cron-jobs/${cronJobId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: "Failed to update automation" }));
+    throw new Error(error.detail || "Failed to update automation");
+  }
+
+  return response.json();
+}
