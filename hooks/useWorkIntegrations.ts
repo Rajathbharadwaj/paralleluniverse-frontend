@@ -12,7 +12,7 @@ import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { useAuth } from "@clerk/nextjs";
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://backend-websocket-server-644185288504.us-central1.run.app";
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://backend-api-644185288504.us-central1.run.app";
 
 // =============================================================================
 // Types
