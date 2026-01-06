@@ -30,8 +30,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, Calendar, Sparkles, FileCode } from "lucide-react";
+import { Clock, Calendar, Sparkles, FileCode, Cpu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+// Model options - same as workflow-builder for consistency
+const MODEL_OPTIONS = [
+  { label: "Claude Sonnet 4.5", value: "claude-sonnet-4-5-20250929", provider: "anthropic" },
+  { label: "Claude Opus 4.5", value: "claude-opus-4-5-20251101", provider: "anthropic" },
+  { label: "GPT-5.2", value: "gpt-5.2", provider: "openai" },
+  { label: "GPT-5.2 Pro", value: "gpt-5.2-pro", provider: "openai" },
+  { label: "GPT-5 Mini", value: "gpt-5-mini", provider: "openai" },
+];
 
 interface AutomationComposerProps {
   assistantId: string;
@@ -60,6 +69,8 @@ export function AutomationComposer({
   const [customCron, setCustomCron] = useState("");
   const [customHour, setCustomHour] = useState("9");
   const [customMinute, setCustomMinute] = useState("0");
+  const [selectedModel, setSelectedModel] = useState("claude-sonnet-4-5-20250929");
+  const [selectedProvider, setSelectedProvider] = useState("anthropic");
 
   // Auto-fill name and schedule when workflow is selected
   useEffect(() => {
@@ -125,6 +136,8 @@ export function AutomationComposer({
         custom_prompt: !useWorkflow && prompt ? prompt : undefined,
         input_config: {
           schedule_type: scheduleType,
+          model_name: selectedModel,
+          model_provider: selectedProvider,
         },
       }, token);
 
@@ -135,6 +148,8 @@ export function AutomationComposer({
       setUseWorkflow(true);
       setScheduleType("daily_morning");
       setCustomCron("");
+      setSelectedModel("claude-sonnet-4-5-20250929");
+      setSelectedProvider("anthropic");
 
       onSuccess?.();
       onClose();
@@ -334,12 +349,47 @@ export function AutomationComposer({
             </div>
           )}
 
+          {/* Model Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="model">AI Model</Label>
+            <Select
+              value={selectedModel}
+              onValueChange={(val) => {
+                setSelectedModel(val);
+                const option = MODEL_OPTIONS.find((m) => m.value === val);
+                setSelectedProvider(option?.provider || "anthropic");
+              }}
+            >
+              <SelectTrigger id="model">
+                <SelectValue placeholder="Select AI model" />
+              </SelectTrigger>
+              <SelectContent>
+                {MODEL_OPTIONS.map((model) => (
+                  <SelectItem key={model.value} value={model.value}>
+                    <div className="flex items-center gap-2">
+                      <Cpu className="h-3 w-3" />
+                      <span>{model.label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">
+              Choose which AI model powers this automation
+            </p>
+          </div>
+
           {/* Schedule Preview */}
           <div className="p-4 border rounded-lg bg-primary/5">
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-primary" />
               <span className="font-medium">Schedule:</span>
               <span>{getSchedulePreview()}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm mt-2">
+              <Cpu className="h-4 w-4 text-primary" />
+              <span className="font-medium">Model:</span>
+              <span>{MODEL_OPTIONS.find((m) => m.value === selectedModel)?.label}</span>
             </div>
           </div>
 

@@ -14,6 +14,11 @@ export interface CronJob {
   is_active: boolean;
   last_run_at: string | null;
   created_at: string;
+  input_config?: {
+    schedule_type?: string;
+    model_name?: string;
+    model_provider?: string;
+  };
 }
 
 export interface CronJobRun {

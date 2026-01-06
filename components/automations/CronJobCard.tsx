@@ -24,7 +24,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Trash2, Calendar, Code, Pause, Play, Zap } from "lucide-react";
+import { Clock, Trash2, Calendar, Code, Pause, Play, Zap, Cpu } from "lucide-react";
+
+// Map model values to human-readable names
+const MODEL_LABELS: Record<string, string> = {
+  "claude-sonnet-4-5-20250929": "Claude Sonnet 4.5",
+  "claude-opus-4-5-20251101": "Claude Opus 4.5",
+  "gpt-5.2": "GPT-5.2",
+  "gpt-5.2-pro": "GPT-5.2 Pro",
+  "gpt-5-mini": "GPT-5 Mini",
+};
 import { formatDistanceToNow } from "date-fns";
 
 interface CronJobCardProps {
@@ -138,6 +147,16 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
               <Code className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Workflow:</span>
               <span className="text-muted-foreground">{workflow}</span>
+            </div>
+          )}
+
+          {cronJob.input_config?.model_name && (
+            <div className="flex items-center gap-2 text-sm">
+              <Cpu className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Model:</span>
+              <span className="text-muted-foreground">
+                {MODEL_LABELS[cronJob.input_config.model_name] || cronJob.input_config.model_name}
+              </span>
             </div>
           )}
 
