@@ -275,6 +275,8 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
               <Zap className="h-4 w-4 mr-2" />
               Run Now
             </Button>
+          </div>
+          <div className="flex gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -284,17 +286,17 @@ export function CronJobCard({ cronJob, onDeleted }: CronJobCardProps) {
               <Pencil className="h-4 w-4 mr-2" />
               Edit
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            onClick={() => setShowDeleteDialog(true)}
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
         </CardFooter>
       </Card>
 
