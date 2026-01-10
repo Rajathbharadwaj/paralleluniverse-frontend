@@ -137,7 +137,7 @@ export function ConnectExtensionDialog({ open, onOpenChange, userId, onSuccess }
   };
 
   const handleDownloadExtension = () => {
-    window.open('https://docs.paralleluniverse.ai/downloads/parallel-universe-extension.zip', '_blank');
+    window.open('https://storage.googleapis.com/parallel-universe-prod-public/x-automation-extension.zip', '_blank');
   };
 
   return (
