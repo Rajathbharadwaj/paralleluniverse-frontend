@@ -387,6 +387,7 @@ export default function LandingPage() {
             <a href="#how-it-works" className="text-zinc-400 hover:text-white transition-colors uppercase tracking-wider text-sm">How it Works</a>
             <a href="#who-its-for" className="text-zinc-400 hover:text-white transition-colors uppercase tracking-wider text-sm">Who It's For</a>
             <a href="#pricing" className="text-zinc-400 hover:text-white transition-colors uppercase tracking-wider text-sm">Pricing</a>
+            <Link href="/blog" className="text-zinc-400 hover:text-white transition-colors uppercase tracking-wider text-sm">Blog</Link>
           </div>
 
           <div className="flex items-center ml-auto">
