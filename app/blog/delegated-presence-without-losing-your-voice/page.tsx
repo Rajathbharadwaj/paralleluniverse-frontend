@@ -27,6 +27,16 @@ export default function BlogPost() {
             </p>
           </header>
 
+          {/* Framing */}
+          <div className="bg-muted/30 border-l-4 border-orange-500 pl-6 pr-4 py-4 mb-12 rounded-r-lg">
+            <p className="text-lg italic mb-2">
+              This piece captures how I think about delegation, identity, and restraint when building AI systems that act on behalf of humans.
+            </p>
+            <p className="text-muted-foreground">
+              It's not a growth playbook. It's a boundary.
+            </p>
+          </div>
+
           {/* Content */}
           <section className="space-y-8">
             <div>
@@ -73,7 +83,8 @@ export default function BlogPost() {
               <p className="font-semibold mt-4">
                 One careless comment can do more damage than 100 good ones can repair.
               </p>
-              <p className="mt-4">Most tools optimize for:</p>
+              <p className="mt-4">Most tools treat visibility as a throughput problem.</p>
+              <p className="mt-2">They optimize for:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Volume</li>
                 <li>Frequency</li>
@@ -135,7 +146,7 @@ export default function BlogPost() {
               <ul className="list-disc list-inside space-y-1">
                 <li>Observe</li>
                 <li>Decide cautiously</li>
-                <li>Act only when confidence is high</li>
+                <li>Act only when confidence is high (confidence meaning relevance, tone alignment, and low reputational risk)</li>
                 <li>Back off when it isn't</li>
               </ul>
               <p className="font-semibold mt-4">
@@ -178,6 +189,7 @@ export default function BlogPost() {
                 without delegating your judgment, identity, or voice?
               </blockquote>
               <p>Parallel Universe is an attempt to answer that question carefully.</p>
+              <p className="mt-2 font-medium">Not by automating louder — but by automating less, better.</p>
               <p className="mt-4">It's built on:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Autonomous agents with confidence thresholds</li>
@@ -202,7 +214,7 @@ export default function BlogPost() {
                 If this way of thinking resonates, I'm opening a small number of conversations
                 with founders and operators who care about autonomy with restraint.
               </p>
-              <p className="mb-2">This isn't a sales form — it's a signal.</p>
+              <p className="mb-2">This isn't a sales form — it's a signal of alignment.</p>
               <p className="mb-6">If you're curious, you can leave your details below.</p>
 
               <Link href="/sign-up">
@@ -230,6 +242,13 @@ export default function BlogPost() {
               <p className="mt-4">
                 It's about staying present<br />
                 without becoming someone you're not.
+              </p>
+            </div>
+
+            {/* Build in Public tag */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <p className="text-sm text-muted-foreground italic">
+                This post is part of my public exploration into where AI should — and should not — act autonomously.
               </p>
             </div>
           </section>
