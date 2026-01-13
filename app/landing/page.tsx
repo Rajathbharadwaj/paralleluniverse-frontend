@@ -390,10 +390,6 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center ml-auto">
-            <div className="hidden md:block h-6 w-px bg-zinc-700 mx-8" />
-            <Link href="/sign-in" className="text-zinc-400 hover:text-white transition-colors text-sm mr-5">
-              Sign In
-            </Link>
             <Link
               href="/sign-up"
               className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-6 py-2.5 rounded transition-colors"
