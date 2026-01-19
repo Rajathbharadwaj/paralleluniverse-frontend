@@ -10,11 +10,13 @@ const isPublicRoute = createRouteMatcher([
   '/privacy(.*)',
   '/booking(.*)',  // Voice agent booking form (prospects)
   '/blog(.*)',     // Blog posts (public content)
+  '/mobile-callback(.*)',  // iOS app OAuth callback
   '/api/webhooks(.*)',
   '/api/backend(.*)',
   '/api/extension(.*)',
   '/api/omniparser(.*)',
   '/api/early-access(.*)',  // Early access form submissions
+  '/api/mobile-auth(.*)',   // iOS app token endpoint
 ])
 
 export default clerkMiddleware(async (auth, request) => {
