@@ -4,13 +4,13 @@ import { useAuth } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 
 export default function MobileCallbackPage() {
-  const { isSignedIn, getToken } = useAuth()
+  const { isSignedIn, getToken, userId } = useAuth()
   const [status, setStatus] = useState('Checking authentication...')
   const [redirected, setRedirected] = useState(false)
 
   useEffect(() => {
     async function handleAuth() {
-      if (isSignedIn && !redirected) {
+      if (isSignedIn && userId && !redirected) {
         setStatus('Getting your session...')
 
         try {
@@ -20,8 +20,9 @@ export default function MobileCallbackPage() {
             setStatus('Redirecting to app...')
             setRedirected(true)
 
-            // Redirect to iOS app with token
-            const redirectUrl = `paralleluniverse://auth-callback?token=${encodeURIComponent(token)}`
+            // Redirect to iOS app with token and userId
+            // userId is the Clerk user ID (user_xxx) which the backend requires
+            const redirectUrl = `paralleluniverse://auth-callback?token=${encodeURIComponent(token)}&userId=${encodeURIComponent(userId)}`
             window.location.href = redirectUrl
 
             // Fallback message after a delay
@@ -45,7 +46,7 @@ export default function MobileCallbackPage() {
     }
 
     handleAuth()
-  }, [isSignedIn, getToken, redirected])
+  }, [isSignedIn, getToken, userId, redirected])
 
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col items-center justify-center p-4">
